@@ -1,0 +1,15 @@
+include <cuda.h>
+
+# Resource Definition
+
+# Enum Definition
+
+CUdevice_P2PAttribute = CU_DEVICE_P2P_ATTRIBUTE_PERFORMANCE_RANK, CU_DEVICE_P2P_ATTRIBUTE_ACCESS_SUPPORTED, CU_DEVICE_P2P_ATTRIBUTE_NATIVE_ATOMIC_SUPPORTED, CU_DEVICE_P2P_ATTRIBUTE_ACCESS_ACCESS_SUPPORTED, CU_DEVICE_P2P_ATTRIBUTE_CUDA_ARRAY_ACCESS_SUPPORTED
+
+# Structure Definition
+
+# API Definition
+syz_cuCtxDisablePeerAccess(peerContext CUcontext)
+syz_cuCtxEnablePeerAccess(peerContext CUcontext, Flags flags[CUctx_flags])
+syz_cuDeviceCanAccessPeer(canAccessPeer ptr[out, int32], dev CUdevice, peerDev CUdevice)
+syz_cuDeviceGetP2PAttribute(value ptr[out, int32], attrib flags[CUdevice_P2PAttribute], srcDevice CUdevice, dstDevice CUdevice)

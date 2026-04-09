@@ -1,0 +1,26 @@
+include <CL/opencl.h>
+meta arches["amd64"]
+
+# Resource Definition
+resource cl_context[intptr]
+resource cl_command_queue[intptr]
+
+# Enum Definition
+cl_device_type = CL_DEVICE_TYPE_DEFAULT, CL_DEVICE_TYPE_CPU, CL_DEVICE_TYPE_GPU, CL_DEVICE_TYPE_ACCELERATOR, CL_DEVICE_TYPE_CUSTOM, CL_DEVICE_TYPE_ALL
+
+cl_context_info = CL_CONTEXT_REFERENCE_COUNT, CL_CONTEXT_DEVICES, CL_CONTEXT_PROPERTIES, CL_CONTEXT_NUM_DEVICES
+
+cl_command_queue_info = CL_QUEUE_CONTEXT, CL_QUEUE_DEVICE, CL_QUEUE_REFERENCE_COUNT, CL_QUEUE_PROPERTIES, CL_QUEUE_SIZE, CL_QUEUE_DEVICE_DEFAULT, CL_QUEUE_PROPERTIES_ARRAY
+
+# Structure Definition
+
+# API Definition
+syz_clCreateContext(properties const[0], num_devices len[devices], devices ptr[in, array[cl_device_id]], pfn_notify intptr, user_data ptr[in, void], errcode_ret ptr[out, int32]) cl_context
+syz_clCreateContextFromType(properties ptr[in, void], device_type flags[cl_device_type], pfn_notify const[0], user_data ptr[in, void], errcode_ret ptr[out, int32]) cl_context
+syz_clRetainContext(context cl_context)
+syz_clReleaseContext(context cl_context)
+syz_clGetContextInfo(context cl_context, param_name flags[cl_context_info], param_value_size intptr, param_value ptr[out, void], param_value_size_ret ptr[out, intptr])
+syz_clSetContextDestructorCallback(context cl_context, pfn_notify ptr[in, void], user_data ptr[in, void])
+syz_clCreateCommandQueueWithProperties(context cl_context, device cl_device_id, properties ptr[in, array[flags[cl_command_queue_info, int32]]], errcode_ret ptr[out, int32]) cl_command_queue
+syz_clReleaseCommandQueue(command_queue cl_command_queue)
+syz_clGetCommandQueueInfo(command_queue cl_command_queue, param_name flags[cl_command_queue_info], param_value_size len[param_value], param_value ptr[out, array[int8]], param_value_size_ret ptr[out, void])

@@ -1,0 +1,108 @@
+include <cuda.h>
+
+# Resource Definition
+# resource CUhostFn[intptr]
+
+# Enum Definition
+CUfunctionLoadingState = CU_FUNCTION_LOADING_STATE_UNLOADED, CU_FUNCTION_LOADING_STATE_LOADED, CU_FUNCTION_LOADING_STATE_MAX
+
+# Structure Definition
+
+type CUlaunchConfig[CULAUNCHATTRIBUTE_OP1] {
+	gridDimX	int32
+	gridDimY	int32
+	gridDimZ	int32
+	blockDimX	int32
+	blockDimY	int32
+	blockDimZ	int32
+	sharedMemBytes	int32
+	hStream		CUstream
+	attrs		ptr[in, array[CUlaunchAttribute[CULAUNCHATTRIBUTE_OP1]]]
+	numAttrs	int32
+}
+
+type CUlaunchAttribute[CULAUNCHATTRIBUTE_OP1] {
+	id	flags[CUlaunchAttributeID, int32]
+	pad	array[const[0, int8], 4]
+	value	CULAUNCHATTRIBUTE_OP1
+}
+
+CUlaunchAttributeValue_accessPolicyWindow {
+	accessPolicyWindow	CUaccessPolicyWindow
+}
+
+type CUlaunchAttributeValue_cooperative int32
+
+type CUlaunchAttributeValue_syncPolicy int32
+
+CUlaunchAttributeValue_clusterDim {
+	x	int32
+	y	int32
+	z	int32
+}
+
+type CUlaunchAttributeValue_clusterSchedulingPolicyPreference int32
+
+type CUlaunchAttributeValue_programmaticStreamSerializationAllowed int32
+
+CUlaunchAttributeValue_programmaticEvent {
+	event			CUevent
+	flags			int32
+	triggerAtBlockStart	int32
+}
+
+CUlaunchAttributeValue_launchCompletionEvent {
+	event	CUevent
+	flags	int32
+}
+
+type CUlaunchAttributeValue_priority int32
+
+CUlaunchAttributeValue_memSyncDomainMap {
+	default_	int8
+	remote		int8
+}
+
+type CUlaunchAttributeValue_memSyncDomain int32
+
+CUlaunchAttributeValue_deviceUpdatableKernelNode {
+	deviceUpdatable	int32
+	devNode		CUgraphDeviceNode
+}
+
+dummy_kernel_params {
+	arg1	ptr[in, CUdeviceptr]
+	arg2	ptr[in, CUdeviceptr]
+	arg3	ptr[in, CUdeviceptr]
+	arg4	ptr[in, CUdeviceptr]
+}
+
+type CUlaunchAttributeValue_sharedMemCarveout int32
+
+# API Definition
+syz_cuFuncGetAttribute(pi ptr[out, int32], attrib flags[CUfunction_attribute], hfunc CUfunction)
+syz_cuFuncGetModule(hmod ptr[out, CUmodule], hfunc CUfunction)
+syz_cuFuncGetName(name ptr[out, ptr[out, string]], hfunc CUfunction)
+syz_cuFuncGetParamInfo(func CUfunction, paramIndex int32, paramOffset ptr[out, int64], paramSize ptr[out, int64])
+syz_cuFuncIsLoaded(state ptr[out, flags[CUfunctionLoadingState, int32]], function CUfunction)
+syz_cuFuncLoad(function CUfunction)
+syz_cuFuncSetAttribute(hfunc CUfunction, attrib flags[CUfunction_attribute], value int32)
+syz_cuFuncSetCacheConfig(hfunc CUfunction, config flags[CUfunc_cache])
+syz_cuLaunchCooperativeKernel(f CUfunction, gridDimX int32, gridDimY int32, gridDimZ int32, blockDimX int32, blockDimY int32, blockDimZ int32, sharedMemBytes int32, hStream CUstream, kernelParams ptr[in, dummy_kernel_params])
+# syz_cuLaunchCooperativeKernelMultiDevice(launchParamsList ptr[in, array[CUDA_LAUNCH_PARAMS]], numDevices len[launchParamsList], flags const[0])
+# syz_cuLaunchHostFunc(hStream CUstream, fn CUhostFn, userData ptr[in, string])
+syz_cuLaunchKernel(f CUfunction, gridDimX int32, gridDimY int32, gridDimZ int32, blockDimX int32, blockDimY int32, blockDimZ int32, sharedMemBytes int32, hStream CUstream, kernelParams ptr[in, dummy_kernel_params], extra ptr[in, array[ptr[in, void]]])
+# Honestly I'm unable to determine kernelParams and extra's type because they are all void**
+syz_cuLaunchKernelEx$1(config ptr[in, CUlaunchConfig[CUlaunchAttributeValue_accessPolicyWindow]], f CUfunction, kernelParams ptr[in, array[string]], extra ptr[in, array[string]])
+syz_cuLaunchKernelEx$2(config ptr[in, CUlaunchConfig[CUlaunchAttributeValue_cooperative]], f CUfunction, kernelParams ptr[in, array[string]], extra ptr[in, array[string]])
+syz_cuLaunchKernelEx$3(config ptr[in, CUlaunchConfig[CUlaunchAttributeValue_syncPolicy]], f CUfunction, kernelParams ptr[in, array[string]], extra ptr[in, array[string]])
+syz_cuLaunchKernelEx$4(config ptr[in, CUlaunchConfig[CUlaunchAttributeValue_clusterDim]], f CUfunction, kernelParams ptr[in, array[string]], extra ptr[in, array[string]])
+syz_cuLaunchKernelEx$5(config ptr[in, CUlaunchConfig[CUlaunchAttributeValue_clusterSchedulingPolicyPreference]], f CUfunction, kernelParams ptr[in, array[string]], extra ptr[in, array[string]])
+syz_cuLaunchKernelEx$6(config ptr[in, CUlaunchConfig[CUlaunchAttributeValue_programmaticStreamSerializationAllowed]], f CUfunction, kernelParams ptr[in, array[string]], extra ptr[in, array[string]])
+syz_cuLaunchKernelEx$7(config ptr[in, CUlaunchConfig[CUlaunchAttributeValue_programmaticEvent]], f CUfunction, kernelParams ptr[in, array[string]], extra ptr[in, array[string]])
+syz_cuLaunchKernelEx$8(config ptr[in, CUlaunchConfig[CUlaunchAttributeValue_launchCompletionEvent]], f CUfunction, kernelParams ptr[in, array[string]], extra ptr[in, array[string]])
+syz_cuLaunchKernelEx$9(config ptr[in, CUlaunchConfig[CUlaunchAttributeValue_priority]], f CUfunction, kernelParams ptr[in, array[string]], extra ptr[in, array[string]])
+syz_cuLaunchKernelEx$10(config ptr[in, CUlaunchConfig[CUlaunchAttributeValue_memSyncDomainMap]], f CUfunction, kernelParams ptr[in, array[string]], extra ptr[in, array[string]])
+syz_cuLaunchKernelEx$11(config ptr[in, CUlaunchConfig[CUlaunchAttributeValue_memSyncDomain]], f CUfunction, kernelParams ptr[in, array[string]], extra ptr[in, array[string]])
+syz_cuLaunchKernelEx$12(config ptr[in, CUlaunchConfig[CUlaunchAttributeValue_deviceUpdatableKernelNode]], f CUfunction, kernelParams ptr[in, array[string]], extra ptr[in, array[string]])
+syz_cuLaunchKernelEx$13(config ptr[in, CUlaunchConfig[CUlaunchAttributeValue_sharedMemCarveout]], f CUfunction, kernelParams ptr[in, array[string]], extra ptr[in, array[string]])

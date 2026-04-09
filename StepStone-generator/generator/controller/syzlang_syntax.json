@@ -1,0 +1,135 @@
+Your task is generating syzkaller description from given CUDA API into json format.
+Syzkaller description contains the following keywords:
+- "const": integer constant, type-options: value, underlying type (one of "intN", "intptr")
+For example, such statement "const[1, int32]" from syzkaller description can be turn into json format
+{
+    "arg_type": "const",
+    "value": 1, 
+    "size": 32
+}
+
+{
+    "arg_type": "int",
+    "size": 16,
+    "is_ptr": false,
+    "range_ref": "flagname",
+    "range": {
+        "begin": null,
+        "end": null,
+        "step": null
+    }
+}
+
+{
+    "arg_type": "flags",
+    "enum_name": "bar",
+    "ele_size": 8
+}
+
+{
+    "arg_type": "array",
+    "ele_type": "sock_filter",         // could be nested type such as ptr
+    "ele_type_detail": null,
+    "length": {
+        "low_bound": 5,
+        "high_bound": 10
+    }
+}
+
+{
+    "arg_type": "ptr",
+    "ptr_type": "in", // in | out | inout
+    "obj_type": "string",
+    "obj_type_detail": {
+        "string_value": "deadbeef",
+        "string_ref": null,
+        "string_size": null
+    },
+    "size": 32
+}
+
+// string_flags1 = "foo", "barbaz"
+{
+    "arg_type": "string",
+    "string_value": null,
+    "string_ref": "string_flags1",
+    "string_size": 10
+}
+
+{
+    "arg_type": "stringnoz",
+    "string_value": null,
+    "string_ref": "string_flags1",
+    "string_size": 10
+}
+
+{
+    "arg_type": "fmt",
+    "format": "hex", // dec | hex | oct
+    "value": {
+        "arg_type": "int",
+        "size": 32,
+        "is_ptr": false,
+        "range_ref": null,
+        "range": {
+            "begin": 1,
+            "end": 10,
+            "step": null
+        }
+    }
+}
+
+{
+    "arg_type": "len",
+    "object": "path",
+    "size": 32
+}
+
+{
+    "arg_type": "bytesize",
+    "object": "data",
+    "size": 32
+}
+
+{
+    "arg_type": "bitsize",
+    "object": "data",
+    "size": 1
+}
+
+{
+    "arg_type": "offsetof",
+    "field": "binder_transaction_data:buffer:obj0",
+    "size": 32
+}
+
+{
+    "arg_type": "vma",
+    "force_64": false,
+    "pages": 7
+}
+
+{
+    "arg_type": "proc",
+    // not supported
+}
+
+{
+    "arg_type": "compressed_image",
+    // not supported
+}
+
+{
+    "arg_type": "text",
+    // not supported
+}
+
+{
+    "arg_type": "void"
+    // not supported
+}
+
+{
+    "arg_type": "glob"
+    // not supported
+}

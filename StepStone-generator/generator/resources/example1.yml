@@ -1,0 +1,168 @@
+training_name: "CUDA API demo training 2"
+training_description: "This training shows an example of converting several CUDA API to syzkaller description."
+reasoning_steps: 
+    step1:
+        api: "CUresult cuDevicePrimaryCtxGetState ( CUdevice dev, unsigned int* flags, int* active )"
+        init_text: |
+            include <cuda.h>
+
+            # Resource Definition
+            [APPEND_NEW_CONTENT_HERE]
+
+            # Enum Definition
+            [APPEND_NEW_CONTENT_HERE]
+
+            # API Definition
+            [APPEND_NEW_CONTENT_HERE]
+
+            # Structure Definition
+            [APPEND_NEW_CONTENT_HERE]
+
+        syzlang_text: |
+            include <cuda.h>
+
+            # Resource Definition
+            resource device_fd[int32]
+
+            # Enum Definition
+            CUctx_flags = CU_CTX_SCHED_AUTO, CU_CTX_SCHED_SPIN, CU_CTX_SCHED_YIELD, CU_CTX_SCHED_BLOCKING_SYNC, CU_CTX_BLOCKING_SYNC, CU_CTX_SCHED_MASK, CU_CTX_MAP_HOST, CU_CTX_LMEM_RESIZE_TO_MAX, CU_CTX_COREDUMP_ENABLE, CU_CTX_SYNC_MEMOPS, CU_CTX_FLAGS_MASK
+
+            # API Definition
+            syz_cuDevicePrimaryCtxGetState(dev device_fd, ctx_flags_ptr ptr[out, flags[CUctx_flags, int32]], is_active ptr[out, int32[0:1]])
+
+            # Structure Definition
+    step2:
+        api: "CUresult cuDevicePrimaryCtxRelease ( CUdevice dev )"
+        init_text: |
+            include <cuda.h>
+
+            # Resource Definition
+            [APPEND_NEW_CONTENT_HERE]
+            resource device_fd[int32]
+
+            # Enum Definition
+            [APPEND_NEW_CONTENT_HERE]
+            CUctx_flags = CU_CTX_SCHED_AUTO, CU_CTX_SCHED_SPIN, CU_CTX_SCHED_YIELD, CU_CTX_SCHED_BLOCKING_SYNC, CU_CTX_BLOCKING_SYNC, CU_CTX_SCHED_MASK, CU_CTX_MAP_HOST, CU_CTX_LMEM_RESIZE_TO_MAX, CU_CTX_COREDUMP_ENABLE, CU_CTX_SYNC_MEMOPS, CU_CTX_FLAGS_MASK
+
+            # API Definition
+            [APPEND_NEW_CONTENT_HERE]
+            syz_cuDevicePrimaryCtxGetState(dev device_fd, ctx_flags_ptr ptr[out, flags[CUctx_flags, int32]], is_active ptr[out, int32[0:1]])
+            
+            # Structure Definition
+            [APPEND_NEW_CONTENT_HERE]
+
+        syzlang_text: |
+            include <cuda.h>
+
+            # Resource Definition
+            resource device_fd[int32]
+
+            # Enum Definition
+            CUctx_flags = CU_CTX_SCHED_AUTO, CU_CTX_SCHED_SPIN, CU_CTX_SCHED_YIELD, CU_CTX_SCHED_BLOCKING_SYNC, CU_CTX_BLOCKING_SYNC, CU_CTX_SCHED_MASK, CU_CTX_MAP_HOST, CU_CTX_LMEM_RESIZE_TO_MAX, CU_CTX_COREDUMP_ENABLE, CU_CTX_SYNC_MEMOPS, CU_CTX_FLAGS_MASK
+
+            # API Definition
+            syz_cuDevicePrimaryCtxRelease(dev device_fd)
+            syz_cuDevicePrimaryCtxGetState(dev device_fd, ctx_flags_ptr ptr[out, flags[CUctx_flags, int32]], is_active ptr[out, int32[0:1]])
+
+            # Structure Definition
+    step3:
+        api: "CUresult cuDevicePrimaryCtxRetain ( CUcontext* pctx, CUdevice dev )"
+        init_text: |
+            include <cuda.h>
+
+            # Resource Definition
+            [APPEND_NEW_CONTENT_HERE]
+            resource device_fd[int32]
+
+            # Enum Definition
+            [APPEND_NEW_CONTENT_HERE]
+            CUctx_flags = CU_CTX_SCHED_AUTO, CU_CTX_SCHED_SPIN, CU_CTX_SCHED_YIELD, CU_CTX_SCHED_BLOCKING_SYNC, CU_CTX_BLOCKING_SYNC, CU_CTX_SCHED_MASK, CU_CTX_MAP_HOST, CU_CTX_LMEM_RESIZE_TO_MAX, CU_CTX_COREDUMP_ENABLE, CU_CTX_SYNC_MEMOPS, CU_CTX_FLAGS_MASK
+
+            # API Definition
+            [APPEND_NEW_CONTENT_HERE]
+            syz_cuDevicePrimaryCtxRelease(dev device_fd)
+            syz_cuDevicePrimaryCtxGetState(dev device_fd, ctx_flags_ptr ptr[out, flags[CUctx_flags, int32]], is_active ptr[out, int32[0:1]])
+
+            # Structure Definition
+            [APPEND_NEW_CONTENT_HERE]
+
+        syzlang_text: |
+            include <cuda.h>
+
+            # Resource Definition
+            resource device_fd[int32]
+            resource context_fd[int64]
+
+            # Enum Definition
+            CUctx_flags = CU_CTX_SCHED_AUTO, CU_CTX_SCHED_SPIN, CU_CTX_SCHED_YIELD, CU_CTX_SCHED_BLOCKING_SYNC, CU_CTX_BLOCKING_SYNC, CU_CTX_SCHED_MASK, CU_CTX_MAP_HOST, CU_CTX_LMEM_RESIZE_TO_MAX, CU_CTX_COREDUMP_ENABLE, CU_CTX_SYNC_MEMOPS, CU_CTX_FLAGS_MASK
+
+            # API Definition
+            syz_cuDevicePrimaryCtxRetain(ctx_ptr ptr[out, context_fd], dev device_fd)
+            syz_cuDevicePrimaryCtxRelease(dev device_fd)
+            syz_cuDevicePrimaryCtxGetState(dev device_fd, ctx_flags_ptr ptr[out, flags[CUctx_flags, int32]], is_active ptr[out, int32[0:1]])
+
+            # Structure Definition
+    step4:
+        api: "CUresult cuDevicePrimaryCtxSetFlags ( CUdevice dev, unsigned int  flags )"
+        init_text: |
+            include <cuda.h>
+
+            # Resource Definition
+            [APPEND_NEW_CONTENT_HERE]
+            resource device_fd[int32]
+            resource context_fd[int64]
+
+            # Enum Definition
+            [APPEND_NEW_CONTENT_HERE]
+            CUctx_flags = CU_CTX_SCHED_AUTO, CU_CTX_SCHED_SPIN, CU_CTX_SCHED_YIELD, CU_CTX_SCHED_BLOCKING_SYNC, CU_CTX_BLOCKING_SYNC, CU_CTX_SCHED_MASK, CU_CTX_MAP_HOST, CU_CTX_LMEM_RESIZE_TO_MAX, CU_CTX_COREDUMP_ENABLE, CU_CTX_SYNC_MEMOPS, CU_CTX_FLAGS_MASK
+
+            # API Definition
+            [APPEND_NEW_CONTENT_HERE]
+            syz_cuDevicePrimaryCtxRetain(ctx_ptr ptr[out, context_fd], dev device_fd)
+            syz_cuDevicePrimaryCtxRelease(dev device_fd)
+            syz_cuDevicePrimaryCtxGetState(dev device_fd, ctx_flags_ptr ptr[out, flags[CUctx_flags, int32]], is_active ptr[out, int32[0:1]])
+
+            # Structure Definition
+            [APPEND_NEW_CONTENT_HERE]
+
+        syzlang_text: |
+            include <cuda.h>
+
+            # Resource Definition
+            resource device_fd[int32]
+            resource context_fd[int64]
+
+            # Enum Definition
+            CUctx_flags = CU_CTX_SCHED_AUTO, CU_CTX_SCHED_SPIN, CU_CTX_SCHED_YIELD, CU_CTX_SCHED_BLOCKING_SYNC, CU_CTX_BLOCKING_SYNC, CU_CTX_SCHED_MASK, CU_CTX_MAP_HOST, CU_CTX_LMEM_RESIZE_TO_MAX, CU_CTX_COREDUMP_ENABLE, CU_CTX_SYNC_MEMOPS, CU_CTX_FLAGS_MASK
+
+            # API Definition
+            syz_cuDevicePrimaryCtxSetFlags(dev device_fd, ctx_flags flags[CUctx_flags])
+            syz_cuDevicePrimaryCtxRetain(ctx_ptr ptr[out, context_fd], dev device_fd)
+            syz_cuDevicePrimaryCtxRelease(dev device_fd)
+            syz_cuDevicePrimaryCtxGetState(dev device_fd, ctx_flags_ptr ptr[out, flags[CUctx_flags, int32]], is_active ptr[out, int32[0:1]])
+
+            # Structure Definition
+
+syzlang_const_var: "`CUctx_flags`"
+
+syzlang_const_ele: |
+    ```
+    CUctx_flags = CU_CTX_SCHED_AUTO, CU_CTX_SCHED_SPIN, CU_CTX_SCHED_YIELD, CU_CTX_SCHED_BLOCKING_SYNC, CU_CTX_BLOCKING_SYNC, CU_CTX_SCHED_MASK, CU_CTX_MAP_HOST, CU_CTX_LMEM_RESIZE_TO_MAX, CU_CTX_COREDUMP_ENABLE, CU_CTX_SYNC_MEMOPS, CU_CTX_FLAGS_MASK
+    ```
+
+syzlang_const: |
+    ```
+    arches = 386, amd64, arm, arm64, mips64le, ppc64le, riscv64, s390x
+    CU_CTX_SCHED_AUTO          = 0x00
+    CU_CTX_SCHED_SPIN          = 0x01
+    CU_CTX_SCHED_YIELD         = 0x02
+    CU_CTX_SCHED_BLOCKING_SYNC = 0x04
+    CU_CTX_BLOCKING_SYNC       = 0x04
+    CU_CTX_SCHED_MASK          = 0x07
+    CU_CTX_MAP_HOST            = 0x08
+    CU_CTX_LMEM_RESIZE_TO_MAX  = 0x10
+    CU_CTX_COREDUMP_ENABLE     = 0x20
+    CU_CTX_USER_COREDUMP_ENABLE= 0x40
+    CU_CTX_SYNC_MEMOPS         = 0x80
+    CU_CTX_FLAGS_MASK          = 0xFF
+    ```

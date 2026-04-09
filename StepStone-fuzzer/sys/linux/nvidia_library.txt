@@ -1,0 +1,31 @@
+include <cuda.h>
+
+# Resource Definition
+resource CUkernel[intptr]
+resource CUlibrary[intptr]
+
+# Enum Definition
+CUfunction_attribute = CU_FUNC_ATTRIBUTE_MAX_THREADS_PER_BLOCK, CU_FUNC_ATTRIBUTE_SHARED_SIZE_BYTES, CU_FUNC_ATTRIBUTE_CONST_SIZE_BYTES, CU_FUNC_ATTRIBUTE_LOCAL_SIZE_BYTES, CU_FUNC_ATTRIBUTE_NUM_REGS, CU_FUNC_ATTRIBUTE_PTX_VERSION, CU_FUNC_ATTRIBUTE_BINARY_VERSION, CU_FUNC_ATTRIBUTE_CACHE_MODE_CA, CU_FUNC_ATTRIBUTE_MAX_DYNAMIC_SHARED_SIZE_BYTES, CU_FUNC_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT, CU_FUNC_ATTRIBUTE_CLUSTER_SIZE_MUST_BE_SET, CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_WIDTH, CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_HEIGHT, CU_FUNC_ATTRIBUTE_REQUIRED_CLUSTER_DEPTH, CU_FUNC_ATTRIBUTE_NON_PORTABLE_CLUSTER_SIZE_ALLOWED, CU_FUNC_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE, CU_FUNC_ATTRIBUTE_MAX
+
+CUlibraryOption = CU_LIBRARY_HOST_UNIVERSAL_FUNCTION_AND_DATA_TABLE, CU_LIBRARY_BINARY_IS_PRESERVED
+
+# Structure Definition
+
+# API Definition
+syz_cuKernelGetAttribute(pi ptr[out, int32], attrib flags[CUfunction_attribute], kernel CUfunction, dev CUdevice)
+syz_cuKernelGetFunction(pFunc ptr[out, CUfunction], kernel CUkernel)
+#syz_cuKernelGetLibrary(pLib ptr[out, CUlibrary], kernel CUkernel)
+syz_cuKernelGetName(name ptr[out, string], hfunc CUkernel)
+syz_cuKernelGetParamInfo(kernel CUkernel, paramIndex int32, paramOffset ptr[out, int64], paramSize ptr[out, int64])
+syz_cuKernelSetAttribute(attrib flags[CUfunction_attribute], val int32, kernel CUkernel, dev CUdevice)
+syz_cuKernelSetCacheConfig(kernel CUkernel, config flags[CUfunc_cache], dev CUdevice)
+syz_cuLibraryEnumerateKernels(kernels ptr[out, array[CUkernel]], numKernels len[kernels], lib CUlibrary)
+syz_cuLibraryGetGlobal(dptr ptr[out, CUdeviceptr], bytes ptr[out, int64], library CUlibrary, name ptr[in, string])
+syz_cuLibraryGetKernel(pKernel ptr[out, CUkernel], library CUlibrary, name ptr[in, string])
+syz_cuLibraryGetKernelCount(count ptr[out, int32], lib CUlibrary)
+syz_cuLibraryGetManaged(dptr ptr[out, CUdeviceptr], bytes ptr[out, int64], library CUlibrary, name ptr[in, string])
+syz_cuLibraryGetModule(pMod ptr[out, CUmodule], library CUlibrary)
+syz_cuLibraryGetUnifiedFunction(fptr ptr[out, ptr[out, void]], library CUlibrary, symbol ptr[in, string])
+syz_cuLibraryLoadData(library ptr[out, CUlibrary], code ptr[in, void], jitOptions ptr[in, array[flags[CUjit_option, int32]]], jitOptionsValues ptr[in, array[ptr[in, void]]], numJitOptions len[jitOptions], libraryOptions ptr[in, array[flags[CUlibraryOption, int32]]], libraryOptionValues ptr[in, array[ptr[in, void]]], numLibraryOptions len[libraryOptions])
+syz_cuLibraryLoadFromFile(library ptr[out, CUlibrary], fileName ptr[in, string[filename]], jitOptions ptr[in, array[flags[CUjit_option, int32]]], jitOptionsValues ptr[in, array[ptr[in, void]]], numJitOptions len[jitOptions], libraryOptions ptr[in, array[flags[CUlibraryOption, int32]]], libraryOptionValues ptr[in, array[ptr[in, void]]], numLibraryOptions len[libraryOptions])
+syz_cuLibraryUnload(library CUlibrary)

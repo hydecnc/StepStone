@@ -1,0 +1,44 @@
+{
+    "resource": [],
+    "enum": [
+        {
+            "enum_name": "CUflushGPUDirectRDMAWritesScope",
+            "enum_elements": [
+                "CU_FLUSH_GPU_DIRECT_RDMA_WRITES_TO_OWNER",
+                "CU_FLUSH_GPU_DIRECT_RDMA_WRITES_TO_ALL_DEVICES"
+            ],
+            "enum_values": [
+                "100",
+                "200"
+            ]
+        },
+        {
+            "enum_name": "CUflushGPUDirectRDMAWritesTarget",
+            "enum_elements": [
+                "CU_FLUSH_GPU_DIRECT_RDMA_WRITES_TARGET_CURRENT_CTX"
+            ],
+            "enum_values": [
+                "0"
+            ]
+        }
+    ],
+    "structure": [],
+    "api": [
+        {
+            "api_name": "cuFlushGPUDirectRDMAWrites",
+            "ret_type": "CUresult",
+            "params": [
+                {
+                    "param_name": "target",
+                    "param_type": "flags[CUflushGPUDirectRDMAWritesTarget]",
+                    "referred_struct": ""
+                },
+                {
+                    "param_name": "scope",
+                    "param_type": "flags[CUflushGPUDirectRDMAWritesScope]",
+                    "referred_struct": ""
+                }
+            ]
+        }
+    ]
+}

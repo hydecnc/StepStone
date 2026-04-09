@@ -1,0 +1,219 @@
+include <cuda.h>
+
+# Resource Definition
+resource CUarray[intptr]
+#resource CUasyncCallback[intptr]
+#resource CUasyncCallbackHandle[intptr]
+resource CUdeviceptr[int64]
+resource CUhostptr[intptr]
+resource CUmemRangeHandle[int32]
+resource CUmipmappedArray[intptr]
+
+# Enum Definition
+CUDA_ARRAY3D_FLAGS = CUDA_ARRAY3D_LAYERED, CUDA_ARRAY3D_SURFACE_LDST, CUDA_ARRAY3D_CUBEMAP, CUDA_ARRAY3D_TEXTURE_GATHER, CUDA_ARRAY3D_DEPTH_TEXTURE, CUDA_ARRAY3D_COLOR_ATTACHMENT
+
+CUDA_ARRAY_SPARSE_PROPERTIES_FLAGS = CU_ARRAY_SPARSE_PROPERTIES_SINGLE_MIPTAIL
+
+CUmemAttach_flags = CU_MEM_ATTACH_GLOBAL, CU_MEM_ATTACH_HOST, CU_MEM_ATTACH_SINGLE
+
+CUmemRangeHandleType = CU_MEM_RANGE_HANDLE_TYPE_DMA_BUF_FD, CU_MEM_RANGE_HANDLE_TYPE_MAX
+
+CUmemHostAllocFlags = CU_MEMHOSTALLOC_PORTABLE, CU_MEMHOSTALLOC_DEVICEMAP, CU_MEMHOSTALLOC_WRITECOMBINED
+
+CUmemHostRegisterFlags = CU_MEMHOSTREGISTER_PORTABLE, CU_MEMHOSTREGISTER_DEVICEMAP, CU_MEMHOSTREGISTER_IOMEMORY
+
+CUmemorytype = CU_MEMORYTYPE_HOST, CU_MEMORYTYPE_DEVICE, CU_MEMORYTYPE_ARRAY, CU_MEMORYTYPE_UNIFIED
+
+# Structure Definition
+CUDA_ARRAY3D_DESCRIPTOR {
+	Width		int64
+	Height		int64
+	Depth		int64
+	Format		flags[CUarray_format, int32]
+	NumChannels	int32
+	Flags		flags[CUDA_ARRAY3D_FLAGS, int32]
+}
+
+CUDA_ARRAY_DESCRIPTOR {
+	Width		int64
+	Height		int64
+	Format		flags[CUarray_format, int32]
+	NumChannels	int32[1:4]
+}
+
+CUDA_ARRAY_MEMORY_REQUIREMENTS {
+	size		int64
+	alignment	int64
+	reserved	array[const[0, int32], 4]
+}
+
+CUDA_ARRAY_SPARSE_PROPERTIES {
+	tileExtent		CUDA_ARRAY_SPARSE_PROPERTIES_tileExtent
+	miptailFirstLevel	int32
+	miptailSize		int64
+	flags			flags[CUDA_ARRAY_SPARSE_PROPERTIES_FLAGS, int32]
+	reserved		array[const[0, int32], 4]
+}
+
+CUDA_ARRAY_SPARSE_PROPERTIES_tileExtent {
+	width	int32
+	height	int32
+	depth	int32
+}
+
+CUipcEventHandle {
+	reserved	array[int8, 64]
+}
+
+CUipcMemHandle {
+	reserved	array[int8, 64]
+}
+
+CUDA_MEMCPY2D {
+	srcXInBytes	int32
+	srcY		int32
+	srcMemoryType	flags[CUmemorytype, int32]
+	srcHost		CUhostptr
+	srcDevice	CUdeviceptr
+	srcArray	CUarray
+	srcPitch	int32
+	dstXInBytes	int32
+	dstY		int32
+	dstMemoryType	flags[CUmemorytype, int32]
+	dstHost		CUhostptr
+	dstDevice	CUdeviceptr
+	dstArray	CUarray
+	dstPitch	int32
+	WidthInBytes	int32
+	Height		int32
+}
+
+CUDA_MEMCPY3D {
+	srcXInBytes	int64
+	srcY		int64
+	srcZ		int64
+	srcLOD		int64
+	srcMemoryType	flags[CUmemorytype, int32]
+	srcHost		ptr[in, void]
+	srcDevice	CUdeviceptr
+	srcArray	CUarray
+	reserved0	const[0, intptr]
+	srcPitch	int64
+	srcHeight	int64
+	dstXInBytes	int64
+	dstY		int64
+	dstZ		int64
+	dstLOD		int64
+	dstMemoryType	flags[CUmemorytype, int32]
+	dstHost		ptr[in, void]
+	dstDevice	CUdeviceptr
+	dstArray	CUarray
+	reserved1	const[0, intptr]
+	dstPitch	int64
+	dstHeight	int64
+	WidthInBytes	int64
+	Height		int64
+	Depth		int64
+}
+
+CUDA_MEMCPY3D_PEER {
+	srcXInBytes	int32
+	srcY		int32
+	srcZ		int32
+	srcLOD		int32
+	srcMemoryType	flags[CUmemorytype, int32]
+	srcHost		CUhostptr
+	srcDevice	CUdeviceptr
+	srcArray	CUarray
+	srcContext	CUcontext
+	srcPitch	int32
+	srcHeight	int32
+	dstXInBytes	int32
+	dstY		int32
+	dstZ		int32
+	dstLOD		int32
+	dstMemoryType	flags[CUmemorytype, int32]
+	dstHost		CUhostptr
+	dstDevice	CUdeviceptr
+	dstArray	CUarray
+	dstContext	CUcontext
+	dstPitch	int32
+	dstHeight	int32
+	WidthInBytes	int32
+	Height		int32
+	Depth		int32
+}
+
+# API Definition
+syz_cuArray3DCreate(pHandle ptr[out, CUarray], pAllocateArray ptr[in, CUDA_ARRAY3D_DESCRIPTOR])
+syz_cuArray3DGetDescriptor(pArrayDescriptor ptr[out, CUDA_ARRAY3D_DESCRIPTOR], hArray CUarray)
+syz_cuArrayCreate(pHandle ptr[out, CUarray], pAllocateArray ptr[in, CUDA_ARRAY_DESCRIPTOR])
+syz_cuArrayDestroy(hArray CUarray)
+syz_cuArrayGetDescriptor(pArrayDescriptor ptr[out, CUDA_ARRAY_DESCRIPTOR], hArray CUarray)
+syz_cuArrayGetMemoryRequirements(memoryRequirements ptr[out, CUDA_ARRAY_MEMORY_REQUIREMENTS], array CUarray, device CUdevice)
+syz_cuArrayGetPlane(pPlaneArray ptr[out, CUarray], hArray CUarray, planeIdx int32)
+syz_cuArrayGetSparseProperties(sparseProperties ptr[out, CUDA_ARRAY_SPARSE_PROPERTIES], array CUarray)
+syz_cuDeviceGetByPCIBusId(dev ptr[out, CUdevice], pciBusId ptr[in, string])
+syz_cuDeviceGetPCIBusId(pciBusId ptr[out, array[int8]], len int32[1:256], dev CUdevice)
+# syz_cuDeviceRegisterAsyncNotification(device CUdevice, callbackFunc CUasyncCallback, userData ptr[in, void], callback ptr[out, CUasyncCallbackHandle])
+# syz_cuDeviceUnregisterAsyncNotification(device CUdevice, callback CUasyncCallbackHandle)
+syz_cuIpcCloseMemHandle(dptr CUdeviceptr)
+syz_cuIpcGetEventHandle(pHandle ptr[out, CUipcEventHandle], event CUevent)
+syz_cuIpcGetMemHandle(pHandle ptr[out, CUipcMemHandle], dptr CUdeviceptr)
+syz_cuIpcOpenEventHandle(phEvent ptr[out, CUevent], handle ptr[in, CUipcEventHandle])
+# syz_cuIpcOpenMemHandle(pdptr ptr[out, CUdeviceptr], handle array[int8, 64], Flags flags[CUmemAttach_flags])
+syz_cuMemAlloc(dptr ptr[out, CUdeviceptr], bytesize int32)
+syz_cuMemAllocHost(pp ptr[out, CUhostptr], bytesize int32)
+syz_cuMemAllocManaged(dptr ptr[out, CUdeviceptr], bytesize int32, flags flags[CUmemAttach_flags])
+syz_cuMemAllocPitch(dptr ptr[out, CUdeviceptr], pPitch ptr[out, int64], WidthInBytes int32, Height int32, ElementSizeBytes int32)
+syz_cuMemFree(dptr CUdeviceptr)
+syz_cuMemFreeHost(p CUhostptr)
+syz_cuMemGetAddressRange(pbase ptr[out, CUdeviceptr], psize ptr[out, intptr], dptr CUdeviceptr)
+syz_cuMemGetHandleForAddressRange(handle ptr[out, CUmemRangeHandle], dptr CUdeviceptr, size int32, handleType flags[CUmemRangeHandleType], flags int32)
+syz_cuMemGetInfo(free ptr[out, int32], total ptr[out, int32])
+syz_cuMemHostAlloc(pp ptr[out, CUhostptr], bytesize int32, Flags flags[CUmemHostAllocFlags])
+syz_cuMemHostGetDevicePointer(pdptr ptr[out, CUdeviceptr], p ptr[in, void], Flags flags[CUmemAttach_flags])
+syz_cuMemHostGetFlags(pFlags ptr[out, int32], p CUhostptr)
+syz_cuMemHostRegister(p ptr[in, void], bytesize int32, Flags flags[CUmemHostRegisterFlags])
+syz_cuMemHostUnregister(p CUhostptr)
+syz_cuMemcpy(dst CUdeviceptr, src CUdeviceptr, ByteCount int32)
+syz_cuMemcpy2D(pCopy ptr[in, CUDA_MEMCPY2D])
+syz_cuMemcpy2DAsync(pCopy ptr[in, CUDA_MEMCPY2D], hStream CUstream)
+syz_cuMemcpy2DUnaligned(pCopy ptr[in, CUDA_MEMCPY2D])
+syz_cuMemcpy3D(pCopy ptr[in, CUDA_MEMCPY3D])
+syz_cuMemcpy3DAsync(pCopy ptr[in, CUDA_MEMCPY3D], hStream CUstream)
+syz_cuMemcpy3DPeer(pCopy ptr[in, CUDA_MEMCPY3D_PEER])
+syz_cuMemcpy3DPeerAsync(pCopy ptr[in, CUDA_MEMCPY3D_PEER], hStream CUstream)
+syz_cuMemcpyAsync(dst CUdeviceptr, src CUdeviceptr, ByteCount int32, hStream CUstream)
+syz_cuMemcpyAtoA(dstArray CUarray, dstOffset int32, srcArray CUarray, srcOffset int32, ByteCount int32)
+syz_cuMemcpyAtoD(dstDevice CUdeviceptr, srcArray CUarray, srcOffset int32, ByteCount int32)
+syz_cuMemcpyAtoH(dstHost ptr[out, void], srcArray CUarray, srcOffset int32, ByteCount int32)
+syz_cuMemcpyAtoHAsync(dstHost ptr[out, void], srcArray CUarray, srcOffset int32, ByteCount int32, hStream CUstream)
+syz_cuMemcpyDtoA(dstArray CUarray, dstOffset int32, srcDevice CUdeviceptr, ByteCount int32)
+syz_cuMemcpyDtoD(dstDevice CUdeviceptr, srcDevice CUdeviceptr, ByteCount int32)
+syz_cuMemcpyDtoDAsync(dstDevice CUdeviceptr, srcDevice CUdeviceptr, ByteCount int32, hStream CUstream)
+syz_cuMemcpyDtoH(dstHost ptr[out, void], srcDevice CUdeviceptr, ByteCount int32)
+syz_cuMemcpyDtoHAsync(dstHost CUhostptr, srcDevice CUdeviceptr, ByteCount int32, hStream CUstream)
+syz_cuMemcpyHtoA(dstArray CUarray, dstOffset int32, srcHost ptr[in, void], ByteCount int32)
+syz_cuMemcpyHtoAAsync(dstArray CUarray, dstOffset int32, srcHost ptr[in, void], ByteCount int32, hStream CUstream)
+syz_cuMemcpyHtoD(dstDevice CUdeviceptr, srcHost ptr[in, void], ByteCount int32)
+# syz_cuMemcpyHtoDAsync(dstDevice CUdeviceptr, srcHost void_ptr, ByteCount int32, hStream CUstream)
+syz_cuMemcpyPeer(dstDevice CUdeviceptr, dstContext CUcontext, srcDevice CUdeviceptr, srcContext CUcontext, ByteCount int32)
+syz_cuMemcpyPeerAsync(dstDevice CUdeviceptr, dstContext CUcontext, srcDevice CUdeviceptr, srcContext CUcontext, ByteCount int32, hStream CUstream)
+syz_cuMemsetD16(dstDevice CUdeviceptr, us int16, N int32)
+syz_cuMemsetD16Async(dstDevice CUdeviceptr, us int16, N int32, hStream CUstream)
+syz_cuMemsetD2D16(dstDevice CUdeviceptr, dstPitch int32, us int16, Width int32, Height int32)
+syz_cuMemsetD2D16Async(dstDevice CUdeviceptr, dstPitch int32, us int16, Width int32, Height int32, hStream CUstream)
+syz_cuMemsetD2D32(dstDevice CUdeviceptr, dstPitch int32, ui int32, Width int32, Height int32)
+syz_cuMemsetD2D32Async(dstDevice CUdeviceptr, dstPitch int32, ui int32, Width int32, Height int32, hStream CUstream)
+syz_cuMemsetD2D8(dstDevice CUdeviceptr, dstPitch int32, uc int8, Width int32, Height int32)
+syz_cuMemsetD2D8Async(dstDevice CUdeviceptr, dstPitch int32, uc int8, Width int32, Height int32, hStream CUstream)
+syz_cuMemsetD32(dstDevice CUdeviceptr, ui int32, N int32)
+syz_cuMemsetD32Async(dstDevice CUdeviceptr, ui int32, N int32, hStream CUstream)
+syz_cuMemsetD8(dstDevice CUdeviceptr, uc int8[0:255], N int32)
+syz_cuMemsetD8Async(dstDevice CUdeviceptr, uc int8, N int32, hStream CUstream)
+syz_cuMipmappedArrayCreate(pHandle ptr[out, CUmipmappedArray], pMipmappedArrayDesc ptr[in, CUDA_ARRAY3D_DESCRIPTOR], numMipmapLevels int32)
+syz_cuMipmappedArrayDestroy(hMipmappedArray CUmipmappedArray)
+syz_cuMipmappedArrayGetLevel(pLevelArray ptr[out, CUarray], hMipmappedArray CUmipmappedArray, level int32)
+syz_cuMipmappedArrayGetMemoryRequirements(memoryRequirements ptr[out, CUDA_ARRAY_MEMORY_REQUIREMENTS], mipmap CUmipmappedArray, device CUdevice)
+syz_cuMipmappedArrayGetSparseProperties(sparseProperties ptr[out, CUDA_ARRAY_SPARSE_PROPERTIES], mipmap CUmipmappedArray)

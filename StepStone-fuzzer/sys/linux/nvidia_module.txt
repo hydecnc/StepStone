@@ -1,0 +1,34 @@
+include <cuda.h>
+
+# Resource Definition
+resource CUlinkState[intptr]
+resource CUbinOut[intptr]
+resource CUfunction[intptr]
+resource CUmodule[intptr]
+resource CUmoduleLoadingMode[int32]
+
+# Enum Definition
+CUjit_option = CU_JIT_MAX_REGISTERS, CU_JIT_THREADS_PER_BLOCK, CU_JIT_WALL_TIME, CU_JIT_INFO_LOG_BUFFER, CU_JIT_INFO_LOG_BUFFER_SIZE_BYTES, CU_JIT_ERROR_LOG_BUFFER, CU_JIT_ERROR_LOG_BUFFER_SIZE_BYTES, CU_JIT_OPTIMIZATION_LEVEL, CU_JIT_TARGET_FROM_CUCONTEXT, CU_JIT_TARGET, CU_JIT_FALLBACK_STRATEGY, CU_JIT_GENERATE_DEBUG_INFO, CU_JIT_LOG_VERBOSE, CU_JIT_GENERATE_LINE_INFO, CU_JIT_CACHE_MODE, CU_JIT_NEW_SM3X_OPT, CU_JIT_FAST_COMPILE, CU_JIT_GLOBAL_SYMBOL_NAMES, CU_JIT_GLOBAL_SYMBOL_ADDRESSES, CU_JIT_GLOBAL_SYMBOL_COUNT, CU_JIT_LTO, CU_JIT_FTZ, CU_JIT_PREC_DIV, CU_JIT_PREC_SQRT, CU_JIT_FMA, CU_JIT_REFERENCED_KERNEL_NAMES, CU_JIT_REFERENCED_KERNEL_COUNT, CU_JIT_REFERENCED_VARIABLE_NAMES, CU_JIT_REFERENCED_VARIABLE_COUNT, CU_JIT_OPTIMIZE_UNUSED_DEVICE_VARIABLES, CU_JIT_POSITION_INDEPENDENT_CODE, CU_JIT_MIN_CTA_PER_SM, CU_JIT_MAX_THREADS_PER_BLOCK, CU_JIT_OVERRIDE_DIRECTIVE_VALUES
+
+CUjitInputType = CU_JIT_INPUT_CUBIN, CU_JIT_INPUT_PTX, CU_JIT_INPUT_FATBINARY, CU_JIT_INPUT_OBJECT, CU_JIT_INPUT_LIBRARY, CU_JIT_INPUT_NVVM, CU_JIT_NUM_INPUT_TYPES
+
+# Structure Definition
+
+# API Definition
+syz_cuLinkAddData(state CUlinkState, type flags[CUjitInputType], name ptr[in, string["vectorAdd"]], numOptions int32, options ptr[in, array[flags[CUjit_option, int32]]], optionValues ptr[in, array[ptr[in, void]]])
+syz_cuLinkAddFile(state CUlinkState, type flags[CUjitInputType], path ptr[in, string["vector_add.ptx"]], numOptions len[options], options ptr[in, array[flags[CUjit_option, int32]]], optionValues ptr[in, array[ptr[in, void]]])
+syz_cuLinkComplete(state CUlinkState, cubinOut ptr[out, CUbinOut], sizeOut ptr[out, int64])
+syz_cuLinkCreate(numOptions len[options], options ptr[in, array[flags[CUjit_option, int32]]], optionValues ptr[in, array[string]], stateOut ptr[out, CUlinkState])
+syz_cuLinkDestroy(state CUlinkState)
+syz_cuModuleEnumerateFunctions(functions ptr[out, array[CUfunction]], numFunctions len[functions], mod CUmodule)
+# May need a wrapper
+syz_cuModuleGetFunction(hfunc ptr[out, CUfunction], hmod CUmodule, name ptr[in, string["vectorAdd"]])
+syz_cuModuleGetFunctionCount(count ptr[out, int32], mod CUmodule)
+syz_cuModuleGetGlobal(dptr ptr[out, CUdeviceptr], bytes ptr[out, int64], hmod CUmodule, name ptr[in, string])
+syz_cuModuleGetLoadingMode(mode ptr[out, CUmoduleLoadingMode])
+syz_cuModuleLoad(module ptr[out, CUmodule], fname ptr[in, string["vector_add.ptx"]])
+syz_cuModuleLoadData(module ptr[out, CUmodule], image CUbinOut)
+syz_cuModuleLoadProg(module ptr[out, CUmodule])
+syz_cuModuleLoadDataEx(module ptr[out, CUmodule], image CUbinOut, numOptions len[options], options ptr[in, array[flags[CUjit_option, int32]]], optionValues ptr[in, array[ptr[in, void]]])
+syz_cuModuleLoadFatBinary(module ptr[out, CUmodule], fatCubin CUbinOut)
+syz_cuModuleUnload(hmod CUmodule)

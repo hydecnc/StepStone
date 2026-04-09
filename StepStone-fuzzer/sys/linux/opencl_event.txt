@@ -1,0 +1,22 @@
+include <CL/opencl.h>
+meta arches["amd64"]
+
+# Resource Definition
+resource cl_event[intptr]
+#resource cl_event_callback[intptr]
+
+# Enum Definition
+cl_event_info = CL_EVENT_COMMAND_QUEUE, CL_EVENT_COMMAND_TYPE, CL_EVENT_REFERENCE_COUNT, CL_EVENT_COMMAND_EXECUTION_STATUS, CL_EVENT_CONTEXT
+
+cl_command_exec_status = CL_COMPLETE, CL_RUNNING, CL_SUBMITTED, CL_QUEUED
+
+# Structure Definition
+
+# API Definition
+syz_clCreateUserEvent(context cl_context, errcode_ret ptr[out, int32]) cl_event
+syz_clGetEventInfo(event cl_event, param_name flags[cl_event_info], param_value_size len[param_value], param_value ptr[out, array[int8]], param_value_size_ret ptr[out, int64])
+syz_clReleaseEvent(event cl_event)
+syz_clRetainEvent(event cl_event)
+syz_clSetEventCallback(event cl_event, command_exec_callback_type flags[cl_command_exec_status], pfn_notify const[0], user_data ptr[in, void])
+syz_clSetUserEventStatus(event cl_event, execution_status int32)
+syz_clWaitForEvents(event_list ptr[in, array[cl_event]], num_events len[event_list])

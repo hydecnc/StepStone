@@ -1,0 +1,210 @@
+include <vulkan/vulkan.h>
+meta arches["amd64"]
+
+# Resource Definition
+resource VkInstance[intptr]
+resource VkPhysicalDevice[intptr]
+resource vkGetPhysicalDeviceImageFormatProperties_pImageFormatProperties[intptr]
+resource PFN_vkVoidFunction[intptr]
+resource VkDevice[intptr]
+resource vkEnumerateInstanceLayerProperties_pProperties[intptr]
+resource VkQueue[intptr]
+resource VkSemaphore[intptr]
+resource VkCommandBuffer[intptr]
+resource VkFence[intptr]
+resource VkDeviceMemory[intptr]
+
+# Enum Definition
+VkInstanceCreateFlagBits = VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR, VK_INSTANCE_CREATE_FLAG_BITS_MAX_ENUM
+
+# VkFormatFeatureFlagBits = VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT, VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT, VK_FORMAT_FEATURE_STORAGE_IMAGE_ATOMIC_BIT, VK_FORMAT_FEATURE_UNIFORM_TEXEL_BUFFER_BIT, VK_FORMAT_FEATURE_STORAGE_TEXEL_BUFFER_BIT, VK_FORMAT_FEATURE_STORAGE_TEXEL_BUFFER_ATOMIC_BIT, VK_FORMAT_FEATURE_VERTEX_BUFFER_BIT, VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT, VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BLEND_BIT, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_FORMAT_FEATURE_BLIT_SRC_BIT, VK_FORMAT_FEATURE_BLIT_DST_BIT, VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT, VK_FORMAT_FEATURE_TRANSFER_SRC_BIT, VK_FORMAT_FEATURE_TRANSFER_DST_BIT, VK_FORMAT_FEATURE_MIDPOINT_CHROMA_SAMPLES_BIT, VK_FORMAT_FEATURE_SAMPLED_IMAGE_YCBCR_CONVERSION_LINEAR_FILTER_BIT, VK_FORMAT_FEATURE_SAMPLED_IMAGE_YCBCR_CONVERSION_SEPARATE_RECONSTRUCTION_FILTER_BIT, VK_FORMAT_FEATURE_SAMPLED_IMAGE_YCBCR_CONVERSION_CHROMA_RECONSTRUCTION_EXPLICIT_BIT, VK_FORMAT_FEATURE_SAMPLED_IMAGE_YCBCR_CONVERSION_CHROMA_RECONSTRUCTION_EXPLICIT_FORCEABLE_BIT, VK_FORMAT_FEATURE_DISJOINT_BIT, VK_FORMAT_FEATURE_COSITED_CHROMA_SAMPLES_BIT, VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_MINMAX_BIT, VK_FORMAT_FEATURE_VIDEO_DECODE_OUTPUT_BIT_KHR, VK_FORMAT_FEATURE_VIDEO_DECODE_DPB_BIT_KHR, VK_FORMAT_FEATURE_ACCELERATION_STRUCTURE_VERTEX_BUFFER_BIT_KHR, VK_FORMAT_FEATURE_FRAGMENT_DENSITY_MAP_BIT_EXT, VK_FORMAT_FEATURE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR, VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_CUBIC_BIT_EXT, VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_CUBIC_BIT_IMG, VK_FORMAT_FEATURE_FLAG_BITS_MAX_ENUM
+
+VkImageType = VK_IMAGE_TYPE_1D, VK_IMAGE_TYPE_2D, VK_IMAGE_TYPE_3D, VK_IMAGE_TYPE_MAX_ENUM
+
+VkImageTiling = VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_TILING_LINEAR, VK_IMAGE_TILING_DRM_FORMAT_MODIFIER_EXT, VK_IMAGE_TILING_MAX_ENUM
+
+VkSampleCountFlagBits = VK_SAMPLE_COUNT_1_BIT, VK_SAMPLE_COUNT_2_BIT, VK_SAMPLE_COUNT_4_BIT, VK_SAMPLE_COUNT_8_BIT, VK_SAMPLE_COUNT_16_BIT, VK_SAMPLE_COUNT_32_BIT, VK_SAMPLE_COUNT_64_BIT, VK_SAMPLE_COUNT_FLAG_BITS_MAX_ENUM
+
+VkImageCreateFlagBits = VK_IMAGE_CREATE_SPARSE_BINDING_BIT, VK_IMAGE_CREATE_SPARSE_RESIDENCY_BIT, VK_IMAGE_CREATE_SPARSE_ALIASED_BIT, VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT, VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT, VK_IMAGE_CREATE_ALIAS_BIT, VK_IMAGE_CREATE_SPLIT_INSTANCE_BIND_REGIONS_BIT, VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT, VK_IMAGE_CREATE_BLOCK_TEXEL_VIEW_COMPATIBLE_BIT, VK_IMAGE_CREATE_EXTENDED_USAGE_BIT, VK_IMAGE_CREATE_PROTECTED_BIT, VK_IMAGE_CREATE_DISJOINT_BIT, VK_IMAGE_CREATE_CORNER_SAMPLED_BIT_NV, VK_IMAGE_CREATE_SAMPLE_LOCATIONS_COMPATIBLE_DEPTH_BIT_EXT, VK_IMAGE_CREATE_SUBSAMPLED_BIT_EXT, VK_IMAGE_CREATE_DESCRIPTOR_BUFFER_CAPTURE_REPLAY_BIT_EXT, VK_IMAGE_CREATE_MULTISAMPLED_RENDER_TO_SINGLE_SAMPLED_BIT_EXT, VK_IMAGE_CREATE_2D_VIEW_COMPATIBLE_BIT_EXT, VK_IMAGE_CREATE_FRAGMENT_DENSITY_MAP_OFFSET_BIT_QCOM, VK_IMAGE_CREATE_FLAG_BITS_MAX_ENUM
+
+VkImageUsageFlagBits = VK_IMAGE_USAGE_TRANSFER_SRC_BIT, VK_IMAGE_USAGE_TRANSFER_DST_BIT, VK_IMAGE_USAGE_SAMPLED_BIT, VK_IMAGE_USAGE_STORAGE_BIT, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT, VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT, VK_IMAGE_USAGE_VIDEO_DECODE_DST_BIT_KHR, VK_IMAGE_USAGE_VIDEO_DECODE_SRC_BIT_KHR, VK_IMAGE_USAGE_VIDEO_DECODE_DPB_BIT_KHR, VK_IMAGE_USAGE_FRAGMENT_DENSITY_MAP_BIT_EXT, VK_IMAGE_USAGE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR, VK_IMAGE_USAGE_ATTACHMENT_FEEDBACK_LOOP_BIT_EXT, VK_IMAGE_USAGE_INVOCATION_MASK_BIT_HUAWEI, VK_IMAGE_USAGE_SAMPLE_WEIGHT_BIT_QCOM, VK_IMAGE_USAGE_SAMPLE_BLOCK_MATCH_BIT_QCOM, VK_IMAGE_USAGE_FLAG_BITS_MAX_ENUM
+
+# VkQueueFlagBits = VK_QUEUE_GRAPHICS_BIT, VK_QUEUE_COMPUTE_BIT, VK_QUEUE_TRANSFER_BIT, VK_QUEUE_SPARSE_BINDING_BIT, VK_QUEUE_PROTECTED_BIT, VK_QUEUE_VIDEO_DECODE_BIT_KHR, VK_QUEUE_OPTICAL_FLOW_BIT_NV, VK_QUEUE_FLAG_BITS_MAX_ENUM
+
+# VkMemoryPropertyFlagBits = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, VK_MEMORY_PROPERTY_HOST_CACHED_BIT, VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT, VK_MEMORY_PROPERTY_PROTECTED_BIT, VK_MEMORY_PROPERTY_DEVICE_COHERENT_BIT_AMD, VK_MEMORY_PROPERTY_DEVICE_UNCACHED_BIT_AMD, VK_MEMORY_PROPERTY_RDMA_CAPABLE_BIT_NV, VK_MEMORY_PROPERTY_FLAG_BITS_MAX_ENUM
+
+# VkMemoryHeapFlagBits = VK_MEMORY_HEAP_DEVICE_LOCAL_BIT, VK_MEMORY_HEAP_MULTI_INSTANCE_BIT, VK_MEMORY_HEAP_MULTI_INSTANCE_BIT_KHR, VK_MEMORY_HEAP_FLAG_BITS_MAX_ENUM
+
+VkDeviceQueueCreateFlagBits = VK_DEVICE_QUEUE_CREATE_PROTECTED_BIT, VK_DEVICE_QUEUE_CREATE_FLAG_BITS_MAX_ENUM
+
+VkDeviceCreateFlagBits = VK_DEVICE_CREATE_PROTECTED_BIT, VK_DEVICE_CREATE_FLAG_BITS_MAX_ENUM
+
+VkPipelineStageFlagBits = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT, VK_PIPELINE_STAGE_VERTEX_SHADER_BIT, VK_PIPELINE_STAGE_TESSELLATION_CONTROL_SHADER_BIT, VK_PIPELINE_STAGE_TESSELLATION_EVALUATION_SHADER_BIT, VK_PIPELINE_STAGE_GEOMETRY_SHADER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT, VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, VK_PIPELINE_STAGE_HOST_BIT, VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_NONE, VK_PIPELINE_STAGE_TRANSFORM_FEEDBACK_BIT_EXT, VK_PIPELINE_STAGE_CONDITIONAL_RENDERING_BIT_EXT, VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR, VK_PIPELINE_STAGE_RAY_TRACING_SHADER_BIT_KHR, VK_PIPELINE_STAGE_FRAGMENT_DENSITY_PROCESS_BIT_EXT, VK_PIPELINE_STAGE_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR, VK_PIPELINE_STAGE_COMMAND_PREPROCESS_BIT_NV, VK_PIPELINE_STAGE_TASK_SHADER_BIT_EXT, VK_PIPELINE_STAGE_MESH_SHADER_BIT_EXT, VK_PIPELINE_STAGE_SHADING_RATE_IMAGE_BIT_NV, VK_PIPELINE_STAGE_RAY_TRACING_SHADER_BIT_NV, VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_NV, VK_PIPELINE_STAGE_TASK_SHADER_BIT_NV, VK_PIPELINE_STAGE_MESH_SHADER_BIT_NV, VK_PIPELINE_STAGE_NONE_KHR, VK_PIPELINE_STAGE_FLAG_BITS_MAX_ENUM
+
+VkMemoryMapFlagBits = VK_MEMORY_MAP_FLAG_NONE
+
+# Structure Definition
+VkApplicationInfo {
+	sType			const[VK_STRUCTURE_TYPE_APPLICATION_INFO, int32]
+	pNext			ptr[in, void]
+	pApplicationName	ptr[in, string]
+	applicationVersion	int32
+	pEngineName		ptr[in, string]
+	engineVersion		int32
+	apiVersion		int32
+}
+
+VkInstanceCreateInfo {
+	sType			const[VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO, int32]
+	pNext			ptr[in, void]
+	flags			flags[VkInstanceCreateFlagBits, int32]
+	pApplicationInfo	ptr[in, VkApplicationInfo]
+	enabledLayerCount	len[ppEnabledLayerNames, int32]
+	ppEnabledLayerNames	ptr[in, array[ptr[in, string]]]
+	enabledExtensionCount	len[ppEnabledExtensionNames, int32]
+	ppEnabledExtensionNames	ptr[in, array[ptr[in, string]]]
+}
+
+VkAllocationCallbacks {
+	pUserData		ptr[in, void]
+	pfnAllocation		const[0, intptr]
+	pfnReallocation		const[0, intptr]
+	pfnFree			const[0, intptr]
+	pfnInternalAllocation	const[0, intptr]
+	pfnInternalFree		const[0, intptr]
+}
+
+VkPhysicalDeviceFeatures {
+	robustBufferAccess			int32[0:1]
+	fullDrawIndexUint32			int32[0:1]
+	imageCubeArray				int32[0:1]
+	independentBlend			int32[0:1]
+	geometryShader				int32[0:1]
+	tessellationShader			int32[0:1]
+	sampleRateShading			int32[0:1]
+	dualSrcBlend				int32[0:1]
+	logicOp					int32[0:1]
+	multiDrawIndirect			int32[0:1]
+	drawIndirectFirstInstance		int32[0:1]
+	depthClamp				int32[0:1]
+	depthBiasClamp				int32[0:1]
+	fillModeNonSolid			int32[0:1]
+	depthBounds				int32[0:1]
+	wideLines				int32[0:1]
+	largePoints				int32[0:1]
+	alphaToOne				int32[0:1]
+	multiViewport				int32[0:1]
+	samplerAnisotropy			int32[0:1]
+	textureCompressionETC2			int32[0:1]
+	textureCompressionASTC_LDR		int32[0:1]
+	textureCompressionBC			int32[0:1]
+	occlusionQueryPrecise			int32[0:1]
+	pipelineStatisticsQuery			int32[0:1]
+	vertexPipelineStoresAndAtomics		int32[0:1]
+	fragmentStoresAndAtomics		int32[0:1]
+	shaderTessellationAndGeometryPointSize	int32[0:1]
+	shaderImageGatherExtended		int32[0:1]
+	shaderStorageImageExtendedFormats	int32[0:1]
+	shaderStorageImageMultisample		int32[0:1]
+	shaderStorageImageReadWithoutFormat	int32[0:1]
+	shaderStorageImageWriteWithoutFormat	int32[0:1]
+	shaderUniformBufferArrayDynamicIndexing	int32[0:1]
+	shaderSampledImageArrayDynamicIndexing	int32[0:1]
+	shaderStorageBufferArrayDynamicIndexing	int32[0:1]
+	shaderStorageImageArrayDynamicIndexing	int32[0:1]
+	shaderClipDistance			int32[0:1]
+	shaderCullDistance			int32[0:1]
+	shaderFloat64				int32[0:1]
+	shaderInt64				int32[0:1]
+	shaderInt16				int32[0:1]
+	shaderResourceResidency			int32[0:1]
+	shaderResourceMinLod			int32[0:1]
+	sparseBinding				int32[0:1]
+	sparseResidencyBuffer			int32[0:1]
+	sparseResidencyImage2D			int32[0:1]
+	sparseResidencyImage3D			int32[0:1]
+	sparseResidency2Samples			int32[0:1]
+	sparseResidency4Samples			int32[0:1]
+	sparseResidency8Samples			int32[0:1]
+	sparseResidency16Samples		int32[0:1]
+	sparseResidencyAliased			int32[0:1]
+	variableMultisampleRate			int32[0:1]
+	inheritedQueries			int32[0:1]
+}
+
+VkExtent3D {
+	width	int32
+	height	int32
+	depth	int32
+}
+
+VkDeviceCreateInfo {
+	sType			const[VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO, int32]
+	pNext			ptr[in, void]
+	flags			flags[VkDeviceCreateFlagBits, int32]
+	queueCreateInfoCount	len[pQueueCreateInfos, int32]
+	pQueueCreateInfos	ptr[in, array[VkDeviceQueueCreateInfo]]
+	enabledLayerCount	len[ppEnabledLayerNames, int32]
+	ppEnabledLayerNames	ptr[in, array[ptr[in, string]]]
+	enabledExtensionCount	len[ppEnabledExtensionNames, int32]
+	ppEnabledExtensionNames	ptr[in, array[ptr[in, string]]]
+	pEnabledFeatures	ptr[in, VkPhysicalDeviceFeatures]
+}
+
+VkDeviceQueueCreateInfo {
+	sType			const[VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO, int32]
+	pNext			ptr[in, void]
+	flags			flags[VkDeviceQueueCreateFlagBits, int32]
+	queueFamilyIndex	int32
+	queueCount		len[pQueuePriorities, int32]
+	pQueuePriorities	ptr[in, array[int32[0:1]]]
+}
+
+VkSubmitInfo {
+	sType			const[VK_STRUCTURE_TYPE_SUBMIT_INFO, int32]
+	pNext			ptr[in, void]
+	waitSemaphoreCount	len[pWaitSemaphores, int32]
+	pWaitSemaphores		ptr[in, array[VkSemaphore]]
+	pWaitDstStageMask	ptr[in, array[flags[VkPipelineStageFlagBits, int32]]]
+	commandBufferCount	len[pCommandBuffers, int32]
+	pCommandBuffers		ptr[in, array[VkCommandBuffer]]
+	signalSemaphoreCount	len[pSignalSemaphores, int32]
+	pSignalSemaphores	ptr[in, array[VkSemaphore]]
+}
+
+VkMemoryAllocateInfo {
+	sType		const[37, int32]
+	pNext		ptr[in, void]
+	allocationSize	int64
+	memoryTypeIndex	int32
+}
+
+VkExtensionProperties {
+	extensionName	array[int8, 256]
+	specVersion	int32
+}
+
+# API Definition
+syz_vkCreateInstance(pCreateInfo ptr[in, VkInstanceCreateInfo], pAllocator ptr[in, VkAllocationCallbacks], pInstance ptr[out, VkInstance])
+syz_vkDestroyInstance(instance VkInstance, pAllocator ptr[in, VkAllocationCallbacks])
+syz_vkEnumeratePhysicalDevices(instance VkInstance, pPhysicalDeviceCount ptr[out, int64], pPhysicalDevices ptr[out, array[VkPhysicalDevice]])
+syz_vkGetPhysicalDeviceFeatures(physicalDevice VkPhysicalDevice, pFeatures ptr[out, int64])
+syz_vkGetPhysicalDeviceFormatProperties(physicalDevice VkPhysicalDevice, format int32[0:2147483647], pFormatProperties ptr[out, int64])
+syz_vkGetPhysicalDeviceImageFormatProperties(physicalDevice VkPhysicalDevice, format flags[VkFormat], type flags[VkImageType], tiling flags[VkImageTiling], usage flags[VkImageUsageFlagBits], flags flags[VkImageCreateFlagBits], pImageFormatProperties ptr[out, vkGetPhysicalDeviceImageFormatProperties_pImageFormatProperties])
+syz_vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice VkPhysicalDevice, pQueueFamilyPropertyCount ptr[out, int32], pQueueFamilyProperties ptr[out, intptr])
+syz_vkGetPhysicalDeviceMemoryProperties(physicalDevice VkPhysicalDevice, pMemoryProperties ptr[out, int64])
+syz_vkGetInstanceProcAddr(instance VkInstance, pName ptr[in, string]) PFN_vkVoidFunction
+syz_vkGetDeviceProcAddr(device VkDevice, pName ptr[in, string]) PFN_vkVoidFunction
+syz_vkCreateDevice(physicalDevice VkPhysicalDevice, pCreateInfo ptr[in, VkDeviceCreateInfo], pAllocator ptr[in, VkAllocationCallbacks], pDevice ptr[out, VkDevice])
+syz_vkDestroyDevice(device VkDevice, pAllocator ptr[in, VkAllocationCallbacks])
+syz_vkEnumerateInstanceExtensionProperties(pLayerName ptr[in, string], pPropertyCount ptr[inout, int32], pProperties ptr[out, array[VkExtensionProperties]])
+syz_vkEnumerateDeviceExtensionProperties(physicalDevice VkPhysicalDevice, pLayerName ptr[in, string], pPropertyCount ptr[inout, int32], pProperties ptr[out, intptr])
+syz_vkEnumerateInstanceLayerProperties(pPropertyCount ptr[out, int64], pProperties ptr[out, vkEnumerateInstanceLayerProperties_pProperties])
+syz_vkEnumerateDeviceLayerProperties(physicalDevice VkPhysicalDevice, pPropertyCount ptr[inout, int64], pProperties ptr[out, intptr])
+syz_vkGetDeviceQueue(device VkDevice, queueFamilyIndex int32, queueIndex int32, pQueue ptr[out, VkQueue])
+syz_vkQueueSubmit(queue VkQueue, submitCount len[pSubmits], pSubmits ptr[in, array[VkSubmitInfo]], fence VkFence)
+syz_vkQueueWaitIdle(queue VkQueue)
+syz_vkDeviceWaitIdle(device VkDevice)
+syz_vkAllocateMemory(device VkDevice, pAllocateInfo ptr[in, VkMemoryAllocateInfo], pAllocator ptr[in, VkAllocationCallbacks], pMemory ptr[out, VkDeviceMemory])
+syz_vkFreeMemory(device VkDevice, memory VkDeviceMemory, pAllocator ptr[in, VkAllocationCallbacks])
+syz_vkMapMemory(device VkDevice, memory VkDeviceMemory, offset int64, size int64, flags flags[VkMemoryMapFlagBits], ppData ptr[out, int64])

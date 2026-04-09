@@ -1,0 +1,112 @@
+include <cuda.h>
+
+# Resource Definition
+resource CUmemGenericAllocationHandle[intptr]
+resource osHandle[intptr]
+
+# Enum Definition
+CUmemAllocationType = CU_MEM_ALLOCATION_TYPE_INVALID, CU_MEM_ALLOCATION_TYPE_PINNED, CU_MEM_ALLOCATION_TYPE_MAX
+
+CUmemAllocationHandleType = CU_MEM_HANDLE_TYPE_NONE, CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR, CU_MEM_HANDLE_TYPE_WIN32, CU_MEM_HANDLE_TYPE_WIN32_KMT, CU_MEM_HANDLE_TYPE_FABRIC, CU_MEM_HANDLE_TYPE_MAX
+
+CUmemLocationType = CU_MEM_LOCATION_TYPE_INVALID, CU_MEM_LOCATION_TYPE_DEVICE, CU_MEM_LOCATION_TYPE_HOST, CU_MEM_LOCATION_TYPE_HOST_NUMA, CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT, CU_MEM_LOCATION_TYPE_MAX
+
+CUmemAccess_flags = CU_MEM_ACCESS_FLAGS_PROT_NONE, CU_MEM_ACCESS_FLAGS_PROT_READ, CU_MEM_ACCESS_FLAGS_PROT_READWRITE, CU_MEM_ACCESS_FLAGS_MAX
+
+CUmemAllocationGranularity_flags = CU_MEM_ALLOC_GRANULARITY_MINIMUM, CU_MEM_ALLOC_GRANULARITY_RECOMMENDED
+
+CUresourcetype = CU_RESOURCE_TYPE_ARRAY, CU_RESOURCE_TYPE_MIPMAPPED_ARRAY, CU_RESOURCE_TYPE_LINEAR, CU_RESOURCE_TYPE_PITCH2D
+
+CUarraySparseSubresourceType = CU_ARRAY_SPARSE_SUBRESOURCE_TYPE_SPARSE_LEVEL, CU_ARRAY_SPARSE_SUBRESOURCE_TYPE_MIPTAIL
+
+CUmemOperationType = CU_MEM_OPERATION_TYPE_MAP, CU_MEM_OPERATION_TYPE_UNMAP
+
+CUmemHandleType = CU_MEM_HANDLE_TYPE_GENERIC
+
+# Structure Definition
+CUmemAllocationProp {
+	type			flags[CUmemAllocationType, int32]
+	requestedHandleTypes	flags[CUmemAllocationHandleType, int32]
+	location		CUmemLocation
+	win32HandleMetaData	ptr[in, void]
+	allocFlags		CUmemAllocationProp_allocFlags
+}
+
+CUmemAllocationProp_allocFlags {
+	compressionType		int8
+	gpuDirectRDMACapable	int8
+	usage			int16
+	reserved		array[int8, 4]
+}
+
+CUmemLocation {
+	type	flags[CUmemLocationType, int32]
+	id	int32
+}
+
+type CUarrayMapInfo[CUARRAYMAPINFO_OP1, CUARRAYMAPINFO_OP2, CUARRAYMAPINFO_OP3] {
+	resourceType		flags[CUresourcetype, int32]
+	resource1		CUARRAYMAPINFO_OP1
+	subresourceType		flags[CUarraySparseSubresourceType, int32]
+	subresource		CUARRAYMAPINFO_OP2
+	memOperationType	flags[CUmemOperationType, int32]
+	memHandleType		flags[CUmemHandleType, int32]
+	memHandle		CUARRAYMAPINFO_OP3
+	offset			int64
+	deviceBitMask		int32
+	flags			const[0, int32]
+	reserved		array[const[0, int32], 2]
+}
+
+CUarrayMapInfo_resource_mipmap {
+	mipmap	CUmipmappedArray
+}
+
+CUarrayMapInfo_resource_array {
+	array	CUarray
+}
+
+CUarrayMapInfo_subresource_sparseLevel {
+	level		int32
+	layer		int32
+	offsetX		int32
+	offsetY		int32
+	offsetZ		int32
+	extentWidth	int32
+	extentHeight	int32
+	extentDepth	int32
+}
+
+CUarrayMapInfo_subresource_miptail {
+	layer	int32
+	offset	int64
+	size	int64
+}
+
+CUarrayMapInfo_memHandle_memHandle {
+	memHandle	CUmemGenericAllocationHandle
+}
+
+CUmemAccessDesc {
+	location	CUmemLocation
+	flags		flags[CUmemAccess_flags, int32]
+}
+
+# API Definition
+syz_cuMemAddressFree(ptr CUdeviceptr, size int32)
+syz_cuMemAddressReserve(ptr ptr[out, CUdeviceptr], size int32, alignment int32, addr CUdeviceptr, flags int32)
+syz_cuMemCreate(handle ptr[out, CUmemGenericAllocationHandle], size intptr, prop ptr[in, CUmemAllocationProp], flags const[0])
+syz_cuMemExportToShareableHandle(shareableHandle ptr[out, void], handle CUmemGenericAllocationHandle, handleType flags[CUmemAllocationHandleType], flags const[0])
+syz_cuMemGetAccess(flags ptr[out, flags[CUmemAccess_flags, int32]], location ptr[in, CUmemLocation], ptr CUdeviceptr)
+syz_cuMemGetAllocationGranularity(granularity ptr[out, int64], prop ptr[in, CUmemAllocationProp], option flags[CUmemAllocationGranularity_flags])
+syz_cuMemGetAllocationPropertiesFromHandle(prop ptr[out, CUmemAllocationProp], handle CUmemGenericAllocationHandle)
+syz_cuMemImportFromShareableHandle(handle ptr[out, CUmemGenericAllocationHandle], osHandle osHandle, shHandleType flags[CUmemAllocationHandleType])
+syz_cuMemMap(ptr CUdeviceptr, size int32, offset int32, handle CUmemGenericAllocationHandle, flags flags[CUmemAttach_flags])
+syz_cuMemMapArrayAsync$1(mapInfoList ptr[in, array[CUarrayMapInfo[CUarrayMapInfo_resource_mipmap, CUarrayMapInfo_subresource_sparseLevel, CUarrayMapInfo_memHandle_memHandle]]], count len[mapInfoList], hStream CUstream)
+syz_cuMemMapArrayAsync$2(mapInfoList ptr[in, array[CUarrayMapInfo[CUarrayMapInfo_resource_mipmap, CUarrayMapInfo_subresource_miptail, CUarrayMapInfo_memHandle_memHandle]]], count len[mapInfoList], hStream CUstream)
+syz_cuMemMapArrayAsync$3(mapInfoList ptr[in, array[CUarrayMapInfo[CUarrayMapInfo_resource_array, CUarrayMapInfo_subresource_sparseLevel, CUarrayMapInfo_memHandle_memHandle]]], count len[mapInfoList], hStream CUstream)
+syz_cuMemMapArrayAsync$4(mapInfoList ptr[in, array[CUarrayMapInfo[CUarrayMapInfo_resource_array, CUarrayMapInfo_subresource_miptail, CUarrayMapInfo_memHandle_memHandle]]], count len[mapInfoList], hStream CUstream)
+syz_cuMemRelease(handle CUmemGenericAllocationHandle)
+syz_cuMemRetainAllocationHandle(handle ptr[out, CUmemGenericAllocationHandle], addr ptr[in, void])
+syz_cuMemSetAccess(ptr CUdeviceptr, size int32, desc ptr[in, array[CUmemAccessDesc]], count len[desc])
+syz_cuMemUnmap(ptr CUdeviceptr, size int32)

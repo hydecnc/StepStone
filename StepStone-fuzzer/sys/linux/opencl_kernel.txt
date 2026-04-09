@@ -1,0 +1,33 @@
+include <CL/opencl.h>
+meta arches["amd64"]
+
+# Resource Definition
+resource cl_kernel[intptr]
+resource void_p[intptr]
+
+# Enum Definition
+cl_kernel_exec_info = CL_KERNEL_EXEC_INFO_SVM_PTRS, CL_KERNEL_EXEC_INFO_SVM_FINE_GRAIN_SYSTEM
+
+cl_kernel_info = CL_KERNEL_FUNCTION_NAME, CL_KERNEL_NUM_ARGS, CL_KERNEL_REFERENCE_COUNT, CL_KERNEL_CONTEXT, CL_KERNEL_PROGRAM, CL_KERNEL_ATTRIBUTES
+
+cl_kernel_arg_info = CL_KERNEL_ARG_ADDRESS_QUALIFIER, CL_KERNEL_ARG_ACCESS_QUALIFIER, CL_KERNEL_ARG_TYPE_NAME, CL_KERNEL_ARG_TYPE_QUALIFIER, CL_KERNEL_ARG_NAME
+
+cl_kernel_work_group_info = CL_KERNEL_WORK_GROUP_SIZE, CL_KERNEL_COMPILE_WORK_GROUP_SIZE, CL_KERNEL_LOCAL_MEM_SIZE, CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE, CL_KERNEL_PRIVATE_MEM_SIZE, CL_KERNEL_GLOBAL_WORK_SIZE, CL_KERNEL_MAX_NUM_SUB_GROUPS, CL_KERNEL_COMPILE_NUM_SUB_GROUPS, CL_KERNEL_MAX_SUB_GROUP_SIZE_FOR_NDRANGE, CL_KERNEL_SUB_GROUP_COUNT_FOR_NDRANGE, CL_KERNEL_LOCAL_SIZE_FOR_SUB_GROUP_COUNT
+
+cl_kernel_sub_group_info = CL_KERNEL_MAX_SUB_GROUP_SIZE_FOR_NDRANGE, CL_KERNEL_SUB_GROUP_COUNT_FOR_NDRANGE, CL_KERNEL_LOCAL_SIZE_FOR_SUB_GROUP_COUNT, CL_KERNEL_MAX_NUM_SUB_GROUPS, CL_KERNEL_COMPILE_NUM_SUB_GROUPS
+
+# Structure Definition
+
+# API Definition
+syz_clCreateKernel(program cl_program, kernel_name ptr[in, string[filename]], errcode_ret ptr[out, int32]) cl_kernel
+syz_clCreateKernelsInProgram(program cl_program, num_kernels len[kernels], kernels ptr[out, array[cl_kernel]], num_kernels_ret ptr[out, int32])
+syz_clCloneKernel(source_kernel cl_kernel, errcode_ret ptr[out, int32]) cl_kernel
+syz_clRetainKernel(kernel cl_kernel)
+syz_clReleaseKernel(kernel cl_kernel)
+syz_clSetKernelArg(kernel cl_kernel, arg_index int32, arg_size bytesize[arg_value], arg_value ptr[in, void])
+syz_clSetKernelArgSVMPointer(kernel cl_kernel, arg_index int32, arg_value void_p)
+syz_clSetKernelExecInfo(kernel cl_kernel, param_name flags[cl_kernel_exec_info], param_value_size bytesize[param_value], param_value ptr[in, int64])
+syz_clGetKernelInfo(kernel cl_kernel, param_name flags[cl_kernel_info], param_value_size int64, param_value ptr[out, void_p], param_value_size_ret ptr[out, int64])
+syz_clGetKernelArgInfo(kernel cl_kernel, arg_indx int32, param_name flags[cl_kernel_arg_info], param_value_size bytesize[param_value], param_value ptr[out, void_p], param_value_size_ret ptr[out, int64])
+syz_clGetKernelWorkGroupInfo(kernel cl_kernel, device cl_device_id, param_name flags[cl_kernel_work_group_info], param_value_size int64, param_value ptr[out, void], param_value_size_ret ptr[out, int64])
+syz_clGetKernelSubGroupInfo(kernel cl_kernel, device cl_device_id, param_name flags[cl_kernel_sub_group_info], input_value_size len[input_value], input_value ptr[in, void_p], param_value_size len[param_value], param_value ptr[out, void_p], param_value_size_ret ptr[out, int64])

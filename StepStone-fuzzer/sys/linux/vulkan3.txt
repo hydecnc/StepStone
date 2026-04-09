@@ -1,0 +1,45 @@
+include <vulkan/vulkan.h>
+meta arches["amd64"]
+
+# Resource Definition
+resource vkGetDeviceImageMemoryRequirements_pMemoryRequirements[intptr]
+
+# Enum Definition
+# VkShaderInfoTypeAMD = VK_SHADER_INFO_TYPE_STATISTICS_AMD, VK_SHADER_INFO_TYPE_BINARY_AMD, VK_SHADER_INFO_TYPE_DISASSEMBLY_AMD, VK_SHADER_INFO_TYPE_MAX_ENUM_AMD
+
+# Structure Definition
+VkBindBufferMemoryInfo {
+	sType		const[28, int32]
+	pNext		const[0, intptr]
+	buffer		VkBuffer
+	memory		VkDeviceMemory
+	memoryOffset	int64
+}
+
+VkDeviceBufferMemoryRequirements {
+	sType		const[169, int32]
+	pNext		const[0, intptr]
+	pCreateInfo	ptr[in, VkInstanceCreateInfo]
+}
+
+VkDeviceImageMemoryRequirements {
+	sType		const[1000458000, int32]
+	pNext		ptr[in, void]
+	pCreateInfo	ptr[in, VkImageCreateInfo]
+	planeAspect	flags[VkImageAspectFlagBits, int32]
+}
+
+# API Definition
+syz_vkDestroyDescriptorPool(device VkDevice, descriptorPool VkDescriptorPool, pAllocator ptr[in, VkAllocationCallbacks])
+syz_vkCmdDispatch(commandBuffer VkCommandBuffer, groupCountX int32, groupCountY int32, groupCountZ int32)
+syz_vkCmdDrawIndirectCount(commandBuffer VkCommandBuffer, buffer VkBuffer, offset int64, countBuffer VkBuffer, countBufferOffset int64, maxDrawCount int32, stride int32)
+syz_vkCmdSetDepthBiasEnable(commandBuffer VkCommandBuffer, depthBiasEnable int32[0:1])
+syz_vkCmdSetPrimitiveRestartEnable(commandBuffer VkCommandBuffer, primitiveRestartEnable int32)
+syz_vkGetDeviceBufferMemoryRequirements(device VkDevice, pInfo ptr[in, VkDeviceBufferMemoryRequirements], pMemoryRequirements ptr[out, int64])
+syz_vkBindBufferMemory2$1(device VkDevice, bindInfoCount int32[1], pBindInfos ptr[in, array[VkBindBufferMemoryInfo, 1]])
+syz_vkGetDeviceImageMemoryRequirements(device VkDevice, pInfo ptr[in, VkDeviceImageMemoryRequirements], pMemoryRequirements ptr[out, vkGetDeviceImageMemoryRequirements_pMemoryRequirements])
+syz_vkGetDeviceImageSparseMemoryRequirements(device VkDevice, pInfo ptr[in, VkDeviceImageMemoryRequirements], pSparseMemoryRequirementCount ptr[inout, int64], pSparseMemoryRequirements ptr[out, intptr])
+# syz_vkCmdDrawIndirectCountAMD(commandBuffer VkCommandBuffer, buffer VkBuffer, offset int64, countBuffer VkBuffer, countBufferOffset int64, maxDrawCount int32, stride int32)
+# syz_vkCmdDrawIndexedIndirectCountAMD(commandBuffer VkCommandBuffer, buffer VkBuffer, offset int64, countBuffer VkBuffer, countBufferOffset int64, maxDrawCount int32, stride int32)
+# syz_vkGetShaderInfoAMD(device VkDevice, pipeline VkPipeline, shaderStage flags[VkShaderStageFlagBits], infoType int32[0:2], pInfoSize ptr[inout, int64], pInfo ptr[out, intptr])
+# syz_vkCmdWriteBufferMarker2AMD(commandBuffer VkCommandBuffer, stage flags[VkPipelineStageFlagBits2], dstBuffer VkBuffer, dstOffset int64, marker int32)

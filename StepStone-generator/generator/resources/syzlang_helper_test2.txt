@@ -1,0 +1,165 @@
+{
+    "resource": [
+        {
+            "resource_name": "CUexternalSemaphore",
+            "resource_type": "intptr"
+        }
+    ],
+    "enum": [
+        {
+            "enum_name": "CUexternalSemaphoreHandleType",
+            "enum_elements": [
+                "CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_FD",
+                "CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32",
+                "CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_KMT",
+                "CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_D3D12_FENCE",
+                "CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_D3D11_FENCE",
+                "CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_NVSCISYNC",
+                "CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_D3D11_KEYED_MUTEX",
+                "CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_D3D11_KEYED_MUTEX_KMT",
+                "CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_TIMELINE_SEMAPHORE_FD",
+                "CU_EXTERNAL_SEMAPHORE_HANDLE_TYPE_TIMELINE_SEMAPHORE_WIN32"
+            ],
+            "enum_values": [
+                "1",
+                "2",
+                "3",
+                "4",
+                "5",
+                "6",
+                "7",
+                "8",
+                "9",
+                "10"
+            ]
+        }
+    ],
+    "structure": [
+        {
+            "structure_name": "CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC",
+            "args": [
+                "CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_OP1"
+            ],
+            "fields": [
+                {
+                    "field_name": "type",
+                    "field_type": {
+                        "type_name": "flags",
+                        "flags_enum": "CUexternalSemaphoreHandleType",
+                        "flags_element_size": "int32"
+                    }
+                },
+                {
+                    "field_name": "handle",
+                    "field_type": {
+                        "type_name": "arg",
+                        "arg_name": "CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_OP1"
+                    }
+                },
+                {
+                    "field_name": "flags",
+                    "field_type": {
+                        "type_name": "const",
+                        "const_value": "0",
+                        "const_size": "int32"
+                    }
+                },
+                {
+                    "field_name": "reserved",
+                    "field_type": {
+                        "type_name": "array",
+                        "array_element": {
+                            "type_name": "const",
+                            "const_value": "0",
+                            "const_size": "int32"
+                        },
+                        "array_length": "16"
+                    }
+                }
+            ],
+            "type_cast": null,
+            "arg_of": []
+        },
+        {
+            "structure_name": "CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_handle_fd",
+            "args": [],
+            "fields": [],
+            "type_cast": "int32",
+            "arg_of": [
+                "CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_OP1"
+            ]
+        },
+        {
+            "structure_name": "CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_handle_win32",
+            "args": [],
+            "fields": [
+                {
+                    "field_name": "handle",
+                    "field_type": {
+                        "type_name": "int",
+                        "int_bound": {
+                            "min_val": "",
+                            "max_val": ""
+                        },
+                        "int_size": "intptr"
+                    }
+                },
+                {
+                    "field_name": "name",
+                    "field_type": {
+                        "type_name": "ptr",
+                        "ptr_method": "in",
+                        "ptr_object": {
+                            "type_name": "string",
+                            "string_value": "filename"
+                        }
+                    }
+                }
+            ],
+            "type_cast": null,
+            "arg_of": [
+                "CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_OP1"
+            ]
+        },
+        {
+            "structure_name": "CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_handle_nvSciSyncObj",
+            "args": [],
+            "fields": [],
+            "type_cast": "intptr",
+            "arg_of": [
+                "CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_OP1"
+            ]
+        }
+    ],
+    "api": [
+        {
+            "api_name": "cuImportExternalSemaphore",
+            "ret_type": "CUresult",
+            "params": [
+                {
+                    "param_name": "extSem_out",
+                    "param_type": {
+                        "type_name": "ptr",
+                        "ptr_method": "out",
+                        "ptr_object": {
+                            "type_name": "resource",
+                            "resource_name": "CUexternalSemaphore"
+                        }
+                    }
+                },
+                {
+                    "param_name": "semHandleDesc",
+                    "param_type": {
+                        "type_name": "ptr",
+                        "ptr_method": "in",
+                        "ptr_object": {
+                            "type_name": "structure",
+                            "structure_name": "CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC",
+                            "args": [{"type_name": "arg", "arg_name": "CUDA_EXTERNAL_SEMAPHORE_HANDLE_DESC_OP1"}]
+                        }
+                    }
+                }
+            ]
+        }
+    ]
+}

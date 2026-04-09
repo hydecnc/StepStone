@@ -1,0 +1,29 @@
+include <cuda.h>
+
+# Resource Definition
+# resource CUoccupancyB2DSize[intptr]
+
+# Enum Definition
+CUoccupancy_flags = CU_OCCUPANCY_DEFAULT, CU_OCCUPANCY_DISABLE_CACHING_OVERRIDE
+
+# Structure Definition
+
+# API Definition
+syz_cuOccupancyAvailableDynamicSMemPerBlock(dynamicSmemSize ptr[out, int64], func CUfunction, numBlocks int32, blockSize int32)
+syz_cuOccupancyMaxActiveBlocksPerMultiprocessor(numBlocks ptr[out, int32], func CUfunction, blockSize int32, dynamicSMemSize int32)
+syz_cuOccupancyMaxActiveBlocksPerMultiprocessorWithFlags(numBlocks ptr[out, int32], func CUfunction, blockSize int32, dynamicSMemSize int32, flags flags[CUoccupancy_flags])
+syz_cuOccupancyMaxActiveClusters$1(numClusters ptr[out, int32], func CUfunction, config ptr[in, CUlaunchConfig[CUlaunchAttributeValue_accessPolicyWindow]])
+syz_cuOccupancyMaxActiveClusters$2(numClusters ptr[out, int32], func CUfunction, config ptr[in, CUlaunchConfig[CUlaunchAttributeValue_cooperative]])
+syz_cuOccupancyMaxActiveClusters$3(numClusters ptr[out, int32], func CUfunction, config ptr[in, CUlaunchConfig[CUlaunchAttributeValue_syncPolicy]])
+syz_cuOccupancyMaxActiveClusters$4(numClusters ptr[out, int32], func CUfunction, config ptr[in, CUlaunchConfig[CUlaunchAttributeValue_clusterDim]])
+syz_cuOccupancyMaxActiveClusters$5(numClusters ptr[out, int32], func CUfunction, config ptr[in, CUlaunchConfig[CUlaunchAttributeValue_clusterSchedulingPolicyPreference]])
+syz_cuOccupancyMaxActiveClusters$6(numClusters ptr[out, int32], func CUfunction, config ptr[in, CUlaunchConfig[CUlaunchAttributeValue_programmaticStreamSerializationAllowed]])
+syz_cuOccupancyMaxActiveClusters$7(numClusters ptr[out, int32], func CUfunction, config ptr[in, CUlaunchConfig[CUlaunchAttributeValue_programmaticEvent]])
+syz_cuOccupancyMaxActiveClusters$8(numClusters ptr[out, int32], func CUfunction, config ptr[in, CUlaunchConfig[CUlaunchAttributeValue_launchCompletionEvent]])
+syz_cuOccupancyMaxActiveClusters$9(numClusters ptr[out, int32], func CUfunction, config ptr[in, CUlaunchConfig[CUlaunchAttributeValue_priority]])
+syz_cuOccupancyMaxActiveClusters$10(numClusters ptr[out, int32], func CUfunction, config ptr[in, CUlaunchConfig[CUlaunchAttributeValue_memSyncDomainMap]])
+syz_cuOccupancyMaxActiveClusters$11(numClusters ptr[out, int32], func CUfunction, config ptr[in, CUlaunchConfig[CUlaunchAttributeValue_memSyncDomain]])
+syz_cuOccupancyMaxActiveClusters$12(numClusters ptr[out, int32], func CUfunction, config ptr[in, CUlaunchConfig[CUlaunchAttributeValue_deviceUpdatableKernelNode]])
+syz_cuOccupancyMaxActiveClusters$13(numClusters ptr[out, int32], func CUfunction, config ptr[in, CUlaunchConfig[CUlaunchAttributeValue_sharedMemCarveout]])
+# syz_cuOccupancyMaxPotentialBlockSize(minGridSize ptr[out, int32], blockSize ptr[out, int32], func CUfunction, blockSizeToDynamicSMemSize CUoccupancyB2DSize, dynamicSMemSize intptr, blockSizeLimit int32)
+# syz_cuOccupancyMaxPotentialBlockSizeWithFlags(minGridSize ptr[out, int32], blockSize ptr[out, int32], func CUfunction, blockSizeToDynamicSMemSize CUoccupancyB2DSize, dynamicSMemSize int64, blockSizeLimit int32, flags flags[CUoccupancy_flags])

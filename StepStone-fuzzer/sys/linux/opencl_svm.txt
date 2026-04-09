@@ -1,0 +1,21 @@
+include <CL/opencl.h>
+meta arches["amd64"]
+
+# Resource Definition
+resource clSVMAlloc_ret[intptr]
+resource cl_sampler[intptr]
+
+# Enum Definition
+cl_svm_mem_flags = CL_MEM_SVM_FINE_GRAIN_BUFFER, CL_MEM_SVM_ATOMICS, CL_MEM_KERNEL_READ_AND_WRITE
+
+cl_sampler_info = CL_SAMPLER_REFERENCE_COUNT, CL_SAMPLER_CONTEXT, CL_SAMPLER_NORMALIZED_COORDS, CL_SAMPLER_ADDRESSING_MODE, CL_SAMPLER_FILTER_MODE, CL_SAMPLER_MIP_FILTER_MODE, CL_SAMPLER_LOD_MIN, CL_SAMPLER_LOD_MAX, CL_SAMPLER_PROPERTIES
+
+# Structure Definition
+
+# API Definition
+syz_clSVMAlloc(context cl_context, svm_flags flags[cl_svm_mem_flags], size int64, alignment int32) clSVMAlloc_ret
+syz_clSVMFree(context cl_context, svm_pointer clSVMAlloc_ret)
+syz_clCreateSamplerWithProperties(context cl_context, sampler_properties ptr[in, array[int64]], errcode_ret ptr[out, int32]) cl_sampler
+syz_clRetainSampler(sampler cl_sampler)
+syz_clReleaseSampler(sampler cl_sampler)
+syz_clGetSamplerInfo(sampler cl_sampler, param_name flags[cl_sampler_info], param_value_size int64, param_value ptr[out, void], param_value_size_ret ptr[out, int64])

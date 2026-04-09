@@ -1,0 +1,22 @@
+include <cuda.h>
+meta arches["amd64"]
+# Resource Definition
+
+# Enum Definition
+CUmulticastGranularity_flags = CU_MULTICAST_GRANULARITY_MINIMUM, CU_MULTICAST_GRANULARITY_RECOMMENDED
+
+# Structure Definition
+CUmulticastObjectProp {
+	numDevices	int32
+	size		int64
+	handleTypes	flags[CUmemAllocationHandleType, int64]
+	flags		const[0, int64]
+}
+
+# API Definition
+syz_cuMulticastAddDevice(mcHandle CUmemGenericAllocationHandle, dev CUdevice)
+syz_cuMulticastBindAddr(mcHandle CUmemGenericAllocationHandle, mcOffset int64, memptr CUdeviceptr, size int32, int64 const[0])
+syz_cuMulticastBindMem(mcHandle CUmemGenericAllocationHandle, mcOffset int64, memHandle CUmemGenericAllocationHandle, memOffset int32, size int32, flags const[0])
+syz_cuMulticastCreate(mcHandle ptr[out, CUmemGenericAllocationHandle], prop ptr[in, CUmulticastObjectProp])
+syz_cuMulticastGetGranularity(granularity ptr[out, int64], prop ptr[in, CUmulticastObjectProp], option flags[CUmulticastGranularity_flags])
+syz_cuMulticastUnbind(mcHandle CUmemGenericAllocationHandle, dev CUdevice, mcOffset int64, size int64)

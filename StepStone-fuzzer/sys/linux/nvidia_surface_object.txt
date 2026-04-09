@@ -1,0 +1,21 @@
+include <cuda.h>
+
+# Resource Definition
+resource CUsurfObject[intptr]
+
+# Enum Definition
+
+# Structure Definition
+
+# API Definition
+syz_cuSurfObjectCreate$1(pSurfObject ptr[out, CUsurfObject], pResDesc ptr[in, CUDA_RESOURCE_DESC[CUDA_RESOURCE_DESC_array]])
+syz_cuSurfObjectCreate$2(pSurfObject ptr[out, CUsurfObject], pResDesc ptr[in, CUDA_RESOURCE_DESC[CUDA_RESOURCE_DESC_mipmap]])
+syz_cuSurfObjectCreate$3(pSurfObject ptr[out, CUsurfObject], pResDesc ptr[in, CUDA_RESOURCE_DESC[CUDA_RESOURCE_DESC_linear]])
+syz_cuSurfObjectCreate$4(pSurfObject ptr[out, CUsurfObject], pResDesc ptr[in, CUDA_RESOURCE_DESC[CUDA_RESOURCE_DESC_pitch2D]])
+syz_cuSurfObjectCreate$5(pSurfObject ptr[out, CUsurfObject], pResDesc ptr[in, CUDA_RESOURCE_DESC[CUDA_RESOURCE_DESC_reserved]])
+syz_cuSurfObjectDestroy(surfObject CUsurfObject)
+syz_cuSurfObjectGetResourceDesc$1(pResDesc ptr[out, CUDA_RESOURCE_DESC[CUDA_RESOURCE_DESC_array]], surfObject CUsurfObject)
+syz_cuSurfObjectGetResourceDesc$2(pResDesc ptr[out, CUDA_RESOURCE_DESC[CUDA_RESOURCE_DESC_mipmap]], surfObject CUsurfObject)
+syz_cuSurfObjectGetResourceDesc$3(pResDesc ptr[out, CUDA_RESOURCE_DESC[CUDA_RESOURCE_DESC_linear]], surfObject CUsurfObject)
+syz_cuSurfObjectGetResourceDesc$4(pResDesc ptr[out, CUDA_RESOURCE_DESC[CUDA_RESOURCE_DESC_pitch2D]], surfObject CUsurfObject)
+syz_cuSurfObjectGetResourceDesc$5(pResDesc ptr[out, CUDA_RESOURCE_DESC[CUDA_RESOURCE_DESC_reserved]], surfObject CUsurfObject)

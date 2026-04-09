@@ -1,0 +1,304 @@
+include <cuda.h>
+
+# Resource Definition
+resource CUgraphConditionalHandle[int64]
+resource CUgraphExec[intptr]
+#resource CUuserObject[intptr]
+
+# Enum Definition
+CUgraphMem_attribute = CU_GRAPH_MEM_ATTR_USED_MEM_CURRENT, CU_GRAPH_MEM_ATTR_USED_MEM_HIGH, CU_GRAPH_MEM_ATTR_RESERVED_MEM_CURRENT, CU_GRAPH_MEM_ATTR_RESERVED_MEM_HIGH
+
+CUgraphNodeType = CU_GRAPH_NODE_TYPE_KERNEL, CU_GRAPH_NODE_TYPE_MEMCPY, CU_GRAPH_NODE_TYPE_MEMSET, CU_GRAPH_NODE_TYPE_HOST, CU_GRAPH_NODE_TYPE_GRAPH, CU_GRAPH_NODE_TYPE_EMPTY, CU_GRAPH_NODE_TYPE_WAIT_EVENT, CU_GRAPH_NODE_TYPE_EVENT_RECORD, CU_GRAPH_NODE_TYPE_EXT_SEMAS_SIGNAL, CU_GRAPH_NODE_TYPE_EXT_SEMAS_WAIT, CU_GRAPH_NODE_TYPE_MEM_ALLOC, CU_GRAPH_NODE_TYPE_MEM_FREE, CU_GRAPH_NODE_TYPE_BATCH_MEM_OP, CU_GRAPH_NODE_TYPE_CONDITIONAL
+
+CUgraphExecUpdateResult = CU_GRAPH_EXEC_UPDATE_SUCCESS, CU_GRAPH_EXEC_UPDATE_ERROR, CU_GRAPH_EXEC_UPDATE_ERROR_TOPOLOGY_CHANGED, CU_GRAPH_EXEC_UPDATE_ERROR_NODE_TYPE_CHANGED, CU_GRAPH_EXEC_UPDATE_ERROR_FUNCTION_CHANGED, CU_GRAPH_EXEC_UPDATE_ERROR_PARAMETERS_CHANGED, CU_GRAPH_EXEC_UPDATE_ERROR_NOT_SUPPORTED, CU_GRAPH_EXEC_UPDATE_ERROR_UNSUPPORTED_FUNCTION_CHANGE, CU_GRAPH_EXEC_UPDATE_ERROR_ATTRIBUTES_CHANGED
+
+CUgraphInstantiate_flags = CUDA_GRAPH_INSTANTIATE_FLAG_AUTO_FREE_ON_LAUNCH, CUDA_GRAPH_INSTANTIATE_FLAG_UPLOAD, CUDA_GRAPH_INSTANTIATE_FLAG_DEVICE_LAUNCH, CUDA_GRAPH_INSTANTIATE_FLAG_USE_NODE_PRIORITY
+
+CUgraphInstantiateResult = CUDA_GRAPH_INSTANTIATE_SUCCESS, CUDA_GRAPH_INSTANTIATE_ERROR, CUDA_GRAPH_INSTANTIATE_INVALID_STRUCTURE, CUDA_GRAPH_INSTANTIATE_NODE_OPERATION_NOT_SUPPORTED, CUDA_GRAPH_INSTANTIATE_MULTIPLE_CTXS_NOT_SUPPORTED
+
+#CU_GRAPH_COND_ASSIGN_DEFAULT 0x1
+flag_cuGraphConditionalHandleCreate = 0, 1
+CUgraphDebugDot_flags = CU_GRAPH_DEBUG_DOT_FLAGS_VERBOSE, CU_GRAPH_DEBUG_DOT_FLAGS_RUNTIME_TYPES, CU_GRAPH_DEBUG_DOT_FLAGS_KERNEL_NODE_PARAMS, CU_GRAPH_DEBUG_DOT_FLAGS_MEMCPY_NODE_PARAMS, CU_GRAPH_DEBUG_DOT_FLAGS_MEMSET_NODE_PARAMS, CU_GRAPH_DEBUG_DOT_FLAGS_HOST_NODE_PARAMS, CU_GRAPH_DEBUG_DOT_FLAGS_EVENT_NODE_PARAMS, CU_GRAPH_DEBUG_DOT_FLAGS_EXT_SEMAS_SIGNAL_NODE_PARAMS, CU_GRAPH_DEBUG_DOT_FLAGS_EXT_SEMAS_WAIT_NODE_PARAMS, CU_GRAPH_DEBUG_DOT_FLAGS_KERNEL_NODE_ATTRIBUTES, CU_GRAPH_DEBUG_DOT_FLAGS_HANDLES, CU_GRAPH_DEBUG_DOT_FLAGS_MEM_ALLOC_NODE_PARAMS, CU_GRAPH_DEBUG_DOT_FLAGS_MEM_FREE_NODE_PARAMS, CU_GRAPH_DEBUG_DOT_FLAGS_BATCH_MEM_OP_NODE_PARAMS, CU_GRAPH_DEBUG_DOT_FLAGS_EXTRA_TOPO_INFO, CU_GRAPH_DEBUG_DOT_FLAGS_CONDITIONAL_NODE_PARAMS
+# CUgraphUserObjectFlags = CU_GRAPH_USER_OBJECT_DEFAULT, CU_GRAPH_USER_OBJECT_MOVE
+
+# Structure Definition
+type CUDA_BATCH_MEM_OP_NODE_PARAMS[CUDA_BATCH_MEM_OP_NODE_PARAMS_OP1] {
+	ctx		CUcontext
+	count		int32
+	paramArray	ptr[in, array[CUstreamBatchMemOpParams[CUDA_BATCH_MEM_OP_NODE_PARAMS_OP1]]]
+	flags		int32
+}
+
+#CUDA_HOST_NODE_PARAMS {
+#	fn	CUhostFn
+#	userData	ptr[in, void]
+#}
+
+CUDA_KERNEL_NODE_PARAMS {
+	func		CUfunction
+	gridDimX	int32
+	gridDimY	int32
+	gridDimZ	int32
+	blockDimX	int32
+	blockDimY	int32
+	blockDimZ	int32
+	sharedMemBytes	int32
+	kernelParams	ptr[in, array[ptr[in, void]]]
+	extra		ptr[in, array[ptr[in, void]]]
+	kern		CUkernel
+	ctx		CUcontext
+}
+
+CUDA_MEM_ALLOC_NODE_PARAMS {
+	poolProps	CUmemPoolProps
+	accessDescs	ptr[in, array[CUmemAccessDesc]]
+	accessDescCount	len[accessDescs, int64]
+	bytesize	int64
+	dptr		CUdeviceptr
+}
+
+CUDA_MEMSET_NODE_PARAMS {
+	dst		CUdeviceptr
+	pitch		int64
+	value		int32
+	elementSize	int32[1:4]
+	width		int64
+	height		int64
+}
+
+type CUgraphNodeParams[CUGRAPHNODEPARAMS_OP1] {
+	type		flags[CUgraphNodeType, int32]
+	reserved0	array[const[0, int32], 3]
+	union_params	CUGRAPHNODEPARAMS_OP1
+	reserved2	const[0, int64]
+}
+
+CUDA_KERNEL_NODE_PARAMS_v3 {
+	func		CUfunction
+	gridDimX	int32
+	gridDimY	int32
+	gridDimZ	int32
+	blockDimX	int32
+	blockDimY	int32
+	blockDimZ	int32
+	sharedMemBytes	int32
+	kernelParams	ptr[in, ptr[in, void]]
+	extra		ptr[in, ptr[in, void]]
+	kern		CUkernel
+	ctx		CUcontext
+}
+
+CUgraphExecUpdateResultInfo {
+	result		flags[CUgraphExecUpdateResult, int32]
+	errorNode	CUgraphNode
+	errorFromNode	CUgraphNode
+}
+
+CUDA_GRAPH_INSTANTIATE_PARAMS {
+	flags		int64
+	hUploadStream	CUstream
+	hErrNode_out	CUgraphNode
+	result_out	flags[CUgraphInstantiateResult, int32]
+}
+
+CUlaunchMemSyncDomainMap {
+	default_	int8
+	remote		int8
+}
+
+type CUkernelNodeAttrValue[CUKERNELNODEATTRVALUE_OP1] {
+	value	CUKERNELNODEATTRVALUE_OP1
+}
+
+CUkernelNodeAttrValue_accessPolicyWindow {
+	accessPolicyWindow	CUaccessPolicyWindow
+}
+
+CUkernelNodeAttrValue_cooperative {
+	cooperative	int32[0:1]
+}
+
+CUkernelNodeAttrValue_syncPolicy {
+	syncPolicy	flags[CUsynchronizationPolicy, int32]
+}
+
+CUkernelNodeAttrValue_clusterDim {
+	x	int32
+	y	int32
+	z	int32
+}
+
+CUkernelNodeAttrValue_clusterSchedulingPolicyPreference {
+	clusterSchedulingPolicyPreference	flags[CUclusterSchedulingPolicy, int32]
+}
+
+CUkernelNodeAttrValue_programmaticStreamSerializationAllowed {
+	programmaticStreamSerializationAllowed	int32[0:1]
+}
+
+CUkernelNodeAttrValue_programmaticEvent {
+	event			CUevent
+	flags			int32
+	triggerAtBlockStart	int32[0:1]
+}
+
+CUkernelNodeAttrValue_launchCompletionEvent {
+	event	CUevent
+	flags	int32
+}
+
+CUkernelNodeAttrValue_priority {
+	priority	int32
+}
+
+CUkernelNodeAttrValue_memSyncDomainMap {
+	memSyncDomainMap	CUlaunchMemSyncDomainMap
+}
+
+CUkernelNodeAttrValue_memSyncDomain {
+	memSyncDomain	flags[CUlaunchMemSyncDomain, int32]
+}
+
+CUkernelNodeAttrValue_deviceUpdatableKernelNode {
+	deviceUpdatable	int32[0:1]
+	devNode		CUgraphDeviceNode
+}
+
+CUkernelNodeAttrValue_sharedMemCarveout {
+	sharedMemCarveout	int32[0:100]
+}
+
+type CUDA_EXT_SEM_SIGNAL_NODE_PARAMS[CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_OP1] {
+	extSemArray	ptr[out, array[CUexternalSemaphore]]
+	paramsArray	ptr[out, array[CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS[CUDA_EXT_SEM_SIGNAL_NODE_PARAMS_OP1]]]
+	numExtSems	int32
+}
+
+type CUDA_EXT_SEM_WAIT_NODE_PARAMS[CUDA_EXT_SEM_WAIT_NODE_PARAMS_OP1] {
+	extSemArray	ptr[in, array[CUexternalSemaphore]]
+	paramsArray	ptr[in, array[CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS[CUDA_EXT_SEM_WAIT_NODE_PARAMS_OP1]]]
+	numExtSems	int32
+}
+
+# API Definition
+syz_cuDeviceGetGraphMemAttribute(device CUdevice, attr flags[CUgraphMem_attribute], value ptr[out, int64])
+syz_cuDeviceGraphMemTrim(device CUdevice)
+syz_cuDeviceSetGraphMemAttribute(device CUdevice, attr flags[CUgraphMem_attribute], value ptr[in, int64])
+syz_cuGraphAddBatchMemOpNode$1(phGraphNode ptr[out, CUgraphNode], hGraph CUgraph, dependencies ptr[in, array[CUgraphNode]], numDependencies len[dependencies], nodeParams ptr[in, CUDA_BATCH_MEM_OP_NODE_PARAMS[CUstreamMemOpWaitValueParams]])
+syz_cuGraphAddBatchMemOpNode$2(phGraphNode ptr[out, CUgraphNode], hGraph CUgraph, dependencies ptr[in, array[CUgraphNode]], numDependencies len[dependencies], nodeParams ptr[in, CUDA_BATCH_MEM_OP_NODE_PARAMS[CUstreamMemOpWaitValueParams64]])
+syz_cuGraphAddBatchMemOpNode$3(phGraphNode ptr[out, CUgraphNode], hGraph CUgraph, dependencies ptr[in, array[CUgraphNode]], numDependencies len[dependencies], nodeParams ptr[in, CUDA_BATCH_MEM_OP_NODE_PARAMS[CUstreamMemOpWriteValueParams]])
+syz_cuGraphAddBatchMemOpNode$4(phGraphNode ptr[out, CUgraphNode], hGraph CUgraph, dependencies ptr[in, array[CUgraphNode]], numDependencies len[dependencies], nodeParams ptr[in, CUDA_BATCH_MEM_OP_NODE_PARAMS[CUstreamMemOpWriteValueParams64]])
+syz_cuGraphAddBatchMemOpNode$5(phGraphNode ptr[out, CUgraphNode], hGraph CUgraph, dependencies ptr[in, array[CUgraphNode]], numDependencies len[dependencies], nodeParams ptr[in, CUDA_BATCH_MEM_OP_NODE_PARAMS[CUstreamMemOpFlushRemoteWritesParams]])
+syz_cuGraphAddBatchMemOpNode$6(phGraphNode ptr[out, CUgraphNode], hGraph CUgraph, dependencies ptr[in, array[CUgraphNode]], numDependencies len[dependencies], nodeParams ptr[in, CUDA_BATCH_MEM_OP_NODE_PARAMS[CUstreamMemOpMemoryBarrierParams]])
+syz_cuGraphAddChildGraphNode(phGraphNode ptr[out, CUgraphNode], hGraph CUgraph, dependencies ptr[in, array[CUgraphNode]], numDependencies len[dependencies], childGraph CUgraph)
+syz_cuGraphAddDependencies(hGraph CUgraph, from ptr[in, array[CUgraphNode]], to ptr[in, array[CUgraphNode]], numDependencies len[from])
+syz_cuGraphAddDependencies_v2(hGraph CUgraph, from ptr[in, array[CUgraphNode]], to ptr[in, array[CUgraphNode]], edgeData ptr[in, array[CUgraphEdgeData]], numDependencies len[from])
+syz_cuGraphAddEmptyNode(phGraphNode ptr[out, CUgraphNode], hGraph CUgraph, dependencies ptr[in, array[CUgraphNode]], numDependencies len[dependencies])
+syz_cuGraphAddEventRecordNode(phGraphNode ptr[out, CUgraphNode], hGraph CUgraph, dependencies ptr[in, array[CUgraphNode]], numDependencies len[dependencies], event CUevent)
+syz_cuGraphAddEventWaitNode(phGraphNode ptr[out, CUgraphNode], hGraph CUgraph, dependencies ptr[in, array[CUgraphNode]], numDependencies len[dependencies], event CUevent)
+syz_cuGraphAddExternalSemaphoresWaitNode$1(phGraphNode ptr[out, CUgraphNode], hGraph CUgraph, dependencies ptr[in, array[CUgraphNode]], numDependencies len[dependencies], nodeParams ptr[in, CUDA_EXT_SEM_WAIT_NODE_PARAMS[CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_params_nvSciSync_fence]])
+syz_cuGraphAddExternalSemaphoresWaitNode$2(phGraphNode ptr[out, CUgraphNode], hGraph CUgraph, dependencies ptr[in, array[CUgraphNode]], numDependencies len[dependencies], nodeParams ptr[in, CUDA_EXT_SEM_WAIT_NODE_PARAMS[CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_params_nvSciSync_reserved]])
+# syz_cuGraphAddHostNode(phGraphNode ptr[out, CUgraphNode], hGraph CUgraph, dependencies ptr[in, array[CUgraphNode]], numDependencies len[dependencies], nodeParams ptr[in, CUDA_HOST_NODE_PARAMS])
+syz_cuGraphAddKernelNode(phGraphNode ptr[out, CUgraphNode], hGraph CUgraph, dependencies ptr[in, array[CUgraphNode]], numDependencies len[dependencies], nodeParams ptr[in, CUDA_KERNEL_NODE_PARAMS])
+syz_cuGraphAddMemAllocNode(phGraphNode ptr[out, CUgraphNode], hGraph CUgraph, dependencies ptr[in, array[CUgraphNode]], numDependencies len[dependencies], nodeParams ptr[in, CUDA_MEM_ALLOC_NODE_PARAMS])
+syz_cuGraphAddMemFreeNode(phGraphNode ptr[out, CUgraphNode], hGraph CUgraph, dependencies ptr[in, array[CUgraphNode]], numDependencies len[dependencies], dptr CUdeviceptr)
+syz_cuGraphAddMemcpyNode(phGraphNode ptr[out, CUgraphNode], hGraph CUgraph, dependencies ptr[in, array[CUgraphNode]], numDependencies len[dependencies], copyParams ptr[in, CUDA_MEMCPY3D], ctx CUcontext)
+syz_cuGraphAddMemsetNode(phGraphNode ptr[out, CUgraphNode], hGraph CUgraph, dependencies ptr[in, array[CUgraphNode]], numDependencies len[dependencies], memsetParams ptr[in, CUDA_MEMSET_NODE_PARAMS], ctx CUcontext)
+syz_cuGraphAddNode_v2(phGraphNode ptr[out, CUgraphNode], hGraph CUgraph, dependencies ptr[in, array[CUgraphNode]], dependencyData ptr[in, array[CUgraphEdgeData]], numDependencies len[dependencies], nodeParams ptr[in, CUgraphNodeParams[CUDA_KERNEL_NODE_PARAMS_v3]])
+syz_cuGraphBatchMemOpNodeGetParams$1(hNode CUgraphNode, nodeParams_out ptr[out, CUDA_BATCH_MEM_OP_NODE_PARAMS[CUstreamMemOpWaitValueParams]])
+syz_cuGraphBatchMemOpNodeGetParams$2(hNode CUgraphNode, nodeParams_out ptr[out, CUDA_BATCH_MEM_OP_NODE_PARAMS[CUstreamMemOpWaitValueParams64]])
+syz_cuGraphBatchMemOpNodeGetParams$3(hNode CUgraphNode, nodeParams_out ptr[out, CUDA_BATCH_MEM_OP_NODE_PARAMS[CUstreamMemOpWriteValueParams]])
+syz_cuGraphBatchMemOpNodeGetParams$4(hNode CUgraphNode, nodeParams_out ptr[out, CUDA_BATCH_MEM_OP_NODE_PARAMS[CUstreamMemOpWriteValueParams64]])
+syz_cuGraphBatchMemOpNodeGetParams$5(hNode CUgraphNode, nodeParams_out ptr[out, CUDA_BATCH_MEM_OP_NODE_PARAMS[CUstreamMemOpFlushRemoteWritesParams]])
+syz_cuGraphBatchMemOpNodeGetParams$6(hNode CUgraphNode, nodeParams_out ptr[out, CUDA_BATCH_MEM_OP_NODE_PARAMS[CUstreamMemOpMemoryBarrierParams]])
+syz_cuGraphBatchMemOpNodeSetParams$1(hNode CUgraphNode, nodeParams ptr[in, CUDA_BATCH_MEM_OP_NODE_PARAMS[CUstreamMemOpWaitValueParams]])
+syz_cuGraphBatchMemOpNodeSetParams$2(hNode CUgraphNode, nodeParams ptr[in, CUDA_BATCH_MEM_OP_NODE_PARAMS[CUstreamMemOpWaitValueParams64]])
+syz_cuGraphBatchMemOpNodeSetParams$3(hNode CUgraphNode, nodeParams ptr[in, CUDA_BATCH_MEM_OP_NODE_PARAMS[CUstreamMemOpWriteValueParams]])
+syz_cuGraphBatchMemOpNodeSetParams$4(hNode CUgraphNode, nodeParams ptr[in, CUDA_BATCH_MEM_OP_NODE_PARAMS[CUstreamMemOpWriteValueParams64]])
+syz_cuGraphBatchMemOpNodeSetParams$5(hNode CUgraphNode, nodeParams ptr[in, CUDA_BATCH_MEM_OP_NODE_PARAMS[CUstreamMemOpFlushRemoteWritesParams]])
+syz_cuGraphBatchMemOpNodeSetParams$6(hNode CUgraphNode, nodeParams ptr[in, CUDA_BATCH_MEM_OP_NODE_PARAMS[CUstreamMemOpMemoryBarrierParams]])
+syz_cuGraphChildGraphNodeGetGraph(hNode CUgraphNode, phGraph ptr[out, CUgraph])
+syz_cuGraphClone(phGraphClone ptr[out, CUgraph], originalGraph CUgraph)
+syz_cuGraphConditionalHandleCreate(pHandle_out ptr[out, CUgraphConditionalHandle], hGraph CUgraph, ctx CUcontext, defaultLaunchValue int32, flags flags[flag_cuGraphConditionalHandleCreate])
+syz_cuGraphCreate(phGraph ptr[out, CUgraph], flags const[0])
+syz_cuGraphDebugDotPrint(hGraph CUgraph, path ptr[in, string[filename]], flags flags[CUgraphDebugDot_flags])
+syz_cuGraphDestroy(hGraph CUgraph)
+syz_cuGraphDestroyNode(hNode CUgraphNode)
+syz_cuGraphEventRecordNodeGetEvent(hNode CUgraphNode, event_out ptr[out, CUevent])
+syz_cuGraphEventRecordNodeSetEvent(hNode CUgraphNode, event CUevent)
+syz_cuGraphEventWaitNodeGetEvent(hNode CUgraphNode, event_out ptr[out, CUevent])
+syz_cuGraphEventWaitNodeSetEvent(hNode CUgraphNode, event CUevent)
+syz_cuGraphExecBatchMemOpNodeSetParams$1(hGraphExec CUgraphExec, hNode CUgraphNode, nodeParams ptr[in, CUDA_BATCH_MEM_OP_NODE_PARAMS[CUstreamMemOpWaitValueParams]])
+syz_cuGraphExecBatchMemOpNodeSetParams$2(hGraphExec CUgraphExec, hNode CUgraphNode, nodeParams ptr[in, CUDA_BATCH_MEM_OP_NODE_PARAMS[CUstreamMemOpWaitValueParams64]])
+syz_cuGraphExecBatchMemOpNodeSetParams$3(hGraphExec CUgraphExec, hNode CUgraphNode, nodeParams ptr[in, CUDA_BATCH_MEM_OP_NODE_PARAMS[CUstreamMemOpWriteValueParams]])
+syz_cuGraphExecBatchMemOpNodeSetParams$4(hGraphExec CUgraphExec, hNode CUgraphNode, nodeParams ptr[in, CUDA_BATCH_MEM_OP_NODE_PARAMS[CUstreamMemOpWriteValueParams64]])
+syz_cuGraphExecBatchMemOpNodeSetParams$5(hGraphExec CUgraphExec, hNode CUgraphNode, nodeParams ptr[in, CUDA_BATCH_MEM_OP_NODE_PARAMS[CUstreamMemOpFlushRemoteWritesParams]])
+syz_cuGraphExecBatchMemOpNodeSetParams$6(hGraphExec CUgraphExec, hNode CUgraphNode, nodeParams ptr[in, CUDA_BATCH_MEM_OP_NODE_PARAMS[CUstreamMemOpMemoryBarrierParams]])
+syz_cuGraphExecChildGraphNodeSetParams(hGraphExec CUgraphExec, hNode CUgraphNode, childGraph CUgraph)
+syz_cuGraphExecDestroy(hGraphExec CUgraphExec)
+syz_cuGraphExecEventRecordNodeSetEvent(hGraphExec CUgraphExec, hNode CUgraphNode, event CUevent)
+syz_cuGraphExecEventWaitNodeSetEvent(hGraphExec CUgraphExec, hNode CUgraphNode, event CUevent)
+syz_cuGraphExecExternalSemaphoresWaitNodeSetParams$1(hGraphExec CUgraphExec, hNode CUgraphNode, nodeParams ptr[in, CUDA_EXT_SEM_WAIT_NODE_PARAMS[CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_params_nvSciSync_fence]])
+syz_cuGraphExecExternalSemaphoresWaitNodeSetParams$2(hGraphExec CUgraphExec, hNode CUgraphNode, nodeParams ptr[in, CUDA_EXT_SEM_WAIT_NODE_PARAMS[CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_params_nvSciSync_reserved]])
+syz_cuGraphExecGetFlags(hGraphExec CUgraphExec, flags ptr[out, int64])
+
+# syz_cuGraphExecHostNodeSetParams(hGraphExec CUgraphExec, hNode CUgraphNode, nodeParams ptr[in, CUDA_HOST_NODE_PARAMS])
+syz_cuGraphExecKernelNodeSetParams(hGraphExec CUgraphExec, hNode CUgraphNode, nodeParams ptr[in, CUDA_KERNEL_NODE_PARAMS])
+syz_cuGraphExecMemcpyNodeSetParams(hGraphExec CUgraphExec, hNode CUgraphNode, copyParams ptr[in, CUDA_MEMCPY3D], ctx CUcontext)
+syz_cuGraphExecMemsetNodeSetParams(hGraphExec CUgraphExec, hNode CUgraphNode, memsetParams ptr[in, CUDA_MEMSET_NODE_PARAMS], ctx CUcontext)
+syz_cuGraphExecUpdate(hGraphExec CUgraphExec, hGraph CUgraph, resultInfo ptr[out, CUgraphExecUpdateResultInfo])
+syz_cuGraphExternalSemaphoresSignalNodeGetParams$1(hNode CUgraphNode, params_out ptr[out, CUDA_EXT_SEM_SIGNAL_NODE_PARAMS[CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_params_nvSciSync_fence]])
+syz_cuGraphExternalSemaphoresSignalNodeGetParams$2(hNode CUgraphNode, params_out ptr[out, CUDA_EXT_SEM_SIGNAL_NODE_PARAMS[CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_params_nvSciSync_reserved]])
+syz_cuGraphExternalSemaphoresSignalNodeSetParams$1(hNode CUgraphNode, nodeParams ptr[in, CUDA_EXT_SEM_SIGNAL_NODE_PARAMS[CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_params_nvSciSync_fence]])
+syz_cuGraphExternalSemaphoresSignalNodeSetParams$2(hNode CUgraphNode, nodeParams ptr[in, CUDA_EXT_SEM_SIGNAL_NODE_PARAMS[CUDA_EXTERNAL_SEMAPHORE_SIGNAL_PARAMS_params_nvSciSync_reserved]])
+syz_cuGraphExternalSemaphoresWaitNodeGetParams$1(hNode CUgraphNode, params_out ptr[out, CUDA_EXT_SEM_WAIT_NODE_PARAMS[CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_params_nvSciSync_fence]])
+syz_cuGraphExternalSemaphoresWaitNodeGetParams$2(hNode CUgraphNode, params_out ptr[out, CUDA_EXT_SEM_WAIT_NODE_PARAMS[CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_params_nvSciSync_reserved]])
+syz_cuGraphExternalSemaphoresWaitNodeSetParams$1(hNode CUgraphNode, nodeParams ptr[in, CUDA_EXT_SEM_WAIT_NODE_PARAMS[CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_params_nvSciSync_fence]])
+syz_cuGraphExternalSemaphoresWaitNodeSetParams$2(hNode CUgraphNode, nodeParams ptr[in, CUDA_EXT_SEM_WAIT_NODE_PARAMS[CUDA_EXTERNAL_SEMAPHORE_WAIT_PARAMS_params_nvSciSync_reserved]])
+syz_cuGraphGetEdges(hGraph CUgraph, from ptr[out, array[CUgraphNode]], to ptr[out, array[CUgraphNode]], numEdges ptr[out, int64])
+syz_cuGraphGetEdges_v2(hGraph CUgraph, from ptr[out, array[CUgraphNode]], to ptr[out, array[CUgraphNode]], edgeData ptr[out, array[CUgraphEdgeData]], numEdges ptr[out, int64])
+syz_cuGraphGetNodes(hGraph CUgraph, nodes ptr[out, array[CUgraphNode]], numNodes ptr[inout, int64])
+syz_cuGraphGetRootNodes(hGraph CUgraph, rootNodes ptr[out, array[CUgraphNode]], numRootNodes ptr[out, int64])
+#syz_cuGraphHostNodeGetParams(hNode CUgraphNode, nodeParams ptr[out, CUDA_HOST_NODE_PARAMS])
+#syz_cuGraphHostNodeSetParams(hNode CUgraphNode, nodeParams ptr[in, CUDA_HOST_NODE_PARAMS])
+syz_cuGraphInstantiate(phGraphExec ptr[out, CUgraphExec], hGraph CUgraph, flags flags[CUgraphInstantiate_flags])
+syz_cuGraphInstantiateWithParams(phGraphExec ptr[out, CUgraphExec], hGraph CUgraph, instantiateParams ptr[in, CUDA_GRAPH_INSTANTIATE_PARAMS])
+syz_cuGraphKernelNodeCopyAttributes(dst CUgraphNode, src CUgraphNode)
+syz_cuGraphKernelNodeGetParams(hNode CUgraphNode, nodeParams ptr[out, CUDA_KERNEL_NODE_PARAMS])
+syz_cuGraphKernelNodeSetAttribute$1(hNode CUgraphNode, attr flags[CUlaunchAttributeID], value ptr[in, CUkernelNodeAttrValue[CUkernelNodeAttrValue_accessPolicyWindow]])
+syz_cuGraphKernelNodeSetAttribute$2(hNode CUgraphNode, attr flags[CUlaunchAttributeID], value ptr[in, CUkernelNodeAttrValue[CUkernelNodeAttrValue_cooperative]])
+syz_cuGraphKernelNodeSetAttribute$3(hNode CUgraphNode, attr flags[CUlaunchAttributeID], value ptr[in, CUkernelNodeAttrValue[CUkernelNodeAttrValue_syncPolicy]])
+syz_cuGraphKernelNodeSetAttribute$4(hNode CUgraphNode, attr flags[CUlaunchAttributeID], value ptr[in, CUkernelNodeAttrValue[CUkernelNodeAttrValue_clusterDim]])
+syz_cuGraphKernelNodeSetAttribute$5(hNode CUgraphNode, attr flags[CUlaunchAttributeID], value ptr[in, CUkernelNodeAttrValue[CUkernelNodeAttrValue_clusterSchedulingPolicyPreference]])
+syz_cuGraphKernelNodeSetAttribute$6(hNode CUgraphNode, attr flags[CUlaunchAttributeID], value ptr[in, CUkernelNodeAttrValue[CUkernelNodeAttrValue_programmaticStreamSerializationAllowed]])
+syz_cuGraphKernelNodeSetAttribute$7(hNode CUgraphNode, attr flags[CUlaunchAttributeID], value ptr[in, CUkernelNodeAttrValue[CUkernelNodeAttrValue_programmaticEvent]])
+syz_cuGraphKernelNodeSetAttribute$8(hNode CUgraphNode, attr flags[CUlaunchAttributeID], value ptr[in, CUkernelNodeAttrValue[CUkernelNodeAttrValue_launchCompletionEvent]])
+syz_cuGraphKernelNodeSetAttribute$9(hNode CUgraphNode, attr flags[CUlaunchAttributeID], value ptr[in, CUkernelNodeAttrValue[CUkernelNodeAttrValue_priority]])
+syz_cuGraphKernelNodeSetAttribute$10(hNode CUgraphNode, attr flags[CUlaunchAttributeID], value ptr[in, CUkernelNodeAttrValue[CUkernelNodeAttrValue_memSyncDomainMap]])
+syz_cuGraphKernelNodeSetAttribute$11(hNode CUgraphNode, attr flags[CUlaunchAttributeID], value ptr[in, CUkernelNodeAttrValue[CUkernelNodeAttrValue_memSyncDomain]])
+syz_cuGraphKernelNodeSetAttribute$12(hNode CUgraphNode, attr flags[CUlaunchAttributeID], value ptr[in, CUkernelNodeAttrValue[CUkernelNodeAttrValue_deviceUpdatableKernelNode]])
+syz_cuGraphKernelNodeSetAttribute$13(hNode CUgraphNode, attr flags[CUlaunchAttributeID], value ptr[in, CUkernelNodeAttrValue[CUkernelNodeAttrValue_sharedMemCarveout]])
+syz_cuGraphKernelNodeSetParams(hNode CUgraphNode, nodeParams ptr[in, CUDA_KERNEL_NODE_PARAMS])
+syz_cuGraphLaunch(hGraphExec CUgraphExec, hStream CUstream)
+syz_cuGraphMemAllocNodeGetParams(hNode CUgraphNode, params_out ptr[out, CUDA_MEM_ALLOC_NODE_PARAMS])
+syz_cuGraphMemFreeNodeGetParams(hNode CUgraphNode, dptr_out ptr[out, CUdeviceptr])
+syz_cuGraphMemcpyNodeGetParams(hNode CUgraphNode, nodeParams ptr[out, CUDA_MEMCPY3D])
+syz_cuGraphMemcpyNodeSetParams(hNode CUgraphNode, nodeParams ptr[in, CUDA_MEMCPY3D])
+syz_cuGraphMemsetNodeGetParams(hNode CUgraphNode, nodeParams ptr[out, CUDA_MEMSET_NODE_PARAMS])
+syz_cuGraphMemsetNodeSetParams(hNode CUgraphNode, nodeParams ptr[in, CUDA_MEMSET_NODE_PARAMS])
+syz_cuGraphNodeFindInClone(phNode ptr[out, CUgraphNode], hOriginalNode CUgraphNode, hClonedGraph CUgraph)
+syz_cuGraphNodeGetDependencies(hNode CUgraphNode, dependencies ptr[out, array[CUgraphNode]], numDependencies len[dependencies])
+syz_cuGraphNodeGetDependencies_v2(hNode CUgraphNode, dependencies ptr[out, array[CUgraphNode]], edgeData ptr[out, array[CUgraphEdgeData]], numDependencies len[dependencies])
+syz_cuGraphNodeGetDependentNodes(hNode CUgraphNode, dependentNodes ptr[out, array[CUgraphNode]], numDependentNodes ptr[inout, int64])
+syz_cuGraphNodeGetDependentNodes_v2(hNode CUgraphNode, dependentNodes ptr[out, array[CUgraphNode]], edgeData ptr[out, array[CUgraphEdgeData]], numDependentNodes ptr[out, int64])
+syz_cuGraphNodeGetEnabled(hGraphExec CUgraphExec, hNode CUgraphNode, isEnabled ptr[out, int32])
+syz_cuGraphNodeGetType(hNode CUgraphNode, type ptr[out, flags[CUgraphNodeType, int32]])
+syz_cuGraphNodeSetEnabled(hGraphExec CUgraphExec, hNode CUgraphNode, isEnabled int32[0:1])
+syz_cuGraphRemoveDependencies(hGraph CUgraph, from ptr[in, array[CUgraphNode]], to ptr[in, array[CUgraphNode]], numDependencies len[from])
+syz_cuGraphRemoveDependencies_v2(hGraph CUgraph, from ptr[in, array[CUgraphNode]], to ptr[in, array[CUgraphNode]], edgeData ptr[in, array[CUgraphEdgeData]], numDependencies len[from])
+syz_cuGraphUpload(hGraphExec CUgraphExec, hStream CUstream)
+# syz_cuUserObjectCreate(object_out ptr[out, CUuserObject], ptr ptr[in, void], destroy CUhostFn, initialRefcount int32, flags flags[CUmemAttach_flags])
+#syz_cuGraphRetainUserObject(graph CUgraph, object CUuserObject, count int32, flags flags[CUgraphUserObjectFlags])
+#syz_cuUserObjectRelease(object CUuserObject, count int32)
+#syz_cuUserObjectRetain(object CUuserObject, count int32)
+#syz_cuGraphReleaseUserObject(graph CUgraph, object CUuserObject, count int32)

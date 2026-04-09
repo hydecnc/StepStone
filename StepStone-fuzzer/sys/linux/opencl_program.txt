@@ -1,0 +1,35 @@
+include <CL/opencl.h>
+meta arches["amd64"]
+
+# Resource Definition
+resource cl_program[intptr]
+#resource pfn_notify[intptr]
+
+# Enum Definition
+cl_program_build_info = CL_PROGRAM_BUILD_STATUS, CL_PROGRAM_BUILD_OPTIONS, CL_PROGRAM_BUILD_LOG, CL_PROGRAM_BINARY_TYPE, CL_PROGRAM_BUILD_GLOBAL_VARIABLE_TOTAL_SIZE
+
+# Structure Definition
+
+# API Definition
+syz_clCreateProgramWithSource(context cl_context, count len[strings], strings ptr[in, array[ptr[in, string]]], lengths ptr[in, array[intptr]], errcode_ret ptr[out, int32]) cl_program
+syz_clCreateProgramWithBinary(context cl_context, num_devices len[device_list], device_list ptr[in, array[cl_device_id]], lengths ptr[in, array[int64]], binaries ptr[in, array[ptr[in, array[int8]]]], binary_status ptr[out, array[int32]], errcode_ret ptr[out, int32]) cl_program
+syz_clCreateProgramWithBuiltInKernels(context cl_context, num_devices int32, device_list ptr[in, array[cl_device_id]], kernel_names ptr[in, string], errcode_ret ptr[out, int32]) cl_program
+syz_clCreateProgramWithIL(context cl_context, il ptr[in, array[int8]], length len[il], errcode_ret ptr[out, int32]) cl_program
+syz_clRetainProgram(program cl_program)
+syz_clReleaseProgram(program cl_program)
+#syz_clBuildProgram(program cl_program, num_devices len[device_list], device_list ptr[in, array[cl_device_id]], options string, pfn_notify const[0], user_data const[0])
+#syz_clCompileProgram(program cl_program, num_devices int32, device_list ptr[in, array[cl_device_id]], options string, num_input_headers int32, input_headers ptr[in, array[cl_program]], header_include_names ptr[in, array[string]], pfn_notify const[0], user_data ptr[in, void])
+#syz_clLinkProgram(context cl_context, device_list ptr[in, array[cl_device_id]], num_devices len[device_list], options string, input_programs ptr[in, array[cl_program]], num_input_programs len[input_programs], pfn_notify ptr[in, void], user_data ptr[in, void], errcode_ret ptr[out, int32]) cl_program
+#syz_clSetProgramReleaseCallback(program cl_program, pfn_notify pfn_notify, user_data ptr[in, void])
+syz_clSetProgramSpecializationConstant(program cl_program, spec_id int32, spec_size intptr, spec_value ptr[in, void])
+syz_clUnloadPlatformCompiler(platform cl_platform_id)
+syz_clGetProgramInfo$1(program cl_program, param_name const[0x1160], param_value_size const[4], param_value ptr[out, int32], param_value_size_ret ptr[out, void])
+syz_clGetProgramInfo$2(program cl_program, param_name const[0x1161], param_value_size const[8], param_value ptr[out, cl_context], param_value_size_ret ptr[out, void])
+syz_clGetProgramInfo$3(program cl_program, param_name const[0x1162], param_value_size const[4], param_value ptr[out, int32], param_value_size_ret ptr[out, void])
+syz_clGetProgramInfo$4(program cl_program, param_name const[0x1163], param_value_size bytesize[param_value], param_value ptr[out, array[cl_device_id]], param_value_size_ret ptr[out, void])
+syz_clGetProgramInfo$5(program cl_program, param_name const[0x1164], param_value_size bytesize[param_value], param_value ptr[out, string], param_value_size_ret ptr[out, void])
+syz_clGetProgramInfo$6(program cl_program, param_name const[0x1165], param_value_size bytesize[param_value], param_value ptr[out, array[int64]], param_value_size_ret ptr[out, void])
+syz_clGetProgramInfo$7(program cl_program, param_name const[0x1166], param_value_size bytesize[param_value], param_value ptr[out, array[ptr[out, array[int8]]]], param_value_size_ret ptr[out, void])
+syz_clGetProgramInfo$8(program cl_program, param_name const[0x1167], param_value_size const[8], param_value ptr[out, int64], param_value_size_ret ptr[out, void])
+syz_clGetProgramInfo$9(program cl_program, param_name const[0x1168], param_value_size bytesize[param_value], param_value ptr[out, string], param_value_size_ret ptr[out, void])
+syz_clGetProgramBuildInfo(program cl_program, device cl_device_id, param_name flags[cl_program_build_info], param_value_size bytesize[param_value], param_value ptr[out, array[int8]], param_value_size_ret ptr[out, int64])

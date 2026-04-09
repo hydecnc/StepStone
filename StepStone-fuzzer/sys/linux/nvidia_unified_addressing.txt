@@ -1,0 +1,24 @@
+include <cuda.h>
+meta arches["amd64"]
+
+# Resource Definition
+
+# Enum Definition
+CUmem_advise = CU_MEM_ADVISE_SET_READ_MOSTLY, CU_MEM_ADVISE_UNSET_READ_MOSTLY, CU_MEM_ADVISE_SET_PREFERRED_LOCATION, CU_MEM_ADVISE_UNSET_PREFERRED_LOCATION, CU_MEM_ADVISE_SET_ACCESSED_BY, CU_MEM_ADVISE_UNSET_ACCESSED_BY
+
+CUmem_range_attribute = CU_MEM_RANGE_ATTRIBUTE_READ_MOSTLY, CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION, CU_MEM_RANGE_ATTRIBUTE_ACCESSED_BY, CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION, CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION_TYPE, CU_MEM_RANGE_ATTRIBUTE_PREFERRED_LOCATION_ID, CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION_TYPE, CU_MEM_RANGE_ATTRIBUTE_LAST_PREFETCH_LOCATION_ID
+
+CUpointer_attribute = CU_POINTER_ATTRIBUTE_CONTEXT, CU_POINTER_ATTRIBUTE_MEMORY_TYPE, CU_POINTER_ATTRIBUTE_DEVICE_POINTER, CU_POINTER_ATTRIBUTE_HOST_POINTER, CU_POINTER_ATTRIBUTE_P2P_TOKENS, CU_POINTER_ATTRIBUTE_SYNC_MEMOPS, CU_POINTER_ATTRIBUTE_BUFFER_ID, CU_POINTER_ATTRIBUTE_IS_MANAGED, CU_POINTER_ATTRIBUTE_DEVICE_ORDINAL, CU_POINTER_ATTRIBUTE_IS_LEGACY_CUDA_IPC_CAPABLE, CU_POINTER_ATTRIBUTE_RANGE_START_ADDR, CU_POINTER_ATTRIBUTE_RANGE_SIZE, CU_POINTER_ATTRIBUTE_MAPPED, CU_POINTER_ATTRIBUTE_ALLOWED_HANDLE_TYPES, CU_POINTER_ATTRIBUTE_IS_GPU_DIRECT_RDMA_CAPABLE, CU_POINTER_ATTRIBUTE_ACCESS_FLAGS, CU_POINTER_ATTRIBUTE_MEMPOOL_HANDLE, CU_POINTER_ATTRIBUTE_MAPPING_SIZE, CU_POINTER_ATTRIBUTE_MAPPING_BASE_ADDR, CU_POINTER_ATTRIBUTE_MEMORY_BLOCK_ID
+
+# Structure Definition
+
+# API Definition
+syz_cuMemAdvise(devPtr CUdeviceptr, count int64, advice flags[CUmem_advise], device CUdevice)
+# syz_cuMemAdvise_v2(devPtr CUdeviceptr, count int64, advice flags[CUmem_advise], location CUmemLocation)
+syz_cuMemPrefetchAsync(devPtr CUdeviceptr, count int64, dstDevice CUdevice, hStream CUstream)
+# syz_cuMemPrefetchAsync_v2(devPtr CUdeviceptr, count int64, location CUmemLocation, flags flags[CUmemAttach_flags], hStream CUstream)
+syz_cuMemRangeGetAttribute(data ptr[out, int64], dataSize int64, attribute flags[CUmem_range_attribute], devPtr CUdeviceptr, count int64)
+syz_cuMemRangeGetAttributes(data ptr[out, array[ptr[out, int64]]], dataSizes ptr[in, array[int64]], attributes ptr[in, array[flags[CUmem_range_attribute, int32]]], numAttributes len[attributes], devPtr CUdeviceptr, count int64)
+syz_cuPointerGetAttribute(data ptr[out, int64], attribute flags[CUpointer_attribute], ptr CUdeviceptr)
+syz_cuPointerGetAttributes(numAttributes len[attributes], attributes ptr[in, array[flags[CUpointer_attribute, int32]]], data ptr[out, array[ptr[out, int64]]], ptr CUdeviceptr)
+syz_cuPointerSetAttribute(value ptr[in, void], attribute flags[CUpointer_attribute], ptr CUdeviceptr)

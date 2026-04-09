@@ -1,0 +1,205 @@
+training_name: "CUDA API demo training 3"
+training_description: "This training teaches how to create flag type in pointer type, and how to specify type size within a pointer type"
+reasoning_steps: 
+    step1:
+        api: "CUresult cuLinkAddFile ( CUlinkState state, CUjitInputType type, const char* path, unsigned int  numOptions, CUjit_option* options, void** optionValues )"
+        init_text: |
+            include <cuda.h>
+
+            # Resource Definition
+            [APPEND_NEW_CONTENT_HERE]
+
+            # Enum Definition
+            [APPEND_NEW_CONTENT_HERE]
+
+            # API Definition
+            [APPEND_NEW_CONTENT_HERE]
+
+            # Structure Definition
+            [APPEND_NEW_CONTENT_HERE]
+
+        syzlang_text: |
+            include <cuda.h>
+
+            # Resource Definition
+            resource linkState[int64]
+
+            # Enum Definition
+            CUjitInputType = CU_JIT_INPUT_CUBIN, CU_JIT_INPUT_PTX, CU_JIT_INPUT_FATBINARY, CU_JIT_INPUT_OBJECT, CU_JIT_INPUT_LIBRARY, CU_JIT_INPUT_NVVM, CU_JIT_NUM_INPUT_TYPES
+            CUjit_option = CU_JIT_MAX_REGISTERS, CU_JIT_THREADS_PER_BLOCK, CU_JIT_WALL_TIME, CU_JIT_INFO_LOG_BUFFER, CU_JIT_INFO_LOG_BUFFER_SIZE_BYTES, CU_JIT_ERROR_LOG_BUFFER, CU_JIT_ERROR_LOG_BUFFER_SIZE_BYTES, CU_JIT_OPTIMIZATION_LEVEL, CU_JIT_TARGET_FROM_CUCONTEXT, CU_JIT_TARGET, CU_JIT_FALLBACK_STRATEGY, CU_JIT_GENERATE_DEBUG_INFO, CU_JIT_LOG_VERBOSE, CU_JIT_GENERATE_LINE_INFO, CU_JIT_CACHE_MODE, CU_JIT_FAST_COMPILE, CU_JIT_GLOBAL_SYMBOL_NAMES, CU_JIT_GLOBAL_SYMBOL_ADDRESSES, CU_JIT_GLOBAL_SYMBOL_COUNT, CU_JIT_LTO, CU_JIT_FTZ, CU_JIT_PREC_DIV, CU_JIT_PREC_SQRT, CU_JIT_FMA, CU_JIT_REFERENCED_KERNEL_NAMES, CU_JIT_REFERENCED_KERNEL_COUNT, CU_JIT_REFERENCED_VARIABLE_NAMES, CU_JIT_REFERENCED_VARIABLE_COUNT, CU_JIT_OPTIMIZE_UNUSED_DEVICE_VARIABLES, CU_JIT_POSITION_INDEPENDENT_CODE, CU_JIT_MIN_CTA_PER_SM, CU_JIT_MAX_THREADS_PER_BLOCK, CU_JIT_OVERRIDE_DIRECTIVE_VALUES, CU_JIT_NUM_OPTIONS
+
+            # API Definition
+            syz_cuLinkAddFile(state linkState, type flags[CUjitInputType], path ptr[in, string[filename]], numOptions len[options], options ptr[in, array[flags[CUjit_option, int32]]], optionValues ptr[in, array[int64]])
+
+            # Structure Definition
+    step2:
+        api: "CUresult cuLinkCreate ( unsigned int  numOptions, CUjit_option* options, void** optionValues, CUlinkState* stateOut )"
+        init_text: |
+            include <cuda.h>
+
+            # Resource Definition
+            [APPEND_NEW_CONTENT_HERE]
+            resource linkState[int64]
+
+            # Enum Definition
+            [APPEND_NEW_CONTENT_HERE]
+            CUjitInputType = CU_JIT_INPUT_CUBIN, CU_JIT_INPUT_PTX, CU_JIT_INPUT_FATBINARY, CU_JIT_INPUT_OBJECT, CU_JIT_INPUT_LIBRARY, CU_JIT_INPUT_NVVM, CU_JIT_NUM_INPUT_TYPES
+            CUjit_option = CU_JIT_MAX_REGISTERS, CU_JIT_THREADS_PER_BLOCK, CU_JIT_WALL_TIME, CU_JIT_INFO_LOG_BUFFER, CU_JIT_INFO_LOG_BUFFER_SIZE_BYTES, CU_JIT_ERROR_LOG_BUFFER, CU_JIT_ERROR_LOG_BUFFER_SIZE_BYTES, CU_JIT_OPTIMIZATION_LEVEL, CU_JIT_TARGET_FROM_CUCONTEXT, CU_JIT_TARGET, CU_JIT_FALLBACK_STRATEGY, CU_JIT_GENERATE_DEBUG_INFO, CU_JIT_LOG_VERBOSE, CU_JIT_GENERATE_LINE_INFO, CU_JIT_CACHE_MODE, CU_JIT_FAST_COMPILE, CU_JIT_GLOBAL_SYMBOL_NAMES, CU_JIT_GLOBAL_SYMBOL_ADDRESSES, CU_JIT_GLOBAL_SYMBOL_COUNT, CU_JIT_LTO, CU_JIT_FTZ, CU_JIT_PREC_DIV, CU_JIT_PREC_SQRT, CU_JIT_FMA, CU_JIT_REFERENCED_KERNEL_NAMES, CU_JIT_REFERENCED_KERNEL_COUNT, CU_JIT_REFERENCED_VARIABLE_NAMES, CU_JIT_REFERENCED_VARIABLE_COUNT, CU_JIT_OPTIMIZE_UNUSED_DEVICE_VARIABLES, CU_JIT_POSITION_INDEPENDENT_CODE, CU_JIT_MIN_CTA_PER_SM, CU_JIT_MAX_THREADS_PER_BLOCK, CU_JIT_OVERRIDE_DIRECTIVE_VALUES, CU_JIT_NUM_OPTIONS
+
+            # API Definition
+            [APPEND_NEW_CONTENT_HERE]
+            syz_cuLinkAddFile(state linkState, type flags[CUjitInputType], path ptr[in, string[filename]], numOptions len[options], options ptr[in, array[flags[CUjit_option, int32]]], optionValues ptr[in, array[int64]])
+
+            # Structure Definition
+            [APPEND_NEW_CONTENT_HERE]
+
+        syzlang_text: |
+            include <cuda.h>
+
+            # Resource Definition
+            resource linkState[int64]
+
+            # Enum Definition
+            CUjitInputType = CU_JIT_INPUT_CUBIN, CU_JIT_INPUT_PTX, CU_JIT_INPUT_FATBINARY, CU_JIT_INPUT_OBJECT, CU_JIT_INPUT_LIBRARY, CU_JIT_INPUT_NVVM, CU_JIT_NUM_INPUT_TYPES
+            CUjit_option = CU_JIT_MAX_REGISTERS, CU_JIT_THREADS_PER_BLOCK, CU_JIT_WALL_TIME, CU_JIT_INFO_LOG_BUFFER, CU_JIT_INFO_LOG_BUFFER_SIZE_BYTES, CU_JIT_ERROR_LOG_BUFFER, CU_JIT_ERROR_LOG_BUFFER_SIZE_BYTES, CU_JIT_OPTIMIZATION_LEVEL, CU_JIT_TARGET_FROM_CUCONTEXT, CU_JIT_TARGET, CU_JIT_FALLBACK_STRATEGY, CU_JIT_GENERATE_DEBUG_INFO, CU_JIT_LOG_VERBOSE, CU_JIT_GENERATE_LINE_INFO, CU_JIT_CACHE_MODE, CU_JIT_FAST_COMPILE, CU_JIT_GLOBAL_SYMBOL_NAMES, CU_JIT_GLOBAL_SYMBOL_ADDRESSES, CU_JIT_GLOBAL_SYMBOL_COUNT, CU_JIT_LTO, CU_JIT_FTZ, CU_JIT_PREC_DIV, CU_JIT_PREC_SQRT, CU_JIT_FMA, CU_JIT_REFERENCED_KERNEL_NAMES, CU_JIT_REFERENCED_KERNEL_COUNT, CU_JIT_REFERENCED_VARIABLE_NAMES, CU_JIT_REFERENCED_VARIABLE_COUNT, CU_JIT_OPTIMIZE_UNUSED_DEVICE_VARIABLES, CU_JIT_POSITION_INDEPENDENT_CODE, CU_JIT_MIN_CTA_PER_SM, CU_JIT_MAX_THREADS_PER_BLOCK, CU_JIT_OVERRIDE_DIRECTIVE_VALUES, CU_JIT_NUM_OPTIONS
+
+            # API Definition
+            syz_cuLinkCreate(numOptions len[options], options ptr[in, array[flags[CUjit_option, int32]]], optionValues ptr[in, array[int64]], stateOut ptr[out, linkState])
+            syz_cuLinkAddFile(state linkState, type flags[CUjitInputType], path ptr[in, string[filename]], numOptions len[options], options ptr[in, array[flags[CUjit_option, int32]]], optionValues ptr[in, array[int64]])
+
+            # Structure Definition
+    step3:
+        api: "CUresult cuLinkComplete ( CUlinkState state, void** cubinOut, size_t* sizeOut )"
+        init_text: |
+            include <cuda.h>
+
+            # Resource Definition
+            [APPEND_NEW_CONTENT_HERE]
+            resource linkState[int64]
+
+            # Enum Definition
+            [APPEND_NEW_CONTENT_HERE]
+            CUjitInputType = CU_JIT_INPUT_CUBIN, CU_JIT_INPUT_PTX, CU_JIT_INPUT_FATBINARY, CU_JIT_INPUT_OBJECT, CU_JIT_INPUT_LIBRARY, CU_JIT_INPUT_NVVM, CU_JIT_NUM_INPUT_TYPES
+            CUjit_option = CU_JIT_MAX_REGISTERS, CU_JIT_THREADS_PER_BLOCK, CU_JIT_WALL_TIME, CU_JIT_INFO_LOG_BUFFER, CU_JIT_INFO_LOG_BUFFER_SIZE_BYTES, CU_JIT_ERROR_LOG_BUFFER, CU_JIT_ERROR_LOG_BUFFER_SIZE_BYTES, CU_JIT_OPTIMIZATION_LEVEL, CU_JIT_TARGET_FROM_CUCONTEXT, CU_JIT_TARGET, CU_JIT_FALLBACK_STRATEGY, CU_JIT_GENERATE_DEBUG_INFO, CU_JIT_LOG_VERBOSE, CU_JIT_GENERATE_LINE_INFO, CU_JIT_CACHE_MODE, CU_JIT_FAST_COMPILE, CU_JIT_GLOBAL_SYMBOL_NAMES, CU_JIT_GLOBAL_SYMBOL_ADDRESSES, CU_JIT_GLOBAL_SYMBOL_COUNT, CU_JIT_LTO, CU_JIT_FTZ, CU_JIT_PREC_DIV, CU_JIT_PREC_SQRT, CU_JIT_FMA, CU_JIT_REFERENCED_KERNEL_NAMES, CU_JIT_REFERENCED_KERNEL_COUNT, CU_JIT_REFERENCED_VARIABLE_NAMES, CU_JIT_REFERENCED_VARIABLE_COUNT, CU_JIT_OPTIMIZE_UNUSED_DEVICE_VARIABLES, CU_JIT_POSITION_INDEPENDENT_CODE, CU_JIT_MIN_CTA_PER_SM, CU_JIT_MAX_THREADS_PER_BLOCK, CU_JIT_OVERRIDE_DIRECTIVE_VALUES, CU_JIT_NUM_OPTIONS
+
+            # API Definition
+            [APPEND_NEW_CONTENT_HERE]
+            syz_cuLinkCreate(numOptions len[options], options ptr[in, array[flags[CUjit_option, int32]]], optionValues ptr[in, array[int64]], stateOut ptr[out, linkState])
+            syz_cuLinkAddFile(state linkState, type flags[CUjitInputType], path ptr[in, string[filename]], numOptions len[options], options ptr[in, array[flags[CUjit_option, int32]]], optionValues ptr[in, array[int64]])
+
+            # Structure Definition
+            [APPEND_NEW_CONTENT_HERE]
+
+        syzlang_text: |
+            include <cuda.h>
+
+            # Resource Definition
+            resource cuOut[int64]
+            resource linkState[int64]
+
+            # Enum Definition
+            CUjitInputType = CU_JIT_INPUT_CUBIN, CU_JIT_INPUT_PTX, CU_JIT_INPUT_FATBINARY, CU_JIT_INPUT_OBJECT, CU_JIT_INPUT_LIBRARY, CU_JIT_INPUT_NVVM, CU_JIT_NUM_INPUT_TYPES
+            CUjit_option = CU_JIT_MAX_REGISTERS, CU_JIT_THREADS_PER_BLOCK, CU_JIT_WALL_TIME, CU_JIT_INFO_LOG_BUFFER, CU_JIT_INFO_LOG_BUFFER_SIZE_BYTES, CU_JIT_ERROR_LOG_BUFFER, CU_JIT_ERROR_LOG_BUFFER_SIZE_BYTES, CU_JIT_OPTIMIZATION_LEVEL, CU_JIT_TARGET_FROM_CUCONTEXT, CU_JIT_TARGET, CU_JIT_FALLBACK_STRATEGY, CU_JIT_GENERATE_DEBUG_INFO, CU_JIT_LOG_VERBOSE, CU_JIT_GENERATE_LINE_INFO, CU_JIT_CACHE_MODE, CU_JIT_FAST_COMPILE, CU_JIT_GLOBAL_SYMBOL_NAMES, CU_JIT_GLOBAL_SYMBOL_ADDRESSES, CU_JIT_GLOBAL_SYMBOL_COUNT, CU_JIT_LTO, CU_JIT_FTZ, CU_JIT_PREC_DIV, CU_JIT_PREC_SQRT, CU_JIT_FMA, CU_JIT_REFERENCED_KERNEL_NAMES, CU_JIT_REFERENCED_KERNEL_COUNT, CU_JIT_REFERENCED_VARIABLE_NAMES, CU_JIT_REFERENCED_VARIABLE_COUNT, CU_JIT_OPTIMIZE_UNUSED_DEVICE_VARIABLES, CU_JIT_POSITION_INDEPENDENT_CODE, CU_JIT_MIN_CTA_PER_SM, CU_JIT_MAX_THREADS_PER_BLOCK, CU_JIT_OVERRIDE_DIRECTIVE_VALUES, CU_JIT_NUM_OPTIONS
+
+            # API Definition
+            syz_cuLinkComplete(state linkState, cubinOut ptr[out, ptr[out, cuOut]], sizeOut ptr[out, len[cubinOut, int32]])
+            syz_cuLinkCreate(numOptions len[options], options ptr[in, array[flags[CUjit_option, int32]]], optionValues ptr[in, array[int64]], stateOut ptr[out, linkState])
+            syz_cuLinkAddFile(state linkState, type flags[CUjitInputType], path ptr[in, string[filename]], numOptions len[options], options ptr[in, array[flags[CUjit_option, int32]]], optionValues ptr[in, array[int64]])
+
+            # Structure Definition
+    step4:
+        api: "CUresult cuModuleLoadData ( CUmodule* module, const void* image )"
+        init_text: |
+            include <cuda.h>
+
+            # Resource Definition
+            [APPEND_NEW_CONTENT_HERE]
+            resource cuOut[int64]
+            resource linkState[int64]
+
+            # Enum Definition
+            [APPEND_NEW_CONTENT_HERE]
+            CUjitInputType = CU_JIT_INPUT_CUBIN, CU_JIT_INPUT_PTX, CU_JIT_INPUT_FATBINARY, CU_JIT_INPUT_OBJECT, CU_JIT_INPUT_LIBRARY, CU_JIT_INPUT_NVVM, CU_JIT_NUM_INPUT_TYPES
+            CUjit_option = CU_JIT_MAX_REGISTERS, CU_JIT_THREADS_PER_BLOCK, CU_JIT_WALL_TIME, CU_JIT_INFO_LOG_BUFFER, CU_JIT_INFO_LOG_BUFFER_SIZE_BYTES, CU_JIT_ERROR_LOG_BUFFER, CU_JIT_ERROR_LOG_BUFFER_SIZE_BYTES, CU_JIT_OPTIMIZATION_LEVEL, CU_JIT_TARGET_FROM_CUCONTEXT, CU_JIT_TARGET, CU_JIT_FALLBACK_STRATEGY, CU_JIT_GENERATE_DEBUG_INFO, CU_JIT_LOG_VERBOSE, CU_JIT_GENERATE_LINE_INFO, CU_JIT_CACHE_MODE, CU_JIT_FAST_COMPILE, CU_JIT_GLOBAL_SYMBOL_NAMES, CU_JIT_GLOBAL_SYMBOL_ADDRESSES, CU_JIT_GLOBAL_SYMBOL_COUNT, CU_JIT_LTO, CU_JIT_FTZ, CU_JIT_PREC_DIV, CU_JIT_PREC_SQRT, CU_JIT_FMA, CU_JIT_REFERENCED_KERNEL_NAMES, CU_JIT_REFERENCED_KERNEL_COUNT, CU_JIT_REFERENCED_VARIABLE_NAMES, CU_JIT_REFERENCED_VARIABLE_COUNT, CU_JIT_OPTIMIZE_UNUSED_DEVICE_VARIABLES, CU_JIT_POSITION_INDEPENDENT_CODE, CU_JIT_MIN_CTA_PER_SM, CU_JIT_MAX_THREADS_PER_BLOCK, CU_JIT_OVERRIDE_DIRECTIVE_VALUES, CU_JIT_NUM_OPTIONS
+
+            # API Definition
+            [APPEND_NEW_CONTENT_HERE]
+            syz_cuLinkComplete(state linkState, cubinOut ptr[out, ptr[out, cuOut]], sizeOut ptr[out, len[cubinOut, int32]])
+            syz_cuLinkCreate(numOptions len[options], options ptr[in, array[flags[CUjit_option, int32]]], optionValues ptr[in, array[int64]], stateOut ptr[out, linkState])
+            syz_cuLinkAddFile(state linkState, type flags[CUjitInputType], path ptr[in, string[filename]], numOptions len[options], options ptr[in, array[flags[CUjit_option, int32]]], optionValues ptr[in, array[int64]])
+
+            # Structure Definition
+            [APPEND_NEW_CONTENT_HERE]
+
+        syzlang_text: |
+            include <cuda.h>
+
+            # Resource Definition
+            resource module_fd[int64]
+            resource cuOut[int64]
+            resource linkState[int64]
+
+            # Enum Definition
+            CUjitInputType = CU_JIT_INPUT_CUBIN, CU_JIT_INPUT_PTX, CU_JIT_INPUT_FATBINARY, CU_JIT_INPUT_OBJECT, CU_JIT_INPUT_LIBRARY, CU_JIT_INPUT_NVVM, CU_JIT_NUM_INPUT_TYPES
+            CUjit_option = CU_JIT_MAX_REGISTERS, CU_JIT_THREADS_PER_BLOCK, CU_JIT_WALL_TIME, CU_JIT_INFO_LOG_BUFFER, CU_JIT_INFO_LOG_BUFFER_SIZE_BYTES, CU_JIT_ERROR_LOG_BUFFER, CU_JIT_ERROR_LOG_BUFFER_SIZE_BYTES, CU_JIT_OPTIMIZATION_LEVEL, CU_JIT_TARGET_FROM_CUCONTEXT, CU_JIT_TARGET, CU_JIT_FALLBACK_STRATEGY, CU_JIT_GENERATE_DEBUG_INFO, CU_JIT_LOG_VERBOSE, CU_JIT_GENERATE_LINE_INFO, CU_JIT_CACHE_MODE, CU_JIT_FAST_COMPILE, CU_JIT_GLOBAL_SYMBOL_NAMES, CU_JIT_GLOBAL_SYMBOL_ADDRESSES, CU_JIT_GLOBAL_SYMBOL_COUNT, CU_JIT_LTO, CU_JIT_FTZ, CU_JIT_PREC_DIV, CU_JIT_PREC_SQRT, CU_JIT_FMA, CU_JIT_REFERENCED_KERNEL_NAMES, CU_JIT_REFERENCED_KERNEL_COUNT, CU_JIT_REFERENCED_VARIABLE_NAMES, CU_JIT_REFERENCED_VARIABLE_COUNT, CU_JIT_OPTIMIZE_UNUSED_DEVICE_VARIABLES, CU_JIT_POSITION_INDEPENDENT_CODE, CU_JIT_MIN_CTA_PER_SM, CU_JIT_MAX_THREADS_PER_BLOCK, CU_JIT_OVERRIDE_DIRECTIVE_VALUES, CU_JIT_NUM_OPTIONS
+
+            # API Definition
+            syz_cuModuleLoadData(module ptr[out, module_fd], image ptr[in, cuOut] )
+            syz_cuLinkComplete(state linkState, cubinOut ptr[out, ptr[out, cuOut]], sizeOut ptr[out, len[cubinOut, int32]])
+            syz_cuLinkCreate(numOptions len[options], options ptr[in, array[flags[CUjit_option, int32]]], optionValues ptr[in, array[int64]], stateOut ptr[out, linkState])
+            syz_cuLinkAddFile(state linkState, type flags[CUjitInputType], path ptr[in, string[filename]], numOptions len[options], options ptr[in, array[flags[CUjit_option, int32]]], optionValues ptr[in, array[int64]])
+
+            # Structure Definition
+syzlang_const_var: "`CUjitInputType`, `CUjit_option`"
+
+syzlang_const_ele: |
+    ```
+    CUjitInputType = CU_JIT_INPUT_CUBIN, CU_JIT_INPUT_PTX, CU_JIT_INPUT_FATBINARY, CU_JIT_INPUT_OBJECT, CU_JIT_INPUT_LIBRARY, CU_JIT_INPUT_NVVM, CU_JIT_NUM_INPUT_TYPES
+    CUjit_option = CU_JIT_MAX_REGISTERS, CU_JIT_THREADS_PER_BLOCK, CU_JIT_WALL_TIME, CU_JIT_INFO_LOG_BUFFER, CU_JIT_INFO_LOG_BUFFER_SIZE_BYTES, CU_JIT_ERROR_LOG_BUFFER, CU_JIT_ERROR_LOG_BUFFER_SIZE_BYTES, CU_JIT_OPTIMIZATION_LEVEL, CU_JIT_TARGET_FROM_CUCONTEXT, CU_JIT_TARGET, CU_JIT_FALLBACK_STRATEGY, CU_JIT_GENERATE_DEBUG_INFO, CU_JIT_LOG_VERBOSE, CU_JIT_GENERATE_LINE_INFO, CU_JIT_CACHE_MODE, CU_JIT_FAST_COMPILE, CU_JIT_GLOBAL_SYMBOL_NAMES, CU_JIT_GLOBAL_SYMBOL_ADDRESSES, CU_JIT_GLOBAL_SYMBOL_COUNT, CU_JIT_LTO, CU_JIT_FTZ, CU_JIT_PREC_DIV, CU_JIT_PREC_SQRT, CU_JIT_FMA, CU_JIT_REFERENCED_KERNEL_NAMES, CU_JIT_REFERENCED_KERNEL_COUNT, CU_JIT_REFERENCED_VARIABLE_NAMES, CU_JIT_REFERENCED_VARIABLE_COUNT, CU_JIT_OPTIMIZE_UNUSED_DEVICE_VARIABLES, CU_JIT_POSITION_INDEPENDENT_CODE, CU_JIT_MIN_CTA_PER_SM, CU_JIT_MAX_THREADS_PER_BLOCK, CU_JIT_OVERRIDE_DIRECTIVE_VALUES, CU_JIT_NUM_OPTIONS
+    ```
+syzlang_const: |
+    ```
+    arches = 386, amd64, arm, arm64, mips64le, ppc64le, riscv64, s390x
+    CU_JIT_INPUT_CUBIN                 = 0x0
+    CU_JIT_INPUT_PTX                   = 0x1
+    CU_JIT_INPUT_FATBINARY             = 0x2
+    CU_JIT_INPUT_OBJECT                = 0x3
+    CU_JIT_INPUT_LIBRARY               = 0x4
+    CU_JIT_INPUT_NVVM                  = 0x5
+    CU_JIT_MAX_REGISTERS               = 0x6
+
+    CU_JIT_THREADS_PER_BLOCK = 1
+    CU_JIT_WALL_TIME = 2
+    CU_JIT_INFO_LOG_BUFFER = 3
+    CU_JIT_INFO_LOG_BUFFER_SIZE_BYTES = 4
+    CU_JIT_ERROR_LOG_BUFFER = 5
+    CU_JIT_ERROR_LOG_BUFFER_SIZE_BYTES = 6
+    CU_JIT_OPTIMIZATION_LEVEL = 7
+    CU_JIT_TARGET_FROM_CUCONTEXT = 8
+    CU_JIT_TARGET = 9
+    CU_JIT_FALLBACK_STRATEGY = 10
+    CU_JIT_GENERATE_DEBUG_INFO = 11
+    CU_JIT_LOG_VERBOSE = 12
+    CU_JIT_GENERATE_LINE_INFO = 13
+    CU_JIT_CACHE_MODE = 14
+    CU_JIT_NEW_SM3X_OPT = 15
+    CU_JIT_FAST_COMPILE = 16
+    CU_JIT_GLOBAL_SYMBOL_NAMES = 17
+    CU_JIT_GLOBAL_SYMBOL_ADDRESSES = 18
+    CU_JIT_GLOBAL_SYMBOL_COUNT = 19
+    CU_JIT_LTO = 20
+    CU_JIT_FTZ = 21
+    CU_JIT_PREC_DIV = 22
+    CU_JIT_PREC_SQRT = 23
+    CU_JIT_FMA = 24
+    CU_JIT_REFERENCED_KERNEL_NAMES = 25
+    CU_JIT_REFERENCED_KERNEL_COUNT = 26
+    CU_JIT_REFERENCED_VARIABLE_NAMES = 27
+    CU_JIT_REFERENCED_VARIABLE_COUNT = 28
+    CU_JIT_OPTIMIZE_UNUSED_DEVICE_VARIABLES = 29
+    CU_JIT_POSITION_INDEPENDENT_CODE = 30
+    CU_JIT_MIN_CTA_PER_SM = 31
+    CU_JIT_MAX_THREADS_PER_BLOCK = 32
+    CU_JIT_OVERRIDE_DIRECTIVE_VALUES = 33
+    CU_JIT_NUM_OPTIONS = 34
+    ```

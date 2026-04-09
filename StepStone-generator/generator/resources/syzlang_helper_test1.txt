@@ -1,0 +1,199 @@
+{
+    "resource": [
+        {
+            "resource_name": "memoryPool",
+            "resource_type": "intptr"
+        }
+    ],
+    "enum": [
+        {
+            "enum_name": "CUmemAllocationHandleType",
+            "enum_elements": [
+                "CU_MEM_HANDLE_TYPE_NONE",
+                "CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR",
+                "CU_MEM_HANDLE_TYPE_WIN32",
+                "CU_MEM_HANDLE_TYPE_WIN32_KMT",
+                "CU_MEM_HANDLE_TYPE_FABRIC",
+                "CU_MEM_HANDLE_TYPE_MAX"
+            ],
+            "enum_values": [
+                "0x0",
+                "0x1",
+                "0x2",
+                "0x4",
+                "0x8",
+                "0x7FFFFFFF"
+            ]
+        },
+        {
+            "enum_name": "CUmemAllocationType",
+            "enum_elements": [
+                "CU_MEM_ALLOCATION_TYPE_INVALID",
+                "CU_MEM_ALLOCATION_TYPE_PINNED",
+                "CU_MEM_ALLOCATION_TYPE_MAX"
+            ],
+            "enum_values": [
+                "0x0",
+                "0x1",
+                "0x7FFFFFFF"
+            ]
+        },
+        {
+            "enum_name": "CUmemLocationType",
+            "enum_elements": [
+                "CU_MEM_LOCATION_TYPE_INVALID",
+                "CU_MEM_LOCATION_TYPE_DEVICE",
+                "CU_MEM_LOCATION_TYPE_HOST",
+                "CU_MEM_LOCATION_TYPE_HOST_NUMA",
+                "CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT",
+                "CU_MEM_LOCATION_TYPE_MAX"
+            ],
+            "enum_values": [
+                "0x0",
+                "0x1",
+                "0x2",
+                "0x3",
+                "0x4",
+                "0x7FFFFFFF"
+            ]
+        }
+    ],
+    "structure": [
+        {
+            "structure_name": "CUmemPoolProps",
+            "args": [],
+            "fields": [
+                {
+                    "field_name": "allocType",
+                    "field_type": {
+                        "type_name": "flags",
+                        "flags_enum": "CUmemAllocationType",
+                        "flags_element_size": "int32"
+                    }
+                },
+                {
+                    "field_name": "handleTypes",
+                    "field_type": {
+                        "type_name": "flags",
+                        "flags_enum": "CUmemAllocationHandleType",
+                        "flags_element_size": "int32"
+                    }
+                },
+                {
+                    "field_name": "location",
+                    "field_type": {
+                        "type_name": "resource",
+                        "resource_name": "CUmemLocation"
+                    }
+                },
+                {
+                    "field_name": "win32SecurityAttributes",
+                    "field_type": {
+                        "type_name": "ptr",
+                        "ptr_method": "in",
+                        "ptr_object": {
+                            "type_name": "void"
+                        }
+                    }
+                },
+                {
+                    "field_name": "maxSize",
+                    "field_type": {
+                        "type_name": "int",
+                        "int_bound": {
+                            "min_val": "",
+                            "max_val": ""
+                        },
+                        "int_size": "int64"
+                    }
+                },
+                {
+                    "field_name": "usage",
+                    "field_type": {
+                        "type_name": "int",
+                        "int_bound": {
+                            "min_val": "",
+                            "max_val": ""
+                        },
+                        "int_size": "int16"
+                    }
+                },
+                {
+                    "field_name": "reserved",
+                    "field_type": {
+                        "type_name": "array",
+                        "array_element": {
+                            "type_name": "int",
+                            "int_bound": {
+                                "min_val": "",
+                                "max_val": ""
+                            },
+                            "int_size": "int8"
+                        },
+                        "array_length": "54"
+                    }
+                }
+            ],
+            "type_cast": null,
+            "arg_of": []
+        },
+        {
+            "structure_name": "CUmemLocation",
+            "args": [],
+            "fields": [
+                {
+                    "field_name": "type",
+                    "field_type": {
+                        "type_name": "flags",
+                        "flags_enum": "CUmemLocationType",
+                        "flags_element_size": "int32"
+                    }
+                },
+                {
+                    "field_name": "id",
+                    "field_type": {
+                        "type_name": "int",
+                        "int_bound": {
+                            "min_val": "",
+                            "max_val": ""
+                        },
+                        "int_size": "int32"
+                    }
+                }
+            ],
+            "type_cast": null,
+            "arg_of": []
+        }
+    ],
+    "api": [
+        {
+            "api_name": "cuMemPoolCreate",
+            "ret_type": "CUresult",
+            "params": [
+                {
+                    "param_name": "pool",
+                    "param_type": {
+                        "type_name": "ptr",
+                        "ptr_method": "out",
+                        "ptr_object": {
+                            "type_name": "resource",
+                            "resource_name": "memoryPool"
+                        }
+                    }
+                },
+                {
+                    "param_name": "poolProps",
+                    "param_type": {
+                        "type_name": "ptr",
+                        "ptr_method": "in",
+                        "ptr_object": {
+                            "type_name": "structure",
+                            "structure_name": "CUmemPoolProps",
+                            "args": []
+                        }
+                    }
+                }
+            ]
+        }
+    ]
+}

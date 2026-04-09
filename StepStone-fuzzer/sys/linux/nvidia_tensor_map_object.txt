@@ -1,0 +1,22 @@
+include <cuda.h>
+
+# Resource Definition
+# resource CUtensorMap[intptr]
+
+# Enum Definition
+# CUtensorMapDataType = CU_TENSOR_MAP_DATA_TYPE_UINT8, CU_TENSOR_MAP_DATA_TYPE_UINT16, CU_TENSOR_MAP_DATA_TYPE_UINT32, CU_TENSOR_MAP_DATA_TYPE_INT32, CU_TENSOR_MAP_DATA_TYPE_UINT64, CU_TENSOR_MAP_DATA_TYPE_INT64, CU_TENSOR_MAP_DATA_TYPE_FLOAT16, CU_TENSOR_MAP_DATA_TYPE_FLOAT32, CU_TENSOR_MAP_DATA_TYPE_FLOAT64, CU_TENSOR_MAP_DATA_TYPE_BFLOAT16, CU_TENSOR_MAP_DATA_TYPE_FLOAT32_FTZ, CU_TENSOR_MAP_DATA_TYPE_TFLOAT32, CU_TENSOR_MAP_DATA_TYPE_TFLOAT32_FTZ
+
+# CUtensorMapFloatOOBfill = CU_TENSOR_MAP_FLOAT_OOB_FILL_NONE, CU_TENSOR_MAP_FLOAT_OOB_FILL_NAN_REQUEST_ZERO_FMA
+
+# CUtensorMapInterleave = CU_TENSOR_MAP_INTERLEAVE_NONE, CU_TENSOR_MAP_INTERLEAVE_16B, CU_TENSOR_MAP_INTERLEAVE_32B
+
+# CUtensorMapSwizzle = CU_TENSOR_MAP_SWIZZLE_NONE, CU_TENSOR_MAP_SWIZZLE_32B, CU_TENSOR_MAP_SWIZZLE_64B, CU_TENSOR_MAP_SWIZZLE_128B
+
+# CUtensorMapL2promotion = CU_TENSOR_MAP_L2_PROMOTION_NONE, CU_TENSOR_MAP_L2_PROMOTION_L2_64B, CU_TENSOR_MAP_L2_PROMOTION_L2_128B, CU_TENSOR_MAP_L2_PROMOTION_L2_256B
+
+# Structure Definition
+
+# API Definition
+# syz_cuTensorMapEncodeIm2col(tensorMap ptr[out, CUtensorMap], tensorDataType flags[CUtensorMapDataType], tensorRank int32, globalAddress void_ptr, globalDim ptr[in, array[int64, tensorRank]], globalStrides ptr[in, array[int64, tensorRank]], pixelBoxLowerCorner ptr[in, array[int32, tensorRank]], pixelBoxUpperCorner ptr[in, array[int32, tensorRank]], channelsPerPixel int32, pixelsPerColumn int32, elementStrides ptr[in, array[int32, tensorRank]], interleave flags[CUtensorMapInterleave], swizzle flags[CUtensorMapSwizzle], l2Promotion flags[CUtensorMapL2promotion], oobFill flags[CUtensorMapFloatOOBfill])
+# syz_cuTensorMapEncodeTiled(tensorMap ptr[out, CUtensorMap], tensorDataType flags[CUtensorMapDataType], tensorRank int32, globalAddress void_ptr, globalDim ptr[in, array[int64]], globalStrides ptr[in, array[int64]], boxDim ptr[in, array[int32]], elementStrides ptr[in, array[int32]], interleave flags[CUtensorMapInterleave], swizzle flags[CUtensorMapSwizzle], l2Promotion flags[CUtensorMapL2promotion], oobFill flags[CUtensorMapFloatOOBfill])
+# syz_cuTensorMapReplaceAddress(tensorMap ptr[inout, CUtensorMap], globalAddress ptr[in, void_ptr])

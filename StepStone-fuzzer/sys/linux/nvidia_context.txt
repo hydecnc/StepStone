@@ -1,0 +1,48 @@
+include <cuda.h>
+
+# Resource Definition
+
+# Enum Definition
+
+CUfunc_cache = CU_FUNC_CACHE_PREFER_NONE, CU_FUNC_CACHE_PREFER_SHARED, CU_FUNC_CACHE_PREFER_L1, CU_FUNC_CACHE_PREFER_EQUAL
+
+CUlimit = CU_LIMIT_STACK_SIZE, CU_LIMIT_PRINTF_FIFO_SIZE, CU_LIMIT_MALLOC_HEAP_SIZE, CU_LIMIT_DEV_RUNTIME_SYNC_DEPTH, CU_LIMIT_DEV_RUNTIME_PENDING_LAUNCH_COUNT, CU_LIMIT_MAX_L2_FETCH_GRANULARITY, CU_LIMIT_PERSISTING_L2_CACHE_SIZE, CU_LIMIT_SHMEM_SIZE, CU_LIMIT_CIG_ENABLED, CU_LIMIT_CIG_SHMEM_FALLBACK_ENABLED, CU_LIMIT_MAX
+
+# Structure Definition
+type CUexecAffinityParam[OP1] {
+	type	flags[CUexecAffinityType, int32]
+	param	OP1
+}
+
+CUexecAffinityParam_param_smCount {
+	smCount	CUexecAffinitySmCount
+}
+
+CUexecAffinitySmCount {
+	val	int32
+}
+
+# API Definition
+syz_cuCtxCreate(pctx ptr[out, CUcontext], flags flags[CUctx_flags], dev CUdevice)
+syz_cuCtxCreate_v3(pctx ptr[out, CUcontext], paramsArray ptr[in, array[CUexecAffinityParam[CUexecAffinityParam_param_smCount]]], numParams len[paramsArray], flags flags[CUctx_flags], dev CUdevice)
+#syz_cuCtxCreate_v4(pctx ptr[out, CUcontext], ctxCreateParams ptr[in, CUctxCreateParams[CUexecAffinityParam_param_smCount]], flags flags[CUctx_flags], dev CUdevice)
+syz_cuCtxDestroy(ctx CUcontext)
+syz_cuCtxGetApiVersion(ctx CUcontext, version ptr[out, int32])
+syz_cuCtxGetCacheConfig(pconfig ptr[out, int32])
+syz_cuCtxGetCurrent(pctx ptr[out, CUcontext])
+syz_cuCtxGetDevice(device ptr[out, CUdevice])
+syz_cuCtxGetExecAffinity(pExecAffinity ptr[out, CUexecAffinityParam[CUexecAffinityParam_param_smCount]], type flags[CUexecAffinityType])
+syz_cuCtxGetFlags(flags ptr[out, int32])
+syz_cuCtxGetId(ctx CUcontext, ctxId ptr[out, int64])
+syz_cuCtxGetLimit(pvalue ptr[out, int64], limit flags[CUlimit])
+syz_cuCtxGetStreamPriorityRange(leastPriority ptr[out, int32], greatestPriority ptr[out, int32])
+syz_cuCtxPopCurrent(pctx ptr[out, CUcontext])
+syz_cuCtxPushCurrent(ctx CUcontext)
+#syz_cuCtxRecordEvent(hCtx CUcontext, hEvent CUevent)
+syz_cuCtxResetPersistingL2Cache()
+syz_cuCtxSetCacheConfig(config flags[CUfunc_cache])
+syz_cuCtxSetCurrent(ctx CUcontext)
+syz_cuCtxSetFlags(flags flags[CUctx_flags])
+syz_cuCtxSetLimit(limit flags[CUlimit], value int32)
+syz_cuCtxSynchronize()
+#syz_cuCtxWaitEvent(hCtx CUcontext, hEvent CUevent)

@@ -1,0 +1,180 @@
+training_name: "CUDA API demo training 1"
+training_description: "This training shows an example of converting several CUDA API to syzkaller description."
+reasoning_steps: 
+    step1:
+        api: "CUresult cuDeviceGet ( CUdevice* device, int  ordinal )"
+        init_text: |
+            include <cuda.h>
+
+            # Resource Definition
+            [APPEND_NEW_CONTENT_HERE]
+
+            # Enum Definition
+            [APPEND_NEW_CONTENT_HERE]
+
+            # API Definition
+            [APPEND_NEW_CONTENT_HERE]
+
+            # Structure Definition
+            [APPEND_NEW_CONTENT_HERE]
+
+        syzlang_text: |
+            include <cuda.h>
+
+            # Resource Definition
+            resource device_fd[int32]
+
+            # Enum Definition
+
+
+            # API Definition
+            syz_cuDeviceGet(device ptr[out, device_fd], ordinal const[0])
+
+            # Structure Definition
+        
+    step2:
+        api: "CUresult cuMemPoolCreate ( CUmemoryPool* pool, const CUmemPoolProps* poolProps )"
+        init_text: |
+            include <cuda.h>
+
+            # Resource Definition
+            [APPEND_NEW_CONTENT_HERE]
+            resource device_fd[int32]
+
+            # Enum Definition
+            [APPEND_NEW_CONTENT_HERE]
+
+            # API Definition
+            [APPEND_NEW_CONTENT_HERE]
+            syz_cuDeviceGet(device ptr[out, device_fd], ordinal const[0])
+
+            # Structure Definition
+            [APPEND_NEW_CONTENT_HERE]
+
+        syzlang_text: |
+            include <cuda.h>
+
+            # Resource Definition
+            resource device_fd[int32]
+            resource memoryPool[int64]
+
+            # Enum Definition
+            CUmemAllocationType = CU_MEM_ALLOCATION_TYPE_INVALID, CU_MEM_ALLOCATION_TYPE_PINNED, CU_MEM_ALLOCATION_TYPE_MAX
+            CUmemAllocationHandleType = CU_MEM_HANDLE_TYPE_NONE, CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR, CU_MEM_HANDLE_TYPE_WIN32, CU_MEM_HANDLE_TYPE_WIN32_KMT, CU_MEM_HANDLE_TYPE_FABRIC, CU_MEM_HANDLE_TYPE_MAX
+            CUmemLocationType = CU_MEM_LOCATION_TYPE_INVALID, CU_MEM_LOCATION_TYPE_DEVICE, CU_MEM_LOCATION_TYPE_HOST, CU_MEM_LOCATION_TYPE_HOST_NUMA, CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT, CU_MEM_LOCATION_TYPE_MAX
+
+            # API Definition
+            syz_cuMemPoolCreate(pool ptr[out, memoryPool], poolProps ptr[in, CUmemPoolProps])
+            syz_cuDeviceGet(device ptr[out, device_fd], ordinal const[0])
+
+            # Structure Definition
+            CUmemPoolProps {
+                allocType		flags[CUmemAllocationType, int32]
+                handleTypes		flags[CUmemAllocationHandleType, int32]
+                location		CUmemLocation
+                maxSize			const[0, int64]
+                reserved		const[0, int8]
+                win32SecurityAttr	const[0, int64]
+            }
+
+            CUmemLocation {
+                type	flags[CUmemLocationType, int32]
+                id	device_fd
+            }
+    step3:
+        api: "CUresult cuDeviceSetMemPool ( CUdevice dev, CUmemoryPool pool )"
+        init_text: |
+            include <cuda.h>
+
+            # Resource Definition
+            [APPEND_NEW_CONTENT_HERE]
+            resource device_fd[int32]
+            resource memoryPool[int64]
+
+            # Enum Definition
+            [APPEND_NEW_CONTENT_HERE]
+            CUmemAllocationType = CU_MEM_ALLOCATION_TYPE_INVALID, CU_MEM_ALLOCATION_TYPE_PINNED, CU_MEM_ALLOCATION_TYPE_MAX
+            CUmemAllocationHandleType = CU_MEM_HANDLE_TYPE_NONE, CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR, CU_MEM_HANDLE_TYPE_WIN32, CU_MEM_HANDLE_TYPE_WIN32_KMT, CU_MEM_HANDLE_TYPE_FABRIC, CU_MEM_HANDLE_TYPE_MAX
+            CUmemLocationType = CU_MEM_LOCATION_TYPE_INVALID, CU_MEM_LOCATION_TYPE_DEVICE, CU_MEM_LOCATION_TYPE_HOST, CU_MEM_LOCATION_TYPE_HOST_NUMA, CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT, CU_MEM_LOCATION_TYPE_MAX
+
+            # API Definition
+            [APPEND_NEW_CONTENT_HERE]
+            syz_cuMemPoolCreate(pool ptr[out, memoryPool], poolProps ptr[in, CUmemPoolProps])
+            syz_cuDeviceGet(device ptr[out, device_fd], ordinal const[0])
+
+            # Structure Definition
+            [APPEND_NEW_CONTENT_HERE]
+            CUmemPoolProps {
+                allocType		flags[CUmemAllocationType, int32]
+                handleTypes		flags[CUmemAllocationHandleType, int32]
+                location		CUmemLocation
+                maxSize			const[0, int64]
+                reserved		const[0, int8]
+                win32SecurityAttr	const[0, int64]
+            }
+
+            CUmemLocation {
+                type	flags[CUmemLocationType, int32]
+                id	device_fd
+            }
+
+        syzlang_text: |
+            include <cuda.h>
+
+            # Resource Definition
+            resource device_fd[int32]
+            resource memoryPool[int64]
+
+            # Enum Definition
+            CUmemAllocationType = CU_MEM_ALLOCATION_TYPE_INVALID, CU_MEM_ALLOCATION_TYPE_PINNED, CU_MEM_ALLOCATION_TYPE_MAX
+            CUmemAllocationHandleType = CU_MEM_HANDLE_TYPE_NONE, CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR, CU_MEM_HANDLE_TYPE_WIN32, CU_MEM_HANDLE_TYPE_WIN32_KMT, CU_MEM_HANDLE_TYPE_FABRIC, CU_MEM_HANDLE_TYPE_MAX
+            CUmemLocationType = CU_MEM_LOCATION_TYPE_INVALID, CU_MEM_LOCATION_TYPE_DEVICE, CU_MEM_LOCATION_TYPE_HOST, CU_MEM_LOCATION_TYPE_HOST_NUMA, CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT, CU_MEM_LOCATION_TYPE_MAX
+
+            # API Definition
+            syz_cuDeviceSetMemPool(device_fd device_fd, memoryPool memoryPool)
+            syz_cuMemPoolCreate(pool ptr[out, memoryPool], poolProps ptr[in, CUmemPoolProps])
+            syz_cuDeviceGet(device ptr[out, device_fd], ordinal const[0])
+
+            # Structure Definition
+            CUmemPoolProps {
+                allocType		flags[CUmemAllocationType, int32]
+                handleTypes		flags[CUmemAllocationHandleType, int32]
+                location		CUmemLocation
+                maxSize			const[0, int64]
+                reserved		const[0, int8]
+                win32SecurityAttr	const[0, int64]
+            }
+
+            CUmemLocation {
+                type	flags[CUmemLocationType, int32]
+                id	device_fd
+            }
+
+syzlang_const_var: "`CUmemAllocationType`, `CUmemAllocationHandleType`, `CUmemLocationType`"
+
+syzlang_const_ele: |
+    ```
+    CUmemAllocationType = CU_MEM_ALLOCATION_TYPE_INVALID, CU_MEM_ALLOCATION_TYPE_PINNED, CU_MEM_ALLOCATION_TYPE_MAX
+    CUmemAllocationHandleType = CU_MEM_HANDLE_TYPE_NONE, CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR, CU_MEM_HANDLE_TYPE_WIN32, CU_MEM_HANDLE_TYPE_WIN32_KMT, CU_MEM_HANDLE_TYPE_FABRIC, CU_MEM_HANDLE_TYPE_MAX
+    CUmemLocationType = CU_MEM_LOCATION_TYPE_INVALID, CU_MEM_LOCATION_TYPE_DEVICE, CU_MEM_LOCATION_TYPE_HOST, CU_MEM_LOCATION_TYPE_HOST_NUMA, CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT, CU_MEM_LOCATION_TYPE_MAX
+    ```
+
+syzlang_const: |
+    ```
+    arches = 386, amd64, arm, arm64, mips64le, ppc64le, riscv64, s390x
+    CU_MEM_ALLOCATION_TYPE_INVALID                 = 0x0
+    CU_MEM_ALLOCATION_TYPE_PINNED                  = 0x1
+    CU_MEM_ALLOCATION_TYPE_MAX                     = 0x7FFFFFFF
+    CU_MEM_HANDLE_TYPE_NONE                        = 0x0
+    CU_MEM_HANDLE_TYPE_POSIX_FILE_DESCRIPTOR       = 0x1
+    CU_MEM_HANDLE_TYPE_WIN32                       = 0x2
+    CU_MEM_HANDLE_TYPE_WIN32_KMT                   = 0x4
+    CU_MEM_HANDLE_TYPE_FABRIC                      = 0x8
+    CU_MEM_HANDLE_TYPE_MAX                         = 0x7FFFFFFF
+    CU_MEM_LOCATION_TYPE_INVALID                   = 0x0
+    CU_MEM_LOCATION_TYPE_DEVICE                    = 0x1
+    CU_MEM_LOCATION_TYPE_HOST                      = 0x2
+    CU_MEM_LOCATION_TYPE_HOST_NUMA                 = 0x3
+    CU_MEM_LOCATION_TYPE_HOST_NUMA_CURRENT         = 0x4
+    CU_MEM_LOCATION_TYPE_MAX                       = 0x7FFFFFFF
+    ```

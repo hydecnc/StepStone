@@ -1,0 +1,346 @@
+{
+  "resource": [
+    {
+      "resource_name": "CUevent",
+      "resource_type": "intptr"
+    },
+    {
+      "resource_name": "CUgraphDeviceNode",
+      "resource_type": "intptr"
+    }
+  ],
+  "enum": [
+    {
+      "enum_name": "CUaccessProperty",
+      "enum_elements": [
+        "CU_ACCESS_PROPERTY_NORMAL",
+        "CU_ACCESS_PROPERTY_STREAMING",
+        "CU_ACCESS_PROPERTY_PERSISTING"
+      ],
+      "enum_values": [
+        "0",
+        "1",
+        "2"
+      ]
+    },
+    {
+      "enum_name": "CUsynchronizationPolicy",
+      "enum_elements": [
+        "CU_SYNC_POLICY_AUTO",
+        "CU_SYNC_POLICY_SPIN",
+        "CU_SYNC_POLICY_YIELD",
+        "CU_SYNC_POLICY_BLOCKING_SYNC"
+      ],
+      "enum_values": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ]
+    },
+    {
+      "enum_name": "CUclusterSchedulingPolicy",
+      "enum_elements": [
+        "CU_CLUSTER_SCHEDULING_POLICY_DEFAULT",
+        "CU_CLUSTER_SCHEDULING_POLICY_SPREAD",
+        "CU_CLUSTER_SCHEDULING_POLICY_LOAD_BALANCING"
+      ],
+      "enum_values": [
+        "0",
+        "1",
+        "2"
+      ]
+    },
+    {
+      "enum_name": "CUlaunchMemSyncDomain",
+      "enum_elements": [
+        "CU_LAUNCH_MEM_SYNC_DOMAIN_DEFAULT",
+        "CU_LAUNCH_MEM_SYNC_DOMAIN_REMOTE"
+      ],
+      "enum_values": [
+        "0",
+        "1"
+      ]
+    }
+  ],
+  "structure": [
+    {
+      "structure_name": "CUlaunchAttributeValue",
+      "args": [
+        "OP1"
+      ],
+      "fields": [
+        {
+          "field_name": "value",
+          "field_type": "OP1"
+        }
+      ],
+      "type_cast": null,
+      "arg_of": []
+    },
+    {
+      "structure_name": "CUlaunchAttributeValue_pad",
+      "args": [],
+      "fields": [
+        {
+          "field_name": "pad",
+          "field_type": "array[int8, 64]"
+        }
+      ],
+      "type_cast": null,
+      "arg_of": [
+        "OP1"
+      ]
+    },
+    {
+      "structure_name": "CUlaunchAttributeValue_accessPolicyWindow",
+      "args": [],
+      "fields": [
+        {
+          "field_name": "accessPolicyWindow",
+          "field_type": "CUaccessPolicyWindow"
+        }
+      ],
+      "type_cast": null,
+      "arg_of": [
+        "OP1"
+      ]
+    },
+    {
+      "structure_name": "CUaccessPolicyWindow",
+      "args": [],
+      "fields": [
+        {
+          "field_name": "base_ptr",
+          "field_type": "ptr[in, void]"
+        },
+        {
+          "field_name": "num_bytes",
+          "field_type": "int64"
+        },
+        {
+          "field_name": "hitRatio",
+          "field_type": "int32"
+        },
+        {
+          "field_name": "hitProp",
+          "field_type": "flags[CUaccessProperty, int32]"
+        },
+        {
+          "field_name": "missProp",
+          "field_type": "flags[CUaccessProperty, int32]"
+        }
+      ],
+      "type_cast": null,
+      "arg_of": []
+    },
+    {
+      "structure_name": "CUlaunchAttributeValue_cooperative",
+      "args": [],
+      "fields": [
+        {
+          "field_name": "cooperative",
+          "field_type": "int32"
+        }
+      ],
+      "type_cast": null,
+      "arg_of": [
+        "OP1"
+      ]
+    },
+    {
+      "structure_name": "CUlaunchAttributeValue_syncPolicy",
+      "args": [],
+      "fields": [
+        {
+          "field_name": "syncPolicy",
+          "field_type": "flags[CUsynchronizationPolicy, int32]"
+        }
+      ],
+      "type_cast": null,
+      "arg_of": [
+        "OP1"
+      ]
+    },
+    {
+      "structure_name": "CUlaunchAttributeValue_clusterDim",
+      "args": [],
+      "fields": [
+        {
+          "field_name": "x",
+          "field_type": "int32"
+        },
+        {
+          "field_name": "y",
+          "field_type": "int32"
+        },
+        {
+          "field_name": "z",
+          "field_type": "int32"
+        }
+      ],
+      "type_cast": null,
+      "arg_of": [
+        "OP1"
+      ]
+    },
+    {
+      "structure_name": "CUlaunchAttributeValue_clusterSchedulingPolicyPreference",
+      "args": [],
+      "fields": [
+        {
+          "field_name": "clusterSchedulingPolicyPreference",
+          "field_type": "flags[CUclusterSchedulingPolicy, int32]"
+        }
+      ],
+      "type_cast": null,
+      "arg_of": [
+        "OP1"
+      ]
+    },
+    {
+      "structure_name": "CUlaunchAttributeValue_programmaticStreamSerializationAllowed",
+      "args": [],
+      "fields": [
+        {
+          "field_name": "programmaticStreamSerializationAllowed",
+          "field_type": "int32"
+        }
+      ],
+      "type_cast": null,
+      "arg_of": [
+        "OP1"
+      ]
+    },
+    {
+      "structure_name": "CUlaunchAttributeValue_programmaticEvent",
+      "args": [],
+      "fields": [
+        {
+          "field_name": "event",
+          "field_type": "resource[CUevent]"
+        },
+        {
+          "field_name": "flags",
+          "field_type": "int32"
+        },
+        {
+          "field_name": "triggerAtBlockStart",
+          "field_type": "int32"
+        }
+      ],
+      "type_cast": null,
+      "arg_of": [
+        "OP1"
+      ]
+    },
+    {
+      "structure_name": "CUlaunchAttributeValue_launchCompletionEvent",
+      "args": [],
+      "fields": [
+        {
+          "field_name": "event",
+          "field_type": "resource[CUevent]"
+        },
+        {
+          "field_name": "flags",
+          "field_type": "int32"
+        }
+      ],
+      "type_cast": null,
+      "arg_of": [
+        "OP1"
+      ]
+    },
+    {
+      "structure_name": "CUlaunchAttributeValue_priority",
+      "args": [],
+      "fields": [
+        {
+          "field_name": "priority",
+          "field_type": "int32"
+        }
+      ],
+      "type_cast": null,
+      "arg_of": [
+        "OP1"
+      ]
+    },
+    {
+      "structure_name": "CUlaunchAttributeValue_memSyncDomainMap",
+      "args": [],
+      "fields": [
+        {
+          "field_name": "memSyncDomainMap",
+          "field_type": "CUlaunchMemSyncDomainMap"
+        }
+      ],
+      "type_cast": null,
+      "arg_of": [
+        "OP1"
+      ]
+    },
+    {
+      "structure_name": "CUlaunchMemSyncDomainMap",
+      "args": [],
+      "fields": [
+        {
+          "field_name": "default",
+          "field_type": "int8"
+        },
+        {
+          "field_name": "remote",
+          "field_type": "int8"
+        }
+      ],
+      "type_cast": null,
+      "arg_of": []
+    },
+    {
+      "structure_name": "CUlaunchAttributeValue_memSyncDomain",
+      "args": [],
+      "fields": [
+        {
+          "field_name": "memSyncDomain",
+          "field_type": "flags[CUlaunchMemSyncDomain, int32]"
+        }
+      ],
+      "type_cast": null,
+      "arg_of": [
+        "OP1"
+      ]
+    },
+    {
+      "structure_name": "CUlaunchAttributeValue_deviceUpdatableKernelNode",
+      "args": [],
+      "fields": [
+        {
+          "field_name": "deviceUpdatable",
+          "field_type": "int32"
+        },
+        {
+          "field_name": "devNode",
+          "field_type": "resource[CUgraphDeviceNode]"
+        }
+      ],
+      "type_cast": null,
+      "arg_of": [
+        "OP1"
+      ]
+    },
+    {
+      "structure_name": "CUlaunchAttributeValue_sharedMemCarveout",
+      "args": [],
+      "fields": [
+        {
+          "field_name": "sharedMemCarveout",
+          "field_type": "int32"
+        }
+      ],
+      "type_cast": null,
+      "arg_of": [
+        "OP1"
+      ]
+    }
+  ]
+}

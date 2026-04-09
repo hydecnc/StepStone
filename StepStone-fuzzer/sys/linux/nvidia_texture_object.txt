@@ -1,0 +1,124 @@
+include <cuda.h>
+
+# Resource Definition
+resource CUtexObject[intptr]
+
+# Enum Definition
+CUaddress_mode = CU_TR_ADDRESS_MODE_WRAP, CU_TR_ADDRESS_MODE_CLAMP, CU_TR_ADDRESS_MODE_MIRROR, CU_TR_ADDRESS_MODE_BORDER
+
+CUfilter_mode = CU_TR_FILTER_MODE_POINT, CU_TR_FILTER_MODE_LINEAR
+
+CUresourceViewFormat = CU_RES_VIEW_FORMAT_NONE, CU_RES_VIEW_FORMAT_UINT_1X8, CU_RES_VIEW_FORMAT_UINT_2X8, CU_RES_VIEW_FORMAT_UINT_4X8, CU_RES_VIEW_FORMAT_SINT_1X8, CU_RES_VIEW_FORMAT_SINT_2X8, CU_RES_VIEW_FORMAT_SINT_4X8, CU_RES_VIEW_FORMAT_UINT_1X16, CU_RES_VIEW_FORMAT_UINT_2X16, CU_RES_VIEW_FORMAT_UINT_4X16, CU_RES_VIEW_FORMAT_SINT_1X16, CU_RES_VIEW_FORMAT_SINT_2X16, CU_RES_VIEW_FORMAT_SINT_4X16, CU_RES_VIEW_FORMAT_UINT_1X32, CU_RES_VIEW_FORMAT_UINT_2X32, CU_RES_VIEW_FORMAT_UINT_4X32, CU_RES_VIEW_FORMAT_SINT_1X32, CU_RES_VIEW_FORMAT_SINT_2X32, CU_RES_VIEW_FORMAT_SINT_4X32, CU_RES_VIEW_FORMAT_FLOAT_1X16, CU_RES_VIEW_FORMAT_FLOAT_2X16, CU_RES_VIEW_FORMAT_FLOAT_4X16, CU_RES_VIEW_FORMAT_FLOAT_1X32, CU_RES_VIEW_FORMAT_FLOAT_2X32, CU_RES_VIEW_FORMAT_FLOAT_4X32, CU_RES_VIEW_FORMAT_UNSIGNED_BC1, CU_RES_VIEW_FORMAT_UNSIGNED_BC2, CU_RES_VIEW_FORMAT_UNSIGNED_BC3, CU_RES_VIEW_FORMAT_UNSIGNED_BC4, CU_RES_VIEW_FORMAT_SIGNED_BC4, CU_RES_VIEW_FORMAT_UNSIGNED_BC5, CU_RES_VIEW_FORMAT_SIGNED_BC5, CU_RES_VIEW_FORMAT_UNSIGNED_BC6H, CU_RES_VIEW_FORMAT_SIGNED_BC6H, CU_RES_VIEW_FORMAT_UNSIGNED_BC7
+
+# Structure Definition
+type CUDA_RESOURCE_DESC[CUDA_RESOURCE_DESC_OP1] {
+	resType	flags[CUresourcetype, int32]
+	res	CUDA_RESOURCE_DESC_OP1
+	flags	const[0, int32]
+}
+
+CUDA_RESOURCE_DESC_array {
+	hArray	CUarray
+}
+
+CUDA_RESOURCE_DESC_mipmap {
+	hMipmappedArray	CUmipmappedArray
+}
+
+CUDA_RESOURCE_DESC_linear {
+	devPtr		CUdeviceptr
+	format		flags[CUarray_format, int32]
+	numChannels	int32
+	sizeInBytes	int64
+}
+
+CUDA_RESOURCE_DESC_pitch2D {
+	devPtr		CUdeviceptr
+	format		flags[CUarray_format, int32]
+	numChannels	int32
+	width		int64
+	height		int64
+	pitchInBytes	int64
+}
+
+CUDA_RESOURCE_DESC_reserved {
+	reserved	array[const[0, int32], 32]
+}
+
+CUDA_TEXTURE_DESC {
+	addressMode		array[flags[CUaddress_mode, int32], 3]
+	filterMode		flags[CUfilter_mode, int32]
+	flags			int32
+	maxAnisotropy		int32
+	mipmapFilterMode	flags[CUfilter_mode, int32]
+	mipmapLevelBias		int64
+	minMipmapLevelClamp	int64
+	maxMipmapLevelClamp	int64
+	borderColor		array[int64, 4]
+	reserved		array[const[0, int32], 12]
+}
+
+CUDA_RESOURCE_VIEW_DESC {
+	format			flags[CUresourceViewFormat, int32]
+	width			int64
+	height			int64
+	depth			int64
+	firstMipmapLevel	int32
+	lastMipmapLevel		int32
+	firstLayer		int32
+	lastLayer		int32
+	reserved		array[const[0, int32], 16]
+}
+
+CUDA_RESOURCE_DESC_res_array {
+	hArray	CUarray
+}
+
+CUDA_RESOURCE_DESC_res_mipmap {
+	hMipmappedArray	CUmipmappedArray
+}
+
+CUDA_RESOURCE_DESC_res_linear {
+	devPtr		CUdeviceptr
+	format		flags[CUarray_format, int32]
+	numChannels	int32
+	sizeInBytes	int64
+}
+
+CUDA_RESOURCE_DESC_res_pitch2D {
+	devPtr		CUdeviceptr
+	format		flags[CUarray_format, int32]
+	numChannels	int32
+	width		int64
+	height		int64
+	pitchInBytes	int64
+}
+
+CUDA_RESOURCE_DESC_res_reserved {
+	reserved	array[const[0, int32], 32]
+}
+
+# API Definition
+syz_cuTexObjectCreate$1(pTexObject ptr[out, CUtexObject], pResDesc ptr[in, CUDA_RESOURCE_DESC[CUDA_RESOURCE_DESC_array]], pTexDesc ptr[in, CUDA_TEXTURE_DESC], pResViewDesc ptr[in, CUDA_RESOURCE_VIEW_DESC])
+syz_cuTexObjectCreate$2(pTexObject ptr[out, CUtexObject], pResDesc ptr[in, CUDA_RESOURCE_DESC[CUDA_RESOURCE_DESC_mipmap]], pTexDesc ptr[in, CUDA_TEXTURE_DESC], pResViewDesc ptr[in, CUDA_RESOURCE_VIEW_DESC])
+syz_cuTexObjectCreate$3(pTexObject ptr[out, CUtexObject], pResDesc ptr[in, CUDA_RESOURCE_DESC[CUDA_RESOURCE_DESC_linear]], pTexDesc ptr[in, CUDA_TEXTURE_DESC], pResViewDesc ptr[in, CUDA_RESOURCE_VIEW_DESC])
+syz_cuTexObjectCreate$4(pTexObject ptr[out, CUtexObject], pResDesc ptr[in, CUDA_RESOURCE_DESC[CUDA_RESOURCE_DESC_pitch2D]], pTexDesc ptr[in, CUDA_TEXTURE_DESC], pResViewDesc ptr[in, CUDA_RESOURCE_VIEW_DESC])
+syz_cuTexObjectCreate$5(pTexObject ptr[out, CUtexObject], pResDesc ptr[in, CUDA_RESOURCE_DESC[CUDA_RESOURCE_DESC_reserved]], pTexDesc ptr[in, CUDA_TEXTURE_DESC], pResViewDesc ptr[in, CUDA_RESOURCE_VIEW_DESC])
+syz_cuTexObjectCreate$6(pTexObject ptr[out, CUtexObject], pResDesc ptr[in, CUDA_RESOURCE_DESC[CUDA_RESOURCE_DESC_res_array]], pTexDesc ptr[in, CUDA_TEXTURE_DESC], pResViewDesc ptr[in, CUDA_RESOURCE_VIEW_DESC])
+syz_cuTexObjectCreate$7(pTexObject ptr[out, CUtexObject], pResDesc ptr[in, CUDA_RESOURCE_DESC[CUDA_RESOURCE_DESC_res_mipmap]], pTexDesc ptr[in, CUDA_TEXTURE_DESC], pResViewDesc ptr[in, CUDA_RESOURCE_VIEW_DESC])
+syz_cuTexObjectCreate$8(pTexObject ptr[out, CUtexObject], pResDesc ptr[in, CUDA_RESOURCE_DESC[CUDA_RESOURCE_DESC_res_linear]], pTexDesc ptr[in, CUDA_TEXTURE_DESC], pResViewDesc ptr[in, CUDA_RESOURCE_VIEW_DESC])
+syz_cuTexObjectCreate$9(pTexObject ptr[out, CUtexObject], pResDesc ptr[in, CUDA_RESOURCE_DESC[CUDA_RESOURCE_DESC_res_pitch2D]], pTexDesc ptr[in, CUDA_TEXTURE_DESC], pResViewDesc ptr[in, CUDA_RESOURCE_VIEW_DESC])
+syz_cuTexObjectCreate$10(pTexObject ptr[out, CUtexObject], pResDesc ptr[in, CUDA_RESOURCE_DESC[CUDA_RESOURCE_DESC_res_reserved]], pTexDesc ptr[in, CUDA_TEXTURE_DESC], pResViewDesc ptr[in, CUDA_RESOURCE_VIEW_DESC])
+syz_cuTexObjectDestroy(texObject CUtexObject)
+syz_cuTexObjectGetResourceDesc$1(pResDesc ptr[out, CUDA_RESOURCE_DESC[CUDA_RESOURCE_DESC_array]], texObject CUtexObject)
+syz_cuTexObjectGetResourceDesc$2(pResDesc ptr[out, CUDA_RESOURCE_DESC[CUDA_RESOURCE_DESC_mipmap]], texObject CUtexObject)
+syz_cuTexObjectGetResourceDesc$3(pResDesc ptr[out, CUDA_RESOURCE_DESC[CUDA_RESOURCE_DESC_linear]], texObject CUtexObject)
+syz_cuTexObjectGetResourceDesc$4(pResDesc ptr[out, CUDA_RESOURCE_DESC[CUDA_RESOURCE_DESC_pitch2D]], texObject CUtexObject)
+syz_cuTexObjectGetResourceDesc$5(pResDesc ptr[out, CUDA_RESOURCE_DESC[CUDA_RESOURCE_DESC_reserved]], texObject CUtexObject)
+syz_cuTexObjectGetResourceDesc$6(pResDesc ptr[out, CUDA_RESOURCE_DESC[CUDA_RESOURCE_DESC_res_array]], texObject CUtexObject)
+syz_cuTexObjectGetResourceDesc$7(pResDesc ptr[out, CUDA_RESOURCE_DESC[CUDA_RESOURCE_DESC_res_mipmap]], texObject CUtexObject)
+syz_cuTexObjectGetResourceDesc$8(pResDesc ptr[out, CUDA_RESOURCE_DESC[CUDA_RESOURCE_DESC_res_linear]], texObject CUtexObject)
+syz_cuTexObjectGetResourceDesc$9(pResDesc ptr[out, CUDA_RESOURCE_DESC[CUDA_RESOURCE_DESC_res_pitch2D]], texObject CUtexObject)
+syz_cuTexObjectGetResourceDesc$10(pResDesc ptr[out, CUDA_RESOURCE_DESC[CUDA_RESOURCE_DESC_res_reserved]], texObject CUtexObject)
+syz_cuTexObjectGetResourceViewDesc(pResViewDesc ptr[out, CUDA_RESOURCE_VIEW_DESC], texObject CUtexObject)
+syz_cuTexObjectGetTextureDesc(pTexDesc ptr[out, CUDA_TEXTURE_DESC], texObject CUtexObject)

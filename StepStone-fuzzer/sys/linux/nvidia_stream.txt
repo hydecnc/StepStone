@@ -1,0 +1,226 @@
+include <cuda.h>
+
+# Resource Definition
+resource CUstream[intptr]
+resource CUgraphDeviceNode[intptr]
+# resource CUstreamCallback[intptr]
+resource CUgraph[intptr]
+resource CUgraphNode[intptr]
+
+# Enum Definition
+CUstream_flags = CU_STREAM_DEFAULT, CU_STREAM_NON_BLOCKING
+
+CUlaunchAttributeID = CU_LAUNCH_ATTRIBUTE_IGNORE, CU_LAUNCH_ATTRIBUTE_ACCESS_POLICY_WINDOW, CU_LAUNCH_ATTRIBUTE_COOPERATIVE, CU_LAUNCH_ATTRIBUTE_SYNCHRONIZATION_POLICY, CU_LAUNCH_ATTRIBUTE_CLUSTER_DIMENSION, CU_LAUNCH_ATTRIBUTE_CLUSTER_SCHEDULING_POLICY_PREFERENCE, CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_STREAM_SERIALIZATION, CU_LAUNCH_ATTRIBUTE_PROGRAMMATIC_EVENT, CU_LAUNCH_ATTRIBUTE_PRIORITY, CU_LAUNCH_ATTRIBUTE_MEM_SYNC_DOMAIN_MAP, CU_LAUNCH_ATTRIBUTE_MEM_SYNC_DOMAIN, CU_LAUNCH_ATTRIBUTE_LAUNCH_COMPLETION_EVENT, CU_LAUNCH_ATTRIBUTE_DEVICE_UPDATABLE_KERNEL_NODE, CU_LAUNCH_ATTRIBUTE_PREFERRED_SHARED_MEMORY_CARVEOUT
+
+CUsynchronizationPolicy = CU_SYNC_POLICY_AUTO, CU_SYNC_POLICY_SPIN, CU_SYNC_POLICY_YIELD, CU_SYNC_POLICY_BLOCKING_SYNC
+
+CUclusterSchedulingPolicy = CU_CLUSTER_SCHEDULING_POLICY_DEFAULT, CU_CLUSTER_SCHEDULING_POLICY_SPREAD, CU_CLUSTER_SCHEDULING_POLICY_LOAD_BALANCING
+
+CUlaunchMemSyncDomain = CU_LAUNCH_MEM_SYNC_DOMAIN_DEFAULT, CU_LAUNCH_MEM_SYNC_DOMAIN_REMOTE
+
+CUaccessProperty = CU_ACCESS_PROPERTY_NORMAL, CU_ACCESS_PROPERTY_STREAMING, CU_ACCESS_PROPERTY_PERSISTING
+
+CUstreamAttrID = CU_STREAM_ATTRIBUTE_ACCESS_POLICY_WINDOW, CU_STREAM_ATTRIBUTE_SYNCHRONIZATION_POLICY, CU_STREAM_ATTRIBUTE_PRIORITY, CU_STREAM_ATTRIBUTE_MEM_SYNC_DOMAIN_MAP, CU_STREAM_ATTRIBUTE_MEM_SYNC_DOMAIN
+
+CUstreamBatchMemOpType = CU_STREAM_MEM_OP_WAIT_VALUE_32, CU_STREAM_MEM_OP_WRITE_VALUE_32, CU_STREAM_MEM_OP_WAIT_VALUE_64, CU_STREAM_MEM_OP_WRITE_VALUE_64, CU_STREAM_MEM_OP_BARRIER, CU_STREAM_MEM_OP_FLUSH_REMOTE_WRITES
+
+CUstreamWaitValue_flags = CU_STREAM_WAIT_VALUE_GEQ, CU_STREAM_WAIT_VALUE_AND, CU_STREAM_WAIT_VALUE_FLUSH
+
+CUstreamWriteValue_flags = CU_STREAM_WRITE_VALUE_DEFAULT, CU_STREAM_WRITE_VALUE_NO_MEMORY_BARRIER
+
+CUstreamCaptureMode = CU_STREAM_CAPTURE_MODE_GLOBAL, CU_STREAM_CAPTURE_MODE_THREAD_LOCAL, CU_STREAM_CAPTURE_MODE_RELAXED
+
+CUstreamCaptureStatus = CU_STREAM_CAPTURE_STATUS_NONE, CU_STREAM_CAPTURE_STATUS_ACTIVE, CU_STREAM_CAPTURE_STATUS_INVALIDATED
+
+CUstreamUpdateCaptureDependencies_flags = CU_STREAM_ADD_CAPTURE_DEPENDENCIES, CU_STREAM_SET_CAPTURE_DEPENDENCIES
+
+# Structure Definition
+type CUstreamAttrValue[CUSTREANATTRVALUE_OP1] {
+	arg	CUSTREANATTRVALUE_OP1
+}
+
+CUstreamAttrValue_accessPolicyWindow {
+	accessPolicyWindow	CUaccessPolicyWindow
+}
+
+CUaccessPolicyWindow {
+	base_ptr	ptr[in, void]
+	num_bytes	int64
+	hitRatio	int32
+	hitProp		flags[CUaccessProperty, int32]
+	missProp	flags[CUaccessProperty, int32]
+}
+
+CUstreamAttrValue_cooperative {
+	cooperative	int32
+}
+
+CUstreamAttrValue_syncPolicy {
+	syncPolicy	flags[CUsynchronizationPolicy, int32]
+}
+
+CUstreamAttrValue_clusterDim {
+	x	int32
+	y	int32
+	z	int32
+}
+
+CUstreamAttrValue_clusterSchedulingPolicyPreference {
+	clusterSchedulingPolicyPreference	flags[CUclusterSchedulingPolicy, int32]
+}
+
+CUstreamAttrValue_programmaticStreamSerializationAllowed {
+	programmaticStreamSerializationAllowed	int32
+}
+
+CUstreamAttrValue_programmaticEvent {
+	event			CUevent
+	flags			int32
+	triggerAtBlockStart	int32
+}
+
+CUstreamAttrValue_launchCompletionEvent {
+	event	CUevent
+	flags	int32
+}
+
+CUstreamAttrValue_priority {
+	priority	int32
+}
+
+CUstreamAttrValue_memSyncDomainMap {
+	memSyncDomainMap	CUlaunchMemSyncDomainMap
+}
+
+CUstreamAttrValue_memSyncDomain {
+	memSyncDomain	flags[CUlaunchMemSyncDomain, int32]
+}
+
+CUstreamAttrValue_deviceUpdatableKernelNode {
+	deviceUpdatable	int32
+	devNode		CUgraphDeviceNode
+}
+
+CUstreamAttrValue_sharedMemCarveout {
+	sharedMemCarveout	int32
+}
+
+type CUstreamBatchMemOpParams[CUSTREAMBATCHMEMOPPARAMS_OP1] {
+	opParams	CUSTREAMBATCHMEMOPPARAMS_OP1
+}
+
+CUstreamBatchMemOpParams_operation {
+	operation	flags[CUstreamBatchMemOpType, int32]
+}
+
+CUstreamMemOpWaitValueParams {
+	operation	const[CU_STREAM_MEM_OP_WAIT_VALUE_32, int32]
+	address		CUdeviceptr
+	value		int32
+	flags		flags[CUstreamWaitValue_flags, int32]
+	alias		CUdeviceptr
+}
+
+CUstreamMemOpWaitValueParams64 {
+	operation	const[CU_STREAM_MEM_OP_WAIT_VALUE_64, int32]
+	address		CUdeviceptr
+	value64		int64
+	flags		flags[CUstreamWaitValue_flags, int32]
+	alias		CUdeviceptr
+}
+
+CUstreamMemOpWriteValueParams {
+	operation	const[CU_STREAM_MEM_OP_WRITE_VALUE_32, int32]
+	address		CUdeviceptr
+	value		int32
+	flags		flags[CUstreamWriteValue_flags, int32]
+	alias		CUdeviceptr
+}
+
+CUstreamMemOpWriteValueParams64 {
+	operation	const[CU_STREAM_MEM_OP_WRITE_VALUE_64, int32]
+	address		CUdeviceptr
+	value64		int64
+	flags		flags[CUstreamWriteValue_flags, int32]
+	alias		CUdeviceptr
+}
+
+CUstreamMemOpFlushRemoteWritesParams {
+	operation	const[CU_STREAM_MEM_OP_FLUSH_REMOTE_WRITES, int32]
+	flags		int32
+}
+
+CUstreamMemOpMemoryBarrierParams {
+	operation	const[CU_STREAM_MEM_OP_BARRIER, int32]
+	flags		int32
+}
+
+CUgraphEdgeData {
+	from_port	int8
+	to_port		int8
+	type		int8
+	reserved	array[int8, 5]
+}
+
+# API Definition
+syz_cuStreamCreate(phStream ptr[out, CUstream], Flags flags[CUstream_flags])
+syz_cuStreamGetAttribute$1(hStream CUstream, attr flags[CUstreamAttrID], value_out ptr[out, CUstreamAttrValue[CUstreamAttrValue_accessPolicyWindow]])
+syz_cuStreamGetAttribute$2(hStream CUstream, attr flags[CUstreamAttrID], value_out ptr[out, CUstreamAttrValue[CUstreamAttrValue_cooperative]])
+syz_cuStreamGetAttribute$3(hStream CUstream, attr flags[CUstreamAttrID], value_out ptr[out, CUstreamAttrValue[CUstreamAttrValue_syncPolicy]])
+syz_cuStreamGetAttribute$4(hStream CUstream, attr flags[CUstreamAttrID], value_out ptr[out, CUstreamAttrValue[CUstreamAttrValue_clusterDim]])
+syz_cuStreamGetAttribute$5(hStream CUstream, attr flags[CUstreamAttrID], value_out ptr[out, CUstreamAttrValue[CUstreamAttrValue_clusterSchedulingPolicyPreference]])
+syz_cuStreamGetAttribute$6(hStream CUstream, attr flags[CUstreamAttrID], value_out ptr[out, CUstreamAttrValue[CUstreamAttrValue_programmaticStreamSerializationAllowed]])
+syz_cuStreamGetAttribute$7(hStream CUstream, attr flags[CUstreamAttrID], value_out ptr[out, CUstreamAttrValue[CUstreamAttrValue_programmaticEvent]])
+syz_cuStreamGetAttribute$8(hStream CUstream, attr flags[CUstreamAttrID], value_out ptr[out, CUstreamAttrValue[CUstreamAttrValue_launchCompletionEvent]])
+syz_cuStreamGetAttribute$9(hStream CUstream, attr flags[CUstreamAttrID], value_out ptr[out, CUstreamAttrValue[CUstreamAttrValue_priority]])
+syz_cuStreamGetAttribute$10(hStream CUstream, attr flags[CUstreamAttrID], value_out ptr[out, CUstreamAttrValue[CUstreamAttrValue_memSyncDomainMap]])
+syz_cuStreamGetAttribute$11(hStream CUstream, attr flags[CUstreamAttrID], value_out ptr[out, CUstreamAttrValue[CUstreamAttrValue_memSyncDomain]])
+syz_cuStreamGetAttribute$12(hStream CUstream, attr flags[CUstreamAttrID], value_out ptr[out, CUstreamAttrValue[CUstreamAttrValue_deviceUpdatableKernelNode]])
+syz_cuStreamGetAttribute$13(hStream CUstream, attr flags[CUstreamAttrID], value_out ptr[out, CUstreamAttrValue[CUstreamAttrValue_sharedMemCarveout]])
+syz_cuStreamSetAttribute$1(hStream CUstream, attr flags[CUstreamAttrID], value ptr[in, CUstreamAttrValue[CUstreamAttrValue_accessPolicyWindow]])
+syz_cuStreamSetAttribute$2(hStream CUstream, attr flags[CUstreamAttrID], value ptr[in, CUstreamAttrValue[CUstreamAttrValue_cooperative]])
+syz_cuStreamSetAttribute$3(hStream CUstream, attr flags[CUstreamAttrID], value ptr[in, CUstreamAttrValue[CUstreamAttrValue_syncPolicy]])
+syz_cuStreamSetAttribute$4(hStream CUstream, attr flags[CUstreamAttrID], value ptr[in, CUstreamAttrValue[CUstreamAttrValue_clusterDim]])
+syz_cuStreamSetAttribute$5(hStream CUstream, attr flags[CUstreamAttrID], value ptr[in, CUstreamAttrValue[CUstreamAttrValue_clusterSchedulingPolicyPreference]])
+syz_cuStreamSetAttribute$6(hStream CUstream, attr flags[CUstreamAttrID], value ptr[in, CUstreamAttrValue[CUstreamAttrValue_programmaticStreamSerializationAllowed]])
+syz_cuStreamSetAttribute$7(hStream CUstream, attr flags[CUstreamAttrID], value ptr[in, CUstreamAttrValue[CUstreamAttrValue_programmaticEvent]])
+syz_cuStreamSetAttribute$8(hStream CUstream, attr flags[CUstreamAttrID], value ptr[in, CUstreamAttrValue[CUstreamAttrValue_launchCompletionEvent]])
+syz_cuStreamSetAttribute$9(hStream CUstream, attr flags[CUstreamAttrID], value ptr[in, CUstreamAttrValue[CUstreamAttrValue_priority]])
+syz_cuStreamSetAttribute$10(hStream CUstream, attr flags[CUstreamAttrID], value ptr[in, CUstreamAttrValue[CUstreamAttrValue_memSyncDomainMap]])
+syz_cuStreamSetAttribute$11(hStream CUstream, attr flags[CUstreamAttrID], value ptr[in, CUstreamAttrValue[CUstreamAttrValue_memSyncDomain]])
+syz_cuStreamSetAttribute$12(hStream CUstream, attr flags[CUstreamAttrID], value ptr[in, CUstreamAttrValue[CUstreamAttrValue_deviceUpdatableKernelNode]])
+syz_cuStreamSetAttribute$13(hStream CUstream, attr flags[CUstreamAttrID], value ptr[in, CUstreamAttrValue[CUstreamAttrValue_sharedMemCarveout]])
+syz_cuStreamBatchMemOp$1(stream CUstream, count len[paramArray], paramArray ptr[in, array[CUstreamBatchMemOpParams[CUstreamBatchMemOpParams_operation]]], flags const[0])
+syz_cuStreamBatchMemOp$2(stream CUstream, count len[paramArray], paramArray ptr[in, array[CUstreamBatchMemOpParams[CUstreamMemOpWaitValueParams]]], flags const[0])
+syz_cuStreamBatchMemOp$3(stream CUstream, count len[paramArray], paramArray ptr[in, array[CUstreamBatchMemOpParams[CUstreamMemOpWaitValueParams64]]], flags const[0])
+syz_cuStreamBatchMemOp$4(stream CUstream, count len[paramArray], paramArray ptr[in, array[CUstreamBatchMemOpParams[CUstreamMemOpWriteValueParams]]], flags const[0])
+syz_cuStreamBatchMemOp$5(stream CUstream, count len[paramArray], paramArray ptr[in, array[CUstreamBatchMemOpParams[CUstreamMemOpWriteValueParams64]]], flags const[0])
+syz_cuStreamBatchMemOp$6(stream CUstream, count len[paramArray], paramArray ptr[in, array[CUstreamBatchMemOpParams[CUstreamMemOpFlushRemoteWritesParams]]], flags const[0])
+syz_cuStreamBatchMemOp$7(stream CUstream, count len[paramArray], paramArray ptr[in, array[CUstreamBatchMemOpParams[CUstreamMemOpMemoryBarrierParams]]], flags const[0])
+
+# syz_cuStreamAddCallback(hStream CUstream, callback CUstreamCallback, userData ptr[in, void], flags const[0])
+syz_cuStreamAttachMemAsync(hStream CUstream, dptr CUdeviceptr, length int32, flags flags[CUmemAttach_flags])
+syz_cuStreamBeginCapture(hStream CUstream, mode flags[CUstreamCaptureMode])
+syz_cuStreamBeginCaptureToGraph(hStream CUstream, hGraph CUgraph, dependencies ptr[in, array[CUgraphNode]], dependencyData ptr[in, array[CUgraphEdgeData]], numDependencies len[dependencies], mode flags[CUstreamCaptureMode])
+syz_cuStreamCopyAttributes(dst CUstream, src CUstream)
+syz_cuStreamCreateWithPriority(phStream ptr[out, CUstream], flags flags[CUstream_flags], priority int32)
+syz_cuStreamDestroy(hStream CUstream)
+syz_cuStreamEndCapture(hStream CUstream, phGraph ptr[out, CUgraph])
+syz_cuStreamGetCaptureInfo(hStream CUstream, captureStatus_out ptr[out, flags[CUstreamCaptureStatus, int32]], id_out ptr[out, int64], graph_out ptr[out, CUgraph], dependencies_out ptr[out, array[CUgraphNode]], numDependencies_out ptr[out, int64])
+syz_cuStreamGetCaptureInfo_v3(hStream CUstream, captureStatus_out ptr[out, flags[CUstreamCaptureStatus, int32]], id_out ptr[out, int64], graph_out ptr[out, CUgraph], dependencies_out ptr[out, array[CUgraphNode]], edgeData_out ptr[out, array[CUgraphEdgeData]], numDependencies_out ptr[out, int64])
+syz_cuStreamGetCtx(hStream CUstream, pctx ptr[out, CUcontext])
+# syz_cuStreamGetCtx_v2(hStream CUstream, pCtx ptr[out, CUcontext], pGreenCtx ptr[out, CUgreenCtx])
+syz_cuStreamGetFlags(hStream CUstream, flags ptr[out, int32])
+syz_cuStreamGetId(hStream CUstream, streamId ptr[out, int64])
+syz_cuStreamGetPriority(hStream CUstream, priority ptr[out, int32])
+syz_cuStreamIsCapturing(hStream CUstream, captureStatus ptr[out, flags[CUstreamCaptureStatus, int32]])
+syz_cuStreamQuery(hStream CUstream)
+syz_cuStreamSynchronize(hStream CUstream)
+syz_cuStreamUpdateCaptureDependencies(hStream CUstream, dependencies ptr[in, array[CUgraphNode]], numDependencies len[dependencies], flags flags[CUstreamUpdateCaptureDependencies_flags])
+syz_cuStreamUpdateCaptureDependencies_v2(hStream CUstream, dependencies ptr[in, array[CUgraphNode]], dependencyData ptr[in, array[CUgraphEdgeData]], numDependencies len[dependencies], flags flags[CUstreamUpdateCaptureDependencies_flags])
+syz_cuStreamWaitEvent(hStream CUstream, hEvent CUevent, Flags flags[CUevent_record_flags])
+syz_cuThreadExchangeStreamCaptureMode(mode ptr[inout, flags[CUstreamCaptureMode, int32]])
+syz_cuStreamWaitValue32(stream CUstream, addr CUdeviceptr, value int32, flags flags[CUstreamWaitValue_flags])
+syz_cuStreamWaitValue64(stream CUstream, addr CUdeviceptr, value int32, flags flags[CUstreamWaitValue_flags])
+syz_cuStreamWriteValue32(stream CUstream, addr CUdeviceptr, value int32, flags flags[CUstreamWriteValue_flags])
+syz_cuStreamWriteValue64(stream CUstream, addr CUdeviceptr, value int32, flags flags[CUstreamWriteValue_flags])

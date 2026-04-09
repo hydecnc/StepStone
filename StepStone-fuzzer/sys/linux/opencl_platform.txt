@@ -1,0 +1,30 @@
+include <CL/opencl.h>
+meta arches["amd64"]
+
+# Resource Definition
+resource cl_platform_id[intptr]
+resource cl_device_id[intptr]
+
+# Enum Definition
+cl_platform_info = CL_PLATFORM_PROFILE, CL_PLATFORM_VERSION, CL_PLATFORM_NAME, CL_PLATFORM_VENDOR, CL_PLATFORM_EXTENSIONS
+
+cl_device_info = CL_DEVICE_TYPE, CL_DEVICE_VENDOR_ID, CL_DEVICE_MAX_COMPUTE_UNITS, CL_DEVICE_NAME, CL_DEVICE_VENDOR
+
+cl_device_affinity_domain = CL_DEVICE_AFFINITY_DOMAIN_NUMA, CL_DEVICE_AFFINITY_DOMAIN_L4_CACHE, CL_DEVICE_AFFINITY_DOMAIN_L3_CACHE, CL_DEVICE_AFFINITY_DOMAIN_L2_CACHE, CL_DEVICE_AFFINITY_DOMAIN_L1_CACHE, CL_DEVICE_AFFINITY_DOMAIN_NEXT_PARTITIONABLE
+
+cl_device_partition_property = CL_DEVICE_PARTITION_EQUALLY, CL_DEVICE_PARTITION_BY_COUNTS, CL_DEVICE_PARTITION_BY_AFFINITY_DOMAIN, CL_DEVICE_AFFINITY_DOMAIN_NUMA, CL_DEVICE_AFFINITY_DOMAIN_L4_CACHE, CL_DEVICE_AFFINITY_DOMAIN_L3_CACHE, CL_DEVICE_AFFINITY_DOMAIN_L2_CACHE, CL_DEVICE_AFFINITY_DOMAIN_L1_CACHE, CL_DEVICE_AFFINITY_DOMAIN_NEXT_PARTITIONABLE
+
+# Structure Definition
+
+# API Definition
+syz_clGetPlatformIDs(num_entries len[platforms], platforms ptr[out, array[cl_platform_id]], num_platforms ptr[out, int32])
+syz_clGetPlatformInfo(platform cl_platform_id, param_name flags[cl_platform_info], param_value_size bytesize[param_value], param_value ptr[out, array[int8]], param_value_size_ret ptr[out, void])
+syz_clGetDeviceIDs(platform cl_platform_id, device_type flags[cl_device_type], num_entries len[devices], devices ptr[out, array[cl_device_id]], num_devices ptr[out, int32])
+syz_clGetDeviceInfo(device cl_device_id, param_name flags[cl_device_info], param_value_size int64, param_value ptr[out, array[int8]], param_value_size_ret ptr[out, int64])
+syz_clCreateSubDevices$1(in_device cl_device_id, properties ptr[in, array[flags[cl_device_partition_property, int32]]], num_devices len[out_devices], out_devices ptr[out, array[cl_device_id]], num_devices_ret ptr[out, void])
+syz_clCreateSubDevices$2(in_device cl_device_id, properties ptr[in, array[flags[cl_device_affinity_domain, int32]]], num_devices len[out_devices], out_devices ptr[out, array[cl_device_id]], num_devices_ret ptr[out, void])
+syz_clRetainDevice(device cl_device_id)
+syz_clReleaseDevice(device cl_device_id)
+syz_clSetDefaultDeviceCommandQueue(context cl_context, device cl_device_id, command_queue cl_command_queue)
+syz_clGetDeviceAndHostTimer(device cl_device_id, device_timestamp ptr[out, int64], host_timestamp ptr[out, int64])
+syz_clGetHostTimer(device cl_device_id, host_timestamp ptr[out, int64])

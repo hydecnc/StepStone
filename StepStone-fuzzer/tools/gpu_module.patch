@@ -1,0 +1,265 @@
+diff --git a/kernel-open/Kbuild b/kernel-open/Kbuild
+index 8e9e17da..5b05a515 100644
+--- a/kernel-open/Kbuild
++++ b/kernel-open/Kbuild
+@@ -71,6 +71,10 @@ $(foreach _module, $(NV_KERNEL_MODULES), \
+ EXTRA_CFLAGS += -I$(src)/common/inc
+ EXTRA_CFLAGS += -I$(src)
+ EXTRA_CFLAGS += -Wall $(DEFINES) $(INCLUDES) -Wno-cast-qual -Wno-format-extra-args
++EXTRA_CFLAGS += -fsanitize=kernel-address -fasan-shadow-offset=0xdffffc0000000000 --param asan-globals=1 --param asan-instrumentation-with-call-threshold=10000 --param asan-instrument-allocas=1 --param asan-stack=1
++#EXTRA_CFLAGS += -fsanitize=bounds-strict -fsanitize=shift -fsanitize=bool -fsanitize=enum
++EXTRA_CFLAGS += -fsanitize-coverage=trace-pc -fsanitize-coverage=trace-cmp
++
+ EXTRA_CFLAGS += -D__KERNEL__ -DMODULE -DNVRM
+ EXTRA_CFLAGS += -DNV_VERSION_STRING=\"560.35.03\"
+ 
+diff --git a/kernel-open/nvidia-uvm/uvm_common.c b/kernel-open/nvidia-uvm/uvm_common.c
+index e44503c2..fd652791 100644
+--- a/kernel-open/nvidia-uvm/uvm_common.c
++++ b/kernel-open/nvidia-uvm/uvm_common.c
+@@ -244,6 +244,9 @@ void on_uvm_assert(void)
+ #ifdef __COVERITY__
+     __coverity_panic__()
+ #endif
++#ifdef PANIC_ON_ASSERT
++    panic("Panic on UVM assertion failure");
++#endif
+ }
+ 
+ NV_STATUS uvm_spin_loop(uvm_spin_loop_t *spin)
+diff --git a/src/common/unix/common/inc/nv_assert.h b/src/common/unix/common/inc/nv_assert.h
+index 8c62ef52..bc15c78d 100644
+--- a/src/common/unix/common/inc/nv_assert.h
++++ b/src/common/unix/common/inc/nv_assert.h
+@@ -54,6 +54,10 @@ extern "C" {
+ 
+   void nvDebugAssert(const char *expString, const char *filenameString,
+                      const char *funcString, const unsigned int lineNumber);
++#ifdef PANIC_ON_ASSERT
++  void panic(const char *fmt, ...);
++#endif
++  void dump_stack(void);
+ 
+   /*
+    * Assert that (exp) is TRUE.  We use 'if (exp) { } else { fail }'
+@@ -61,13 +65,25 @@ extern "C" {
+    * accidentally write nvAssert(foo = bar) instead of nvAssert(foo ==
+    * bar).
+    */
++#ifdef PANIC_ON_ASSERT
+   #define nvAssert(exp)                                            \
+     do {                                                           \
+         if (exp) {                                                 \
+         } else {                                                   \
+             nvDebugAssert(#exp, __FILE__, __FUNCTION__, __LINE__); \
++            dump_stack();                                          \
++            panic("nvAssert failed");                              \
+         }                                                          \
+     } while (0)
++#else
++  #define nvAssert(exp)                                            \
++    do {                                                           \
++        if (exp) {                                                 \
++        } else {                                                   \
++            nvDebugAssert(#exp, __FILE__, __FUNCTION__, __LINE__); \                          
++        }                                                          \
++    } while (0)
++#endif
+ 
+ #else
+ 
+diff --git a/src/nvidia-modeset/Makefile b/src/nvidia-modeset/Makefile
+index 2b96f3fa..bdd5f5c1 100644
+--- a/src/nvidia-modeset/Makefile
++++ b/src/nvidia-modeset/Makefile
+@@ -114,6 +114,9 @@ CFLAGS += -ffunction-sections
+ CFLAGS += -fdata-sections
+ CFLAGS += -ffreestanding
+ CFLAGS += -fno-stack-protector
++CFLAGS += -fsanitize=kernel-address -fasan-shadow-offset=0xdffffc0000000000 --param asan-globals=1 --param asan-instrumentation-with-call-threshold=10000 --param asan-instrument-allocas=1 --param asan-stack=1
++#CFLAGS += -fsanitize=bounds-strict -fsanitize=shift -fsanitize=bool -fsanitize=enum
++CFLAGS += -fsanitize-coverage=trace-pc -fsanitize-coverage=trace-cmp
+ 
+ CONDITIONAL_CFLAGS += $(call TEST_CC_ARG, -Wformat-overflow=2)
+ CONDITIONAL_CFLAGS += $(call TEST_CC_ARG, -Wformat-truncation=1)
+diff --git a/src/nvidia/Makefile b/src/nvidia/Makefile
+index 423414af..c571f849 100644
+--- a/src/nvidia/Makefile
++++ b/src/nvidia/Makefile
+@@ -75,6 +75,9 @@ CFLAGS += -Wundef
+ CFLAGS += -fno-common
+ CFLAGS += -ffreestanding
+ CFLAGS += -fno-stack-protector
++CFLAGS += -fsanitize=kernel-address -fasan-shadow-offset=0xdffffc0000000000 --param asan-globals=1 --param asan-instrumentation-with-call-threshold=10000 --param asan-instrument-allocas=1 --param asan-stack=1
++#CFLAGS += -fsanitize=bounds-strict -fsanitize=shift -fsanitize=bool -fsanitize=enum
++CFLAGS += -fsanitize-coverage=trace-pc -fsanitize-coverage=trace-cmp
+ 
+ ifeq ($(TARGET_ARCH),x86_64)
+   CFLAGS += -msoft-float
+diff --git a/src/nvidia/inc/libraries/utils/nvassert.h b/src/nvidia/inc/libraries/utils/nvassert.h
+index 68cee83b..6754e0c7 100644
+--- a/src/nvidia/inc/libraries/utils/nvassert.h
++++ b/src/nvidia/inc/libraries/utils/nvassert.h
+@@ -111,6 +111,10 @@ void __coverity_panic__(void);
+ #define COVERITY_ASSERT_FAIL() __coverity_panic__()
+ #else  // defined(__COVERITY__)
+ #define COVERITY_ASSERT_FAIL() ((void) 0)
++#ifdef PANIC_ON_ASSERT
++void panic(const char *fmt, ...);
++#endif
++void dump_stack(void);
+ #endif // defined(__COVERITY__)
+ #endif // !defined(COVERITY_ASSERT_FAIL)
+ 
+@@ -142,11 +146,14 @@ void nvAssertOkFailed(NvU32 status);
+ #define nvAssertOkFailed(...)
+ #endif
+ 
++#ifdef PANIC_ON_ASSERT
+ #define NV_ASSERT_FAILED(exprStr)                                              \
+     do {                                                                       \
+         NV_LOG_SPECIAL(LEVEL_ERROR, RM_GSP_LOG_SPECIAL_ASSERT_FAILED,          \
+                        exprStr "\n");                                          \
+         nvAssertFailed();                                                      \
++        dump_stack();                                                          \
++        panic("NV_ASSERT_FAILED");                                             \
+         COVERITY_ASSERT_FAIL();                                                \
+         PORT_BREAKPOINT();                                                     \
+     } while(0)
+@@ -156,10 +163,32 @@ void nvAssertOkFailed(NvU32 status);
+         NV_LOG_SPECIAL(LEVEL_ERROR, RM_GSP_LOG_SPECIAL_ASSERT_OK_FAILED,       \
+                        exprStr "\n", status);                                  \
+         nvAssertOkFailed(status);                                              \
++        dump_stack();                                                          \
++        panic("NV_ASSERT_OK_FAILED");                                             \
++
++        COVERITY_ASSERT_FAIL();                                                \
++        PORT_BREAKPOINT();                                                     \
++    } while(0)
++#else
++#define NV_ASSERT_FAILED(exprStr)                                              \
++    do {                                                                       \
++        NV_LOG_SPECIAL(LEVEL_ERROR, RM_GSP_LOG_SPECIAL_ASSERT_FAILED,          \
++                       exprStr "\n");                                          \
++        nvAssertFailed();                                                      \                                           
+         COVERITY_ASSERT_FAIL();                                                \
+         PORT_BREAKPOINT();                                                     \
+     } while(0)
+ 
++#define NV_ASSERT_OK_FAILED(exprStr, status)                                   \
++    do {                                                                       \
++        NV_LOG_SPECIAL(LEVEL_ERROR, RM_GSP_LOG_SPECIAL_ASSERT_OK_FAILED,       \
++                       exprStr "\n", status);                                  \
++        nvAssertOkFailed(status);                                              \
++        COVERITY_ASSERT_FAIL();                                                \
++        PORT_BREAKPOINT();                                                     \
++    } while(0)
++#endif
++
+ #define NV_CHECK_FAILED(level, exprStr)                                        \
+    do {                                                                        \
+         NV_LOG_SPECIAL(level, RM_GSP_LOG_SPECIAL_CHECK_FAILED,                 \
+@@ -214,11 +243,14 @@ void nvCheckOkFailedNoLog(NvU32 level, NvU32 status NV_ASSERT_FAILED_FUNC_COMMA_
+     NVLOG_PRINTF(NV_PRINTF_MODULE, NVLOG_ROUTE_RM, level,                      \
+     NV_PRINTF_ADD_PREFIX(fmt), ##__VA_ARGS__)
+ 
++#ifdef PANIC_ON_ASSERT
+ #define NV_ASSERT_FAILED(exprStr)                                              \
+     do {                                                                       \
+         NV_ASSERT_LOG(LEVEL_ERROR, "Assertion failed: " exprStr);              \
+         nvAssertFailedNoLog(NV_ASSERT_FAILED_FUNC_PARAM(exprStr));             \
+         COVERITY_ASSERT_FAIL();                                                \
++        dump_stack();                                                          \
++        panic("NV_ASSERT_FAILED");                                             \
+         PORT_BREAKPOINT_CHECKED();                                             \
+     } while(0)
+ 
+@@ -229,9 +261,30 @@ void nvCheckOkFailedNoLog(NvU32 level, NvU32 status NV_ASSERT_FAILED_FUNC_COMMA_
+         nvAssertOkFailedNoLog(status                                           \
+             NV_ASSERT_FAILED_FUNC_COMMA_PARAM(exprStr));                       \
+         COVERITY_ASSERT_FAIL();                                                \
++        dump_stack();                                                          \
++        panic("NV_ASSERT_OK_FAILED");                                             \
++        PORT_BREAKPOINT_CHECKED();                                             \
++    } while(0)
++#else
++#define NV_ASSERT_FAILED(exprStr)                                              \
++    do {                                                                       \
++        NV_ASSERT_LOG(LEVEL_ERROR, "Assertion failed: " exprStr);              \
++        nvAssertFailedNoLog(NV_ASSERT_FAILED_FUNC_PARAM(exprStr));             \
++        COVERITY_ASSERT_FAIL();                                                \                                           
+         PORT_BREAKPOINT_CHECKED();                                             \
+     } while(0)
+ 
++#define NV_ASSERT_OK_FAILED(exprStr, status)                                   \
++    do {                                                                       \
++        NV_ASSERT_LOG(LEVEL_ERROR, "Assertion failed: 0x%08X returned from "   \
++            exprStr, status);                                                  \
++        nvAssertOkFailedNoLog(status                                           \
++            NV_ASSERT_FAILED_FUNC_COMMA_PARAM(exprStr));                       \
++        COVERITY_ASSERT_FAIL();                                                \                                          
++        PORT_BREAKPOINT_CHECKED();                                             \
++    } while(0)
++#endif
++
+ #define NV_CHECK_FAILED(level, exprStr)                                        \
+     do {                                                                       \
+         NV_ASSERT_LOG(level, "Check failed: " exprStr);                        \
+@@ -253,9 +306,12 @@ void nvCheckOkFailedNoLog(NvU32 level, NvU32 status NV_ASSERT_FAILED_FUNC_COMMA_
+         }                                                                      \
+     } while(0)
+ 
++#ifdef PANIC_ON_ASSERT
+ #define NV_ASSERT_FAILED_FUNC(exprStr)                                         \
+     do {                                                                       \
+         nvAssertFailed(NV_ASSERT_FAILED_FUNC_PARAM(exprStr));                  \
++        dump_stack();                                                          \
++        panic("NV_ASSERT_FAILED_FUNC");                                             \
+         COVERITY_ASSERT_FAIL();                                                \
+         PORT_BREAKPOINT_CHECKED();                                             \
+     } while(0)
+@@ -263,9 +319,26 @@ void nvCheckOkFailedNoLog(NvU32 level, NvU32 status NV_ASSERT_FAILED_FUNC_COMMA_
+ #define NV_ASSERT_OK_FAILED_FUNC(exprStr, status)                              \
+     do {                                                                       \
+         nvAssertOkFail(status NV_ASSERT_FAILED_FUNC_COMMA_PARAM(exprStr));     \
++        dump_stack();                                                          \
++        panic("NV_ASSERT_OK_FAILED_FUNC");                                             \
+         COVERITY_ASSERT_FAIL();                                                \
+         PORT_BREAKPOINT_CHECKED();                                             \
+     } while(0)
++#else
++#define NV_ASSERT_FAILED_FUNC(exprStr)                                         \
++    do {                                                                       \
++        nvAssertFailed(NV_ASSERT_FAILED_FUNC_PARAM(exprStr));                  \                                             
++        COVERITY_ASSERT_FAIL();                                                \
++        PORT_BREAKPOINT_CHECKED();                                             \
++    } while(0)
++
++#define NV_ASSERT_OK_FAILED_FUNC(exprStr, status)                              \
++    do {                                                                       \
++        nvAssertOkFail(status NV_ASSERT_FAILED_FUNC_COMMA_PARAM(exprStr));     \                                            
++        COVERITY_ASSERT_FAIL();                                                \
++        PORT_BREAKPOINT_CHECKED();                                             \
++    } while(0)
++#endif
+ 
+ #define NV_CHECK_FAILED_FUNC(level, exprStr)                                   \
+     if (NV_PRINTF_LEVEL_ENABLED(level))                                        \
+diff --git a/src/nvidia/src/kernel/core/bin_data.c b/src/nvidia/src/kernel/core/bin_data.c
+index a01a3c04..43a1a085 100644
+--- a/src/nvidia/src/kernel/core/bin_data.c
++++ b/src/nvidia/src/kernel/core/bin_data.c
+@@ -315,10 +315,12 @@ bindataArchiveGetStorage(
+     }
+ 
+     NvU32 i;
++    NvLength len2;
+     NvLength len = portStringLength(binName) + 1;
+     for (i = 0 ; i < pBinArchive->entryNum; i++)
+     {
+-        if (portStringCompare(binName, pBinArchive->entries[i].name, len) == 0)
++        len2 = portStringLength(pBinArchive->entries[i].name) + 1;
++        if (len == len2 && portStringCompare(binName, pBinArchive->entries[i].name, len) == 0)
+         {
+             bindataMarkReferenced(pBinArchive->entries[i].pBinStorage);
+             return pBinArchive->entries[i].pBinStorage;

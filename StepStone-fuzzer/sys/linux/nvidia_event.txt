@@ -1,0 +1,21 @@
+include <cuda.h>
+
+# Resource Definition
+resource CUevent[intptr]
+
+# Enum Definition
+CUevent_flags = CU_EVENT_DEFAULT, CU_EVENT_BLOCKING_SYNC, CU_EVENT_DISABLE_TIMING, CU_EVENT_INTERPROCESS
+
+CUevent_record_flags = CU_EVENT_RECORD_DEFAULT, CU_EVENT_RECORD_EXTERNAL
+
+# Structure Definition
+
+# API Definition
+syz_cuEventCreate(phEvent ptr[out, CUevent], Flags flags[CUevent_flags])
+syz_cuEventDestroy(hEvent CUevent)
+#pMilliseconds is supposed to be a ptr[out, float], but no float in Syzlang. Since this is an out pointer, this is not a serious problem.
+syz_cuEventElapsedTime(pMilliseconds ptr[out, int32], hStart CUevent, hEnd CUevent)
+syz_cuEventQuery(hEvent CUevent)
+syz_cuEventRecord(hEvent CUevent, hStream CUstream)
+syz_cuEventRecordWithFlags(hEvent CUevent, hStream CUstream, flags flags[CUevent_record_flags])
+syz_cuEventSynchronize(hEvent CUevent)

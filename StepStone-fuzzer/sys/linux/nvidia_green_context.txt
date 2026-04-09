@@ -1,0 +1,102 @@
+include <cuda.h>
+
+# Resource Definition
+resource CUdevResourceDesc[intptr]
+resource CUgreenCtx[intptr]
+
+# Enum Definition
+CUdevResourceType = CU_DEV_RESOURCE_TYPE_INVALID, CU_DEV_RESOURCE_TYPE_SM, CU_DEV_RESOURCE_TYPE_MAX
+CUgreenCtxCreate_flags = CU_GREEN_CTX_DEFAULT_STREAM
+# Structure Definition
+
+# API Definition
+syz_cuCtxFromGreenCtx(pContext ptr[out, CUcontext], hCtx CUgreenCtx)
+
+#1
+#syz_cuDevResourceGenerateDesc$1(phDesc ptr[out, CUdevResourceDesc], resources ptr[in, array[CUdevResource]], nbResources len[resources])
+#syz_cuDevResourceGenerateDesc$2(phDesc ptr[out, CUdevResourceDesc], resources ptr[in, array[CUdevResource]], nbResources len[resources])
+#for struct CUdevResource, if its field "type" is CU_DEV_RESOURCE_TYPE_SM, then its union field should be "CUdevSmResource sm", if "type" is "CU_DEV_RESOURCE_TYPE_INVALID", this resoure is not valid and cannot be further accessed.
+#so it seems the value of "type" can not decide the concrete value of its union field, so I discard the description in the below two lines, but not to use "$", and only use one descripiton for this function
+# syz_cuDevResourceGenerateDesc$CU_DEV_RESOURCE_TYPE_INVALID(phDesc ptr[out, CUdevResourceDesc], resources ptr[in, array[CUdevResource$CU_DEV_RESOURCE_TYPE_INVALID]], nbResources len[resources])
+# syz_cuDevResourceGenerateDesc$CU_DEV_RESOURCE_TYPE_SM(phDesc ptr[out, CUdevResourceDesc], resources ptr[in, array[CUdevResource$CU_DEV_RESOURCE_TYPE_SM]], nbResources len[resources])
+#
+syz_cuDevResourceGenerateDesc(phDesc ptr[out, CUdevResourceDesc], resources ptr[in, array[CUdevResource]], nbResources len[resources])
+
+#2
+#syz_cuCtxGetDevResource$1(hCtx CUcontext, res ptr[out, CUdevResource], type flags[CUdevResourceType])
+#syz_cuCtxGetDevResource$2(hCtx CUcontext, res ptr[out, CUdevResource], type flags[CUdevResourceType])
+#same as 1, due to the union field of CUdevResource, so there are $1 and $2
+syz_cuCtxGetDevResource(hCtx CUcontext, res ptr[out, CUdevResource], type flags[CUdevResourceType])
+
+#3
+#syz_cuDevSmResourceSplitByCount$1(result ptr[out, CUdevResource], nbGroups ptr[out, int32], input ptr[in, CUdevResource], remaining ptr[out, CUdevResource], useFlags int32, minCount int32)
+#syz_cuDevSmResourceSplitByCount$2(result ptr[out, CUdevResource], nbGroups ptr[out, int32], input ptr[in, CUdevResource], remaining ptr[out, CUdevResource], useFlags int32, minCount int32)
+#syz_cuDevSmResourceSplitByCount$3(result ptr[out, CUdevResource], nbGroups ptr[out, int32], input ptr[in, CUdevResource], remaining ptr[out, CUdevResource], useFlags int32, minCount int32)
+#syz_cuDevSmResourceSplitByCount$4(result ptr[out, CUdevResource], nbGroups ptr[out, int32], input ptr[in, CUdevResource], remaining ptr[out, CUdevResource], useFlags int32, minCount int32)
+#syz_cuDevSmResourceSplitByCount$5(result ptr[out, CUdevResource], nbGroups ptr[out, int32], input ptr[in, CUdevResource], remaining ptr[out, CUdevResource], useFlags int32, minCount int32)
+#syz_cuDevSmResourceSplitByCount$6(result ptr[out, CUdevResource], nbGroups ptr[out, int32], input ptr[in, CUdevResource], remaining ptr[out, CUdevResource], useFlags int32, minCount int32)
+#syz_cuDevSmResourceSplitByCount$7(result ptr[out, CUdevResource], nbGroups ptr[out, int32], input ptr[in, CUdevResource], remaining ptr[out, CUdevResource], useFlags int32, minCount int32)
+#syz_cuDevSmResourceSplitByCount$8(result ptr[out, CUdevResource], nbGroups ptr[out, int32], input ptr[in, CUdevResource], remaining ptr[out, CUdevResource], useFlags int32, minCount int32)
+#I do not find the place hints that there should be 8 "$", so I just just the below one
+syz_cuDevSmResourceSplitByCount(result ptr[out, CUdevResource], nbGroups ptr[out, int32], input ptr[in, CUdevResource], remaining ptr[out, CUdevResource], useFlags int32, minCount int32)
+syz_cuDeviceGetDevResource(device CUdevice, res ptr[out, CUdevResource], type flags[CUdevResourceType])
+
+#4
+#syz_cuGreenCtxCreate(phCtx ptr[out, CUgreenCtx], desc CUdevResourceDesc, dev CUdevice, flags int32)
+# The comments say "One of the supported green context creation flags.  CU_GREEN_CTX_DEFAULT_STREAM is required.The supported flags are: CU_GREEN_CTX_DEFAULT_STREAM : Creates a default stream to use inside the green context. Required."
+# it seems that here flag must be CU_GREEN_CTX_DEFAULT_STREAM, so I modified to add one flag
+syz_cuGreenCtxCreate(phCtx ptr[out, CUgreenCtx], desc CUdevResourceDesc, dev CUdevice, flag flags[CUgreenCtxCreate_flags])
+
+syz_cuGreenCtxDestroy(hCtx CUgreenCtx)
+
+#5
+#syz_cuGreenCtxGetDevResource$1(hCtx CUgreenCtx, res ptr[out, CUdevResource], type flags[CUdevResourceType])
+#syz_cuGreenCtxGetDevResource$2(hCtx CUgreenCtx, res ptr[out, CUdevResource], type flags[CUdevResourceType])
+#here, the $1 and $2 are the same as cuDevResourceGenerateDesc, due to the union filed of CUdevResource, so I also modified it to be one function
+syz_cuGreenCtxGetDevResource(hCtx CUgreenCtx, res ptr[out, CUdevResource], type flags[CUdevResourceType])
+
+syz_cuGreenCtxRecordEvent(hCtx CUgreenCtx, hEvent CUevent)
+
+#6
+#the original version, the below line is commented. why? it seems that this should not be generted by LLM
+#syz_cuGreenCtxStreamCreate(phStream ptr[out, CUstream], greenCtx CUgreenCtx, flags flags[CUstream_flags], priority int32)
+
+syz_cuGreenCtxWaitEvent(hCtx CUgreenCtx, hEvent CUevent)
+syz_cuStreamGetGreenCtx(hStream CUstream, phCtx ptr[out, CUgreenCtx])
+
+CUdevSmResource {
+	smCount	int32
+}
+
+# CUdevResource$CU_DEV_RESOURCE_TYPE_INVALID {
+# 	type			const[0, int32]
+# 	_internal_padding	array[int8, 92]
+# 	r			resourceunion$CU_DEV_RESOURCE_TYPE_INVALID
+# }
+
+# Define CUdevResource for CU_DEV_RESOURCE_TYPE_SM
+# CUdevResource$CU_DEV_RESOURCE_TYPE_SM {
+# 	type			const[1, int32]
+# 	_internal_padding	array[int8, 92]
+# 	r			resourceunion$CU_DEV_RESOURCE_TYPE_SM
+# }
+
+# resourceunion$CU_DEV_RESOURCE_TYPE_INVALID {
+# 	sm	CUdevSmResource
+# }
+
+# resourceunion$CU_DEV_RESOURCE_TYPE_SM {
+# 	oversize	array[int8, 128]
+# }
+
+# Define the CUdevResource_st structure
+CUdevResource {
+	type			flags[CUdevResourceType, int64]
+	_internal_padding	array[int8, 92]
+	r			resourceunion
+}
+
+resourceunion [
+	sm		CUdevSmResource
+	oversize	array[int8, 128]
+]

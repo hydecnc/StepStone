@@ -1,0 +1,59 @@
+include <CL/opencl.h>
+meta arches["amd64"]
+
+# Resource Definition
+resource cl_memory_ptr[intptr]
+#resource user_func[intptr]
+#resource user_data[intptr]
+
+# Enum Definition
+cl_profiling_info = CL_PROFILING_COMMAND_QUEUED, CL_PROFILING_COMMAND_SUBMIT, CL_PROFILING_COMMAND_START, CL_PROFILING_COMMAND_END, CL_PROFILING_COMMAND_COMPLETE
+
+cl_bool = CL_FALSE, CL_TRUE
+
+cl_map_flags = CL_MAP_READ, CL_MAP_WRITE, CL_MAP_WRITE_INVALIDATE_REGION
+
+cl_mem_migration_flags = CL_MIGRATE_MEM_OBJECT_HOST, CL_MIGRATE_MEM_OBJECT_CONTENT_UNDEFINED
+
+# Structure Definition
+size_t3 {
+	x	int64
+	y	int64
+	z	int64
+}
+
+# API Definition
+syz_clGetEventProfilingInfo(event cl_event, param_name flags[cl_profiling_info], param_value_size int64, param_value ptr[out, void], param_value_size_ret ptr[out, int64])
+syz_clFlush(command_queue cl_command_queue)
+syz_clFinish(command_queue cl_command_queue)
+syz_clEnqueueReadBuffer(command_queue cl_command_queue, buffer cl_mem, blocking_read flags[cl_bool], offset int64, size int64, data_ptr ptr[out, void], num_events_in_wait_list len[event_wait_list], event_wait_list ptr[in, array[cl_event]], event ptr[out, cl_event])
+syz_clEnqueueReadBufferRect(command_queue cl_command_queue, buffer cl_mem, blocking_read int32, buffer_origin ptr[in, array[intptr, 3]], host_origin ptr[in, array[intptr, 3]], region ptr[in, array[intptr, 3]], buffer_row_pitch intptr, buffer_slice_pitch intptr, host_row_pitch intptr, host_slice_pitch intptr, host_ptr ptr[out, void], num_events_in_wait_list len[event_wait_list], event_wait_list ptr[in, array[cl_event]], event ptr[out, cl_event])
+syz_clEnqueueWriteBuffer$0(command_queue cl_command_queue, buffer cl_mem, blocking_write flags[cl_bool], offset int64, size int64, host_ptr ptr[in, array[int8]], num_events_in_wait_list const[0], event_wait_list ptr[in, void], event ptr[out, cl_event])
+syz_clEnqueueWriteBuffer$1(command_queue cl_command_queue, buffer cl_mem, blocking_write flags[cl_bool], offset int64, size int64, host_ptr ptr[in, array[int8]], num_events_in_wait_list const[1], event_wait_list ptr[in, array[cl_event, 1]], event ptr[out, cl_event])
+syz_clEnqueueWriteBuffer$2(command_queue cl_command_queue, buffer cl_mem, blocking_write flags[cl_bool], offset int64, size int64, host_ptr ptr[in, array[int8]], num_events_in_wait_list const[2], event_wait_list ptr[in, array[cl_event, 2]], event ptr[out, cl_event])
+syz_clEnqueueWriteBufferRect(command_queue cl_command_queue, buffer cl_mem, blocking_write flags[cl_bool], buffer_origin ptr[in, array[int64, 3]], host_origin ptr[in, array[int64, 3]], region ptr[in, array[int64, 3]], buffer_row_pitch int64, buffer_slice_pitch int64, host_row_pitch int64, host_slice_pitch int64, host_ptr ptr[in, void], num_events_in_wait_list len[event_wait_list], event_wait_list ptr[in, array[cl_event]], event ptr[out, cl_event])
+syz_clEnqueueFillBuffer(command_queue cl_command_queue, buffer cl_mem, pattern ptr[in, array[int8]], pattern_size len[pattern], offset int64, size int64, num_events_in_wait_list len[event_wait_list], event_wait_list ptr[in, array[cl_event]], event ptr[out, cl_event])
+syz_clEnqueueCopyBuffer(command_queue cl_command_queue, src_buffer cl_mem, dst_buffer cl_mem, src_offset int64, dst_offset int64, size int64, num_events_in_wait_list len[event_wait_list], event_wait_list ptr[in, array[cl_event]], event ptr[out, cl_event])
+syz_clEnqueueCopyBufferRect(command_queue cl_command_queue, src_buffer cl_mem, dst_buffer cl_mem, src_origin ptr[in, array[int64, 3]], dst_origin ptr[in, array[int64, 3]], region ptr[in, array[int64, 3]], src_row_pitch int64, src_slice_pitch int64, dst_row_pitch int64, dst_slice_pitch int64, num_events_in_wait_list int32, event_wait_list ptr[in, array[cl_event]], event ptr[out, cl_event])
+syz_clEnqueueReadImage(command_queue cl_command_queue, image cl_mem, blocking_read int32[0:1], origin ptr[in, array[int64, 3]], region ptr[in, array[int64, 3]], row_pitch int64, slice_pitch int64, data ptr[out, cl_memory_ptr], num_events_in_wait_list len[event_wait_list], event_wait_list ptr[in, array[cl_event]], event ptr[out, cl_event])
+syz_clEnqueueWriteImage(command_queue cl_command_queue, image cl_mem, blocking_write flags[cl_bool], origin ptr[in, array[intptr, 3]], region ptr[in, array[intptr, 3]], input_row_pitch intptr, input_slice_pitch intptr, buffer ptr[in, cl_memory_ptr], num_events_in_wait_list len[event_wait_list], event_wait_list ptr[in, array[cl_event]], event ptr[out, cl_event])
+syz_clEnqueueFillImage(command_queue cl_command_queue, image cl_mem, fill_color ptr[in, cl_memory_ptr], origin ptr[in, array[int64, 3]], region ptr[in, array[int64, 3]], num_events_in_wait_list int32, event_wait_list ptr[in, array[cl_event]], event ptr[out, cl_event])
+syz_clEnqueueCopyImage(command_queue cl_command_queue, src_image cl_mem, dst_image cl_mem, src_origin ptr[in, array[intptr, 3]], dst_origin ptr[in, array[intptr, 3]], region ptr[in, array[intptr, 3]], num_events_in_wait_list len[event_wait_list], event_wait_list ptr[in, array[cl_event]], event ptr[out, cl_event])
+syz_clEnqueueCopyImageToBuffer(command_queue cl_command_queue, src_image cl_mem, dst_buffer cl_mem, src_origin ptr[in, size_t3], region ptr[in, size_t3], dst_offset int64, num_events_in_wait_list len[event_wait_list], event_wait_list ptr[in, array[cl_event]], event ptr[out, cl_event])
+syz_clEnqueueCopyBufferToImage(command_queue cl_command_queue, src_buffer cl_mem, dst_image cl_mem, src_offset int64, dst_origin ptr[in, array[int64, 3]], region ptr[in, array[int64, 3]], num_events_in_wait_list len[event_wait_list], event_wait_list ptr[in, array[cl_event]], event ptr[out, cl_event])
+syz_clEnqueueMapBuffer(command_queue cl_command_queue, buffer cl_mem, blocking_map int32[0:1], map_flags flags[cl_map_flags], offset int64, size int64, num_events_in_wait_list len[event_wait_list], event_wait_list ptr[in, array[cl_event]], event ptr[out, cl_event], errcode_ret ptr[out, int32]) cl_memory_ptr
+syz_clEnqueueMapImage(command_queue cl_command_queue, image cl_mem, blocking_map int32[0:1], map_flags flags[cl_map_flags], origin ptr[in, array[int64, 3]], region ptr[in, array[int64, 3]], image_row_pitch ptr[out, int64], image_slice_pitch ptr[out, int64], num_events_in_wait_list len[event_wait_list], event_wait_list ptr[in, array[cl_event]], event ptr[out, cl_event], errcode_ret ptr[out, int32]) cl_memory_ptr
+syz_clEnqueueUnmapMemObject(command_queue cl_command_queue, memobj cl_mem, mapped_ptr cl_memory_ptr, num_events_in_wait_list len[event_wait_list], event_wait_list ptr[in, array[cl_event]], event ptr[out, cl_event])
+syz_clEnqueueMigrateMemObjects(command_queue cl_command_queue, num_mem_objects len[mem_objects], mem_objects ptr[in, array[cl_mem]], mem_migration_flags flags[cl_mem_migration_flags], num_events_in_wait_list len[event_wait_list], event_wait_list ptr[in, array[cl_event]], event ptr[out, cl_event])
+syz_clEnqueueNDRangeKernel(command_queue cl_command_queue, kernel cl_kernel, work_dim int32[1:3], global_work_offset ptr[in, array[intptr]], global_work_size ptr[in, array[intptr]], local_work_size ptr[in, array[intptr]], num_events_in_wait_list len[event_wait_list], event_wait_list ptr[in, array[cl_event]], event ptr[out, cl_event])
+syz_clEnqueueNativeKernel(command_queue cl_command_queue, user_func const[0], args cl_memory_ptr, cb_args bytesize[args], num_mem_objects len[mem_list], mem_list ptr[in, array[cl_mem]], args_mem_loc ptr[in, array[ptr[in, void]]], num_events_in_wait_list len[event_wait_list], event_wait_list ptr[in, array[cl_event]], event ptr[out, cl_event])
+syz_clEnqueueMarkerWithWaitList(command_queue cl_command_queue, num_events_in_wait_list len[event_wait_list], event_wait_list ptr[in, array[cl_event]], event ptr[out, cl_event])
+syz_clEnqueueBarrierWithWaitList(command_queue cl_command_queue, num_events_in_wait_list len[event_wait_list], event_wait_list ptr[in, array[cl_event]], event ptr[out, cl_event])
+syz_clEnqueueSVMFree(command_queue cl_command_queue, num_svm_pointers len[svm_pointers], svm_pointers ptr[in, array[clSVMAlloc_ret]], pfn_free_func const[0], user_data ptr[in, array[int32]], num_events_in_wait_list len[event_wait_list], event_wait_list ptr[in, array[cl_event]], event ptr[out, cl_event])
+syz_clEnqueueSVMMemcpy(command_queue cl_command_queue, blocking_copy flags[cl_bool], dst_ptr clSVMAlloc_ret, src_ptr clSVMAlloc_ret, size int64, num_events_in_wait_list len[event_wait_list], event_wait_list ptr[in, array[cl_event]], event ptr[out, cl_event])
+syz_clEnqueueSVMMemFill(command_queue cl_command_queue, svm_ptr cl_memory_ptr, pattern ptr[in, array[int8]], pattern_size len[pattern], size int64, num_events_in_wait_list len[event_wait_list], event_wait_list ptr[in, array[cl_event]], event ptr[out, cl_event])
+syz_clEnqueueSVMMap$1(command_queue cl_command_queue, blocking_map flags[cl_bool], map_flags flags[cl_map_flags], svm_ptr clSVMAlloc_ret, size int64, num_events_in_wait_list len[event_wait_list], event_wait_list ptr[in, array[cl_event]], event ptr[out, cl_event])
+syz_clEnqueueSVMMap$2(command_queue cl_command_queue, blocking_map flags[cl_bool], map_flags flags[cl_map_flags], svm_ptr cl_memory_ptr, size int64, num_events_in_wait_list len[event_wait_list], event_wait_list ptr[in, array[cl_event]], event ptr[out, cl_event])
+syz_clEnqueueSVMUnmap$1(command_queue cl_command_queue, svm_ptr clSVMAlloc_ret, num_events_in_wait_list len[event_wait_list], event_wait_list ptr[in, array[cl_event]], event ptr[out, cl_event])
+syz_clEnqueueSVMUnmap$2(command_queue cl_command_queue, svm_ptr cl_memory_ptr, num_events_in_wait_list len[event_wait_list], event_wait_list ptr[in, array[cl_event]], event ptr[out, cl_event])
+syz_clEnqueueSVMMigrateMem(command_queue cl_command_queue, num_svm_pointers len[svm_pointers], svm_pointers ptr[in, array[clSVMAlloc_ret]], sizes ptr[in, array[int64]], mem_migration_flags flags[cl_mem_migration_flags], num_events_in_wait_list len[event_wait_list], event_wait_list ptr[in, array[cl_event]], event ptr[out, cl_event])

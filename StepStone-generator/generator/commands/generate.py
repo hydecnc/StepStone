@@ -39,7 +39,7 @@ class GenerateCommand(Command):
     def run(self, args):
         self.args = args
         if self.args.setup:
-            cons = CusConsole(mode=MODE_INTERACTIVE, config="./config.json", debug=self.args.verbose, args=self.args)
+            cons = CusConsole(mode=MODE_INTERACTIVE, debug=self.args.verbose, args=self.args)
             cons.display()
         else:
             cons = CusConsole(mode=MODE_CLI, args=self.args, debug=self.args.verbose)

@@ -2,7 +2,7 @@ import json
 
 class Config():
     def __init__(self, config_path, llm_name) -> None:
-        self._config_path = config_path
+        self._config_path = config_path if config_path else "./config.json"
         self._cfg = self._load_config(config_path)
         self._llm = llm_name
     

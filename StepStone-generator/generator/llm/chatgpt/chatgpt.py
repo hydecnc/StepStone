@@ -30,8 +30,8 @@ class ChatGPT(LLM):
     def verify_api(self) -> bool:
         return self.client != None
 
-    def start_new_assistant_session(self, engine=None, temperature=None, max_tokens=None) -> ChatGPTAssistant:
-        return self.start_new_session(type='assistant', engine=engine, temperature=temperature, max_tokens=max_tokens)
+    def start_new_assistant_session(self, console, logger, engine=None, temperature=None, max_tokens=None) -> ChatGPTAssistant:
+        return self.start_new_session(type='assistant', console = console, logger = logger, engine=engine, temperature=temperature, max_tokens=max_tokens)
     
     def start_new_conversation_session(self, engine=None, temperature=None, max_tokens=None) -> Conversation:
         return self.start_new_session(type='conversation', engine=engine, temperature=temperature, max_tokens=max_tokens)

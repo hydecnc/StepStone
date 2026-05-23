@@ -68,7 +68,7 @@ class CusConsole(Cli):
         return
 
     def create_assistant(self):
-        session = self.llm.start_new_assistant_session()
+        session = self.llm.start_new_assistant_session(console=self.console, logger=self.case_logger)
         while True:
             self.print("All existing assistants were listed below:")
             assistants = session.list_assistants()

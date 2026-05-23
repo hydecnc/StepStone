@@ -26,10 +26,11 @@ class Cli():
         self._patches = []
         self.case_path = None
         self._init_workspace()
-        self.controller: LibraryController = self._init_library_controller(debug)
+        self.controller: LibraryController = None
     
     def generate_syzlange(self, cuda_api_text):
         self.case_logger = self._init_logger()
+        self._init_library_controller(self.debug)
         self.controller.analyze(cuda_api_text, self.chat_type, self._join_syzlang_json, self._refer_syzlang_context)   
         
     def user_print(self, message, **kwargs):
@@ -64,9 +65,8 @@ class Cli():
         return llm
 
     def _init_library_controller(self, debug):
-        controller = LibraryController(console=self, debug=debug)
-        controller.install_llm(self.llm)
-        return controller
+        self.controller = LibraryController(console=self, debug=debug)
+        self.controller.install_llm(self.llm)
     
     def _init_logger(self, cus_format='%(asctime)s %(message)s', debug=False, propagate=False):
         log_id = os.path.join(self._output, "log")

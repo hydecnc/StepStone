@@ -1,9 +1,9 @@
 import json
 
 from argparse import ArgumentParser
-from cons import *
-from commands import Command
-from syzlang import SyzlangHelper
+from generator.cons import *
+from generator.commands import Command
+from generator.syzlang import SyzlangHelper
 
 class ParseCommand(Command):
     def __init__(self):

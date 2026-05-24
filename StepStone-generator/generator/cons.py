@@ -2,9 +2,8 @@ import os
 import json
 
 from rich.console import Console
-from error import *
-from cli import Cli
 from generator.error import *
+from generator.cli import Cli
 
 MODE_INTERACTIVE = 0
 MODE_CLI = 1

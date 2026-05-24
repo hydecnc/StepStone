@@ -14,7 +14,7 @@ def create_parser():
                     if cmd.endswith('.py') and not cmd == '__init__.py']
     for cmd in commands:
         class_name = "{}{}Command".format(cmd[0].upper(), cmd[1:])
-        module = importlib.import_module("commands.{}".format(cmd))
+        module = importlib.import_module("generator.commands.{}".format(cmd))
         new_class = getattr(module, class_name)
         A = new_class()
         parser_cmd = A.custom_subparser(subparser, cmd)

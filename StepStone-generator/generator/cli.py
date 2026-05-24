@@ -7,7 +7,7 @@ from generator.controller.library_controller import LibraryController
 from generator.llm.chatgpt import ChatGPT
 from generator.llm.bard import LLMBard
 from generator.config import Config
-from error import *
+from generator.error import *
 
 class Cli():
     def __init__(self, debug, args, bug_fb=False):

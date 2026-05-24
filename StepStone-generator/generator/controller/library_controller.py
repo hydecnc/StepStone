@@ -9,7 +9,7 @@ import generator.resources.prompt_dependency_extract as prompt_dependency_extrac
 
 
 from generator.llm.error import ErrorInResponse
-from controller import Controller
+from generator.controller import Controller
 from .error import *
 from generator.llm.chatgpt import ChatGPT
 from generator.llm import LLM

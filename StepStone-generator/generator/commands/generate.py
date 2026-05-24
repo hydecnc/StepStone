@@ -1,6 +1,6 @@
 from argparse import ArgumentParser
-from cons import *
-from commands import Command
+from generator.cons import *
+from generator.commands import Command
 
 class GenerateCommand(Command):
     def __init__(self):

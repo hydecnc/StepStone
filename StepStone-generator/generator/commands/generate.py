@@ -19,9 +19,9 @@ class GenerateCommand(Command):
                             help='Using time stamp as output folder name if not specified')
         parser.add_argument('--config', nargs='?', action='store',
                             help='config file. Will be overwritten by arguments if conflict.')
-        parser.add_argument('--llm', choices=['chatgpt'],
-                            help='chatgpt')
-        parser.add_argument('--engine', choices=['gpt-4-turbo', 'gpt-4o', 'o1-preview', 'o1-mini', 'o1'],
+        parser.add_argument('--llm', choices=['chatgpt', "gemini"],
+                            help='chatgpt or gemini')
+        parser.add_argument('--engine', choices=['gpt-4-turbo', 'gpt-4o', 'o1-preview', 'o1-mini', 'o1', "gemini-2.0-flash"],
                             help='')
         parser.add_argument('--api', nargs='?', action='store',
                             help='send a single api')

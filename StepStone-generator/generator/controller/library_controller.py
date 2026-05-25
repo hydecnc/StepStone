@@ -46,7 +46,11 @@ class LibraryController(Controller):
         session: LLM = self.llm.start_new_session(type="assistant", engine='gpt-4-turbo', console=self.console, logger=self.logger)
         selected_assistant = self.console.cfg.find_assistant(asst_name)
         if selected_assistant == None:
+            if str(self.llm) == "gemini":
+                session: LLM = self.llm.start_new_session(type="assistant", engine='gemma-4-31b-it', console=self.console, logger=self.logger)
+                return session  # skip assistant retrieval for Gemini
             raise ChatGPTAssistantNotSelected()
+        raise ChatGPTAssistantNotSelected()
         session.retrieve_assistant(selected_assistant)
         return session
     
@@ -77,7 +81,7 @@ class LibraryController(Controller):
                 except:
                     print("Fail to parse syzlang json file: {}".format(refer_syzlang_context))
                     syzlang_object = {"resource": [], "enum": [], "structure": [], "api": []}
-                parsed_api_hash_table = self.parsed_api_name(syzlang_object['api'])
+            parsed_api_hash_table = self.parsed_api_name(syzlang_object['api'])
         else:
             try:
                 syzlang_object = json.load(open(join_syzlang_json, 'r'))

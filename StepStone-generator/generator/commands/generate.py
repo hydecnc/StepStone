@@ -21,7 +21,7 @@ class GenerateCommand(Command):
                             help='config file. Will be overwritten by arguments if conflict.')
         parser.add_argument('--llm', choices=['chatgpt', "gemini"],
                             help='chatgpt or gemini')
-        parser.add_argument('--engine', choices=['gpt-4-turbo', 'gpt-4o', 'o1-preview', 'o1-mini', 'o1', "gemini-2.0-flash"],
+        parser.add_argument('--engine', choices=['gpt-4-turbo', 'gpt-4o', 'o1-preview', 'o1-mini', 'o1', "gemma-4-31b-it"],
                             help='')
         parser.add_argument('--api', nargs='?', action='store',
                             help='send a single api')

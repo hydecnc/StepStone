@@ -24,7 +24,7 @@ class Gemini(LLM):
 
     def __init__(
         self,
-        engine: str = "gemini-2.0-flash",
+        engine: str = "gemma-4-31b-it",
         temperature: int = 1,
         max_tokens: int | None = None,
     ) -> None:

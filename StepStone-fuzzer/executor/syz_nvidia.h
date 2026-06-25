@@ -1,5 +1,6 @@
 #if SYZ_EXECUTOR_NVIDIA
 #include <cuda.h>
+#include "syz_iova_injector.h"
 
 #define CUDA_API(func, args_with_types, args)      \
 	static CUresult syz_##func args_with_types \
@@ -65,6 +66,8 @@ static void setup_nvidia_driver()
 	int ret = cuInit(0);
 	if (ret != 0)
 		debug("[GPU Fuzzing] ========> Initialize nvidia driver -> %d\n", ret);
+  if (ret == 0 || ret == 100)
+		gpu_iova_inject_after_nvidia_init();
 #endif
 	return;
 }

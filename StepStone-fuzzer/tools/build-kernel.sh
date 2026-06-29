@@ -137,7 +137,7 @@ nohup sudo qemu-system-x86_64 -m 8G -smp 8 \
     -device vfio-pci,host=$VGA_ID,multifunction=on,x-vga=on -device vfio-pci,host=$ADU_ID \
     -enable-kvm -cpu host,migratable=off \
     -hda $IMAGE -kernel $LINUX/arch/x86_64/boot/bzImage \
-    -append "root=/dev/sda console=ttyS0 earlyprintk=serial" &
+    -append "root=/dev/sda console=ttyS0 earlyprintk=serial net.ifnames=0" &
 
 IMAGE_DIR=$(dirname "$IMAGE")
 KEY=$IMAGE_DIR/$RELEASE.id_rsa

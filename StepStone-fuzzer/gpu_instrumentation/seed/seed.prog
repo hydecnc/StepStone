@@ -1,0 +1,6 @@
+syz_cuDeviceGet(&(0x7f0000200000)=<r0=>0x0, 0x0)
+syz_cuDevicePrimaryCtxRetain(&(0x7f0000200040)=<r1=>0x0, r0)
+syz_cuCtxSetCurrent(r1)
+syz_gpu_insert_buffer(&(0x7f0000000000)="a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5", 0x20, 0x42000)
+syz_cuDeviceGetAttribute(&(0x7f0000200080), 0x0, r0)
+syz_cuDeviceGetAttribute(&(0x7f00002000c0), 0x0, r0)

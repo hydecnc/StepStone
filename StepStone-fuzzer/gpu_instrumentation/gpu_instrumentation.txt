@@ -1,0 +1,7 @@
+#
+# Raw write into the GSP message queue shared buffer.
+#
+# The buffer is the whole mapping: page table, command queue, status queue.
+# 0x81000 bytes on silicon (0x1000 page table + 2 x 0x40000 queues).
+#
+syz_gpu_insert_buffer(buffer ptr[in, array[int8]], size bytesize[buffer], offset intptr[0:0x81000])

@@ -81,7 +81,7 @@ static int modifyIOVARegion(const uint64_t base, const uint64_t offset, const ui
 
 	int dev = open("/dev/mem-injector", O_RDWR);
 	if (dev == -1) {
-		perror("open");
+		perror("[GPU INSTUMENTATION] open");
 		return -1;
 	}
 
@@ -104,46 +104,46 @@ static int modifyIOVARegion(const uint64_t base, const uint64_t offset, const ui
 	    .offset = offset,
 	};
 
-	fprintf(stderr, "Setting memory region\n");
+	fprintf(stderr, "[GPU INSTUMENTATION] Setting memory region\n");
 	retval = ioctl(dev, SET_MEMORY_REGION, &config);
 	if (retval == -1) {
-		fprintf(stderr, "Memory Region Setting Failed.\n");
+		fprintf(stderr, "[GPU INSTUMENTATION] Memory Region Setting Failed.\n");
 		free(buf);
 		close(dev);
 		return -1;
 	}
 
-	fprintf(stderr, "Reading current value of variable at %lx\n", addr);
+	fprintf(stderr, "[GPU INSTUMENTATION] Reading current value of variable at %lx\n", addr);
 	retval = ioctl(dev, READ_MEMORY, &read_req);
 	if (retval == -1) {
-		perror("ioctl");
+		perror("[GPU INSTUMENTATION] ioctl");
 		free(buf);
 		close(dev);
 		return -1;
 	}
 	if (fwrite(buf, 1, sizeof(valueBuf), stdout) != sizeof(valueBuf)) {
-		perror("fwrite");
+		perror("[GPU INSTUMENTATION] fwrite");
 	}
 
-	fprintf(stderr, "Writing value %u to variable at %lx\n", value, addr);
+	fprintf(stderr, "[GPU INSTUMENTATION] Writing value %u to variable at %lx\n", value, addr);
 	retval = ioctl(dev, WRITE_MEMORY, &write_req);
 	if (retval == -1) {
-		perror("ioctl");
+		perror("[GPU INSTUMENTATION] ioctl");
 		free(buf);
 		close(dev);
 		return -1;
 	}
 
-	fprintf(stderr, "Reading new variable at %lx\n", addr);
+	fprintf(stderr, "[GPU INSTUMENTATION] Reading new variable at %lx\n", addr);
 	retval = ioctl(dev, READ_MEMORY, &read_req);
 	if (retval == -1) {
-		perror("ioctl");
+		perror("[GPU INSTUMENTATION] ioctl");
 		free(buf);
 		close(dev);
 		return -1;
 	}
 	if (fwrite(buf, 1, sizeof(valueBuf), stdout) != sizeof(valueBuf)) {
-		perror("fwrite");
+		perror("[GPU INSTUMENTATION] fwrite");
 	}
 
 	free(buf);

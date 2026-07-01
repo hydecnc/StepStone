@@ -167,7 +167,8 @@ ifneq ("$(NO_CROSS_COMPILER)", "")
 	$(info ************************************************************************************)
 else
 	mkdir -p ./bin/$(TARGETOS)_$(TARGETARCH)
-	$(CC) $(ADDCFLAGS) -o ./bin/$(TARGETOS)_$(TARGETARCH)/syz-executor$(EXE) executor/executor.cc \
+	$(CC) $(ADDCFLAGS) -o ./bin/$(TARGETOS)_$(TARGETARCH)/syz-executor$(EXE) \
+		executor/executor.cc executor/gpu_instrumentation.c \
 		$(CFLAGS) -DGOOS_$(TARGETOS)=1 -DGOARCH_$(TARGETARCH)=1 \
 		-DHOSTGOOS_$(HOSTOS)=1 -DGIT_REVISION=\"$(REV)\" -DSYZ_EXECUTOR=1 -DSYZ_EXECUTOR_NVIDIA=1 \
 		-I/usr/local/cuda-12.6/include -lcuda -L/usr/local/cuda/lib64/ -lOpenCL -lvulkan

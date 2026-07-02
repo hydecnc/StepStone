@@ -12,8 +12,8 @@ struct memory_injector_config {
 
 struct memory_injector_req {
 	__u64 buf;
-	__u32 amount;
-	__u32 offset;
+	__u64 amount;
+	__u64 offset;
 };
 
 #define SET_MEMORY_REGION _IOW(IOCTL_MAGIC, 1, struct memory_injector_config)

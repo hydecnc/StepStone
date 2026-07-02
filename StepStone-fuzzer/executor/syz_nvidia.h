@@ -1,3 +1,5 @@
+#include <stdint.h>
+
 #if SYZ_EXECUTOR_NVIDIA
 #include <cuda.h>
 #include "gpu_instrumentation.h"
@@ -15,6 +17,17 @@
 		return;                       \
 	}
 #endif
+
+static long syz_gpu_statusq_set_elemcount(uint64_t entry_index, uint32_t elem_count)
+{
+#if SYZ_EXECUTOR_NVIDIA
+	return instrument_gpu_elemcount(entry_index, elem_count);
+#else
+	(void)entry_index;
+	(void)elem_count;
+	return -1;
+#endif
+}
 
 #if SYZ_EXECUTOR_NVIDIA
 static const char* ptxSource = R"(
@@ -66,7 +79,6 @@ static void setup_nvidia_driver()
 	int ret = cuInit(0);
 	if (ret != 0)
 		debug("[GPU Fuzzing] ========> Initialize nvidia driver -> %d\n", ret);
-  instrument_gpu();
 #endif
 	return;
 }

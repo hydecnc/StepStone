@@ -48,14 +48,13 @@ static struct GspMsgQueueInfo* getGspMsgQueueInfo(void)
 			continue;
 
 		if (fscanf(file, "%*[^=]=%lx", &info->status_queue_iova) != 1 ||
-		    // fscanf(file, "%*[^=]=%lx", &info->status_queue_offset) != 1 ||
+		    fscanf(file, "%*[^=]=%lx", &info->status_queue_offset) != 1 ||
 		    fscanf(file, "%*[^=]=%lx", &info->status_queue_size) != 1) {
 			fclose(file);
 			closedir(dir);
 			free(info);
 			return NULL;
 		}
-		info->status_queue_offset = 0x1028;
 
 		fclose(file);
 		closedir(dir);
@@ -67,7 +66,7 @@ static struct GspMsgQueueInfo* getGspMsgQueueInfo(void)
 	return NULL;
 }
 
-static inline void u32ToBuf(unsigned char buf[4], uint32_t num)
+static inline void u32ToBuf(uint8_t buf[4], uint32_t num)
 {
 	buf[0] = (uint8_t)(num >> 0);
 	buf[1] = (uint8_t)(num >> 8);
@@ -75,8 +74,8 @@ static inline void u32ToBuf(unsigned char buf[4], uint32_t num)
 	buf[3] = (uint8_t)(num >> 24);
 }
 
-static int modifyIOVARegion(const uint64_t base, const uint64_t offset,
-			    const uint64_t size, const uint32_t value)
+static int modifyMemoryRegion(const uint64_t base, const uint64_t offset,
+			      const uint64_t size, const uint32_t value)
 {
 	// TODO: consider adding logs only when debug flag is set
 	const uint64_t addr = base + offset;
@@ -85,7 +84,7 @@ static int modifyIOVARegion(const uint64_t base, const uint64_t offset,
 
 	int dev = open("/dev/memory-injector", O_RDWR);
 	if (dev == -1) {
-		perror("[GPU INSTUMENTATION] open");
+		perror("[GPU INSTRUMENTATION] open");
 		return -1;
 	}
 
@@ -97,6 +96,10 @@ static int modifyIOVARegion(const uint64_t base, const uint64_t offset,
 	};
 
 	void* buf = malloc(sizeof(valueBuf));
+	if (!buf) {
+		close(dev);
+		return -1;
+	}
 	struct memory_injector_req read_req = {
 	    .buf = (uint64_t)buf,
 	    .amount = sizeof(valueBuf),
@@ -108,53 +111,53 @@ static int modifyIOVARegion(const uint64_t base, const uint64_t offset,
 	    .offset = offset,
 	};
 
-	fprintf(stderr, "[GPU INSTUMENTATION] Setting memory region\n");
+	fprintf(stderr, "[GPU INSTRUMENTATION] Setting memory region\n");
 	retval = ioctl(dev, SET_MEMORY_REGION, &config);
 	if (retval == -1) {
 		fprintf(stderr,
-			"[GPU INSTUMENTATION] Memory Region Setting Failed.\n");
+			"[GPU INSTRUMENTATION] Memory Region Setting Failed.\n");
 		free(buf);
 		close(dev);
 		return -1;
 	}
 
 	fprintf(stderr,
-		"[GPU INSTUMENTATION] Reading current value of variable at %lx\n",
+		"[GPU INSTRUMENTATION] Reading current value of variable at %lx\n",
 		addr);
 	retval = ioctl(dev, READ_MEMORY, &read_req);
 	if (retval == -1) {
-		perror("[GPU INSTUMENTATION] ioctl");
+		perror("[GPU INSTRUMENTATION] ioctl");
 		free(buf);
 		close(dev);
 		return -1;
 	}
-	if (fwrite(buf, 1, sizeof(valueBuf), stdout) != sizeof(valueBuf)) {
-		perror("[GPU INSTUMENTATION] fwrite");
-	}
+	// if (fwrite(buf, 1, sizeof(valueBuf), stdout) != sizeof(valueBuf)) {
+	// 	perror("[GPU INSTRUMENTATION] fwrite");
+	// }
 
 	fprintf(stderr,
-		"[GPU INSTUMENTATION] Writing value %u to variable at %lx\n",
+		"[GPU INSTRUMENTATION] Writing value %u to variable at %lx\n",
 		value, addr);
 	retval = ioctl(dev, WRITE_MEMORY, &write_req);
 	if (retval == -1) {
-		perror("[GPU INSTUMENTATION] ioctl");
+		perror("[GPU INSTRUMENTATION] ioctl");
 		free(buf);
 		close(dev);
 		return -1;
 	}
 
-	fprintf(stderr, "[GPU INSTUMENTATION] Reading new variable at %lx\n",
+	fprintf(stderr, "[GPU INSTRUMENTATION] Reading new variable at %lx\n",
 		addr);
 	retval = ioctl(dev, READ_MEMORY, &read_req);
 	if (retval == -1) {
-		perror("[GPU INSTUMENTATION] ioctl");
+		perror("[GPU INSTRUMENTATION] ioctl");
 		free(buf);
 		close(dev);
 		return -1;
 	}
-	if (fwrite(buf, 1, sizeof(valueBuf), stdout) != sizeof(valueBuf)) {
-		perror("[GPU INSTUMENTATION] fwrite");
-	}
+	// if (fwrite(buf, 1, sizeof(valueBuf), stdout) != sizeof(valueBuf)) {
+	// 	perror("[GPU INSTRUMENTATION] fwrite");
+	// }
 
 	free(buf);
 	close(dev);
@@ -163,13 +166,29 @@ static int modifyIOVARegion(const uint64_t base, const uint64_t offset,
 
 int instrument_gpu(void)
 {
+	return instrument_gpu_elemcount(1, 17);
+}
+
+int instrument_gpu_elemcount(const uint64_t entry_index, const uint32_t elem_count)
+{
 	int ret;
+	if (entry_index >= 63) {
+		return -1;
+	}
+
 	struct GspMsgQueueInfo* info = getGspMsgQueueInfo();
 	if (!info)
 		return -1;
-	ret = modifyIOVARegion(info->status_queue_iova,
-			       info->status_queue_offset,
-			       info->status_queue_size, 17);
+
+	const uint64_t offset = entry_index * 0x1000ULL + 0x28ULL;
+
+	if (offset + sizeof(uint32_t) > info->status_queue_size) {
+		free(info);
+		return -1;
+	}
+	ret = modifyMemoryRegion(info->status_queue_iova,
+				 offset,
+				 info->status_queue_size, elem_count);
 	free(info);
 
 	return ret;

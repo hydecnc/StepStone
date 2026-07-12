@@ -1,6 +1,7 @@
 #include "gpu_instrumentation.h"
 #include "memory_injector.h"
 #include <dirent.h>
+#include <errno.h>
 #include <fcntl.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -172,17 +173,21 @@ int instrument_gpu_elemcount(const uint64_t entry_index, const uint32_t elem_cou
 {
 	int ret;
 	if (entry_index >= 32) {
+		errno = EINVAL;
 		return -1;
 	}
 
 	struct GspMsgQueueInfo* info = getGspMsgQueueInfo();
-	if (!info)
+	if (!info) {
+		errno = ENODEV;
 		return -1;
+	}
 
 	const uint64_t offset = entry_index * 0x1000ULL + 0x28ULL;
 
 	if (offset + sizeof(uint32_t) > info->status_queue_size) {
 		free(info);
+		errno = ERANGE;
 		return -1;
 	}
 	ret = modifyMemoryRegion(info->status_queue_iova,

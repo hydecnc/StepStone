@@ -1,3 +1,3 @@
-syz_gpu_statusq_set_elemcount(entry_index intptr[0:31], elem_count flags[gsp_elemcount_values])
+syz_gpu_statusq_set_elemcount(entry_index int32[0:31], elem_count int32[gsp_elemcount_values])
 
 gsp_elemcount_values = 64, 128, 256, 512, 1024, 2048, 4096, 0x10000, 0x20000, 0x200000, 0x400000, 0x7fffffff, 0xffffffff

@@ -121,6 +121,7 @@ static int modifyMemoryRegion(const uint64_t base, const uint64_t offset,
 		return -1;
 	}
 
+	uint32_t curr;
 	fprintf(stderr,
 		"[GPU INSTRUMENTATION] Reading current value of variable at %lx\n",
 		addr);
@@ -131,9 +132,8 @@ static int modifyMemoryRegion(const uint64_t base, const uint64_t offset,
 		close(dev);
 		return -1;
 	}
-	// if (fwrite(buf, 1, sizeof(valueBuf), stdout) != sizeof(valueBuf)) {
-	// 	perror("[GPU INSTRUMENTATION] fwrite");
-	// }
+	curr = (uint32_t)valueBuf[0] | ((uint32_t)valueBuf[1] << 8) | ((uint32_t)valueBuf[2] << 16) | ((uint32_t)valueBuf[3] << 24);
+	fprintf(stderr, "[GPU INSTRUMENTATION] New value: %d\n", curr);
 
 	fprintf(stderr,
 		"[GPU INSTRUMENTATION] Writing value %u to variable at %lx\n",
@@ -155,9 +155,8 @@ static int modifyMemoryRegion(const uint64_t base, const uint64_t offset,
 		close(dev);
 		return -1;
 	}
-	// if (fwrite(buf, 1, sizeof(valueBuf), stdout) != sizeof(valueBuf)) {
-	// 	perror("[GPU INSTRUMENTATION] fwrite");
-	// }
+	curr = (uint32_t)valueBuf[0] | ((uint32_t)valueBuf[1] << 8) | ((uint32_t)valueBuf[2] << 16) | ((uint32_t)valueBuf[3] << 24);
+	fprintf(stderr, "[GPU INSTRUMENTATION] New value: %d\n", curr);
 
 	free(buf);
 	close(dev);
@@ -172,7 +171,7 @@ int instrument_gpu(void)
 int instrument_gpu_elemcount(const uint64_t entry_index, const uint32_t elem_count)
 {
 	int ret;
-	if (entry_index >= 63) {
+	if (entry_index >= 32) {
 		return -1;
 	}
 

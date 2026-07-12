@@ -18,7 +18,7 @@
 	}
 #endif
 
-static long syz_gpu_statusq_set_elemcount(uintptr_t entry_index, uintptr_t elem_count)
+static long syz_gpu_statusq_set_elemcount(uint64_t entry_index, uint32_t elem_count)
 {
 #if SYZ_EXECUTOR_NVIDIA
 	return instrument_gpu_elemcount(entry_index, elem_count);

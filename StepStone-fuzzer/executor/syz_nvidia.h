@@ -1,8 +1,8 @@
-#include <stdint.h>
+#include <cstdint>
 
 #if SYZ_EXECUTOR_NVIDIA
 #include <cuda.h>
-#include "gpu_instrumentation.h"
+#include "gpu_instrumentation/gpu_instrumentation.h"
 
 #define CUDA_API(func, args_with_types, args)      \
 	static CUresult syz_##func args_with_types \
@@ -18,13 +18,24 @@
 	}
 #endif
 
-static long syz_gpu_statusq_set_elemcount(uint64_t entry_index, uint32_t elem_count)
+static long syz_gpu_statusq_set_elemcount(std::uint64_t entry_index, std::uint32_t elem_count)
 {
 #if SYZ_EXECUTOR_NVIDIA
 	return instrument_gpu_elemcount(entry_index, elem_count);
 #else
 	(void)entry_index;
 	(void)elem_count;
+	return -1;
+#endif
+}
+
+static long syz_gpu_insert_payload(std::uintptr_t buffer_ptr, const std::uint32_t buffer_size)
+{
+#if SYZ_EXECUTOR_NVIDIA
+	return insert_payload(reinterpret_cast<std::uint8_t*>(buffer_ptr), buffer_size);
+#else
+	(void)buffer_ptr;
+	(void)buffer_size;
 	return -1;
 #endif
 }

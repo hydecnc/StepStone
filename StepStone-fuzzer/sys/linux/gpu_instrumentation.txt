@@ -1,3 +1,9 @@
 syz_gpu_statusq_set_elemcount(entry_index int32[0:31], elem_count int32[gsp_elemcount_values])
 
 gsp_elemcount_values = 64, 128, 256, 512, 1024, 2048, 4096, 0x10000, 0x20000, 0x200000, 0x400000, 0x7fffffff, 0xffffffff
+
+gpu_payload_page {
+	data	array[int8, 0x1000]
+} [packed]
+
+syz_gpu_insert_payload(buffer ptr[in, array[gpu_payload_page, 1:16]], buffer_size bytesize[buffer])

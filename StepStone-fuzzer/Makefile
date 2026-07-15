@@ -69,6 +69,11 @@ else
 endif
 GITREVDATE=$(shell git log -n 1 --format="%cd" --date=format:%Y%m%d-%H%M%S)
 
+GPU_INSTRUMENTATION_SRCS := \
+	executor/gpu_instrumentation/gpu_instrumentation.cpp \
+	executor/gpu_instrumentation/message_queue.cpp \
+	executor/gpu_instrumentation/utilities.cpp
+
 # Don't generate symbol table and DWARF debug info.
 # Reduces build time and binary sizes considerably.
 # That's only needed if you use gdb or nm.
@@ -168,10 +173,10 @@ ifneq ("$(NO_CROSS_COMPILER)", "")
 else
 	mkdir -p ./bin/$(TARGETOS)_$(TARGETARCH)
 	$(CC) $(ADDCFLAGS) -o ./bin/$(TARGETOS)_$(TARGETARCH)/syz-executor$(EXE) \
-		executor/executor.cc executor/gpu_instrumentation.c \
+		executor/executor.cc $(GPU_INSTRUMENTATION_SRCS) \
 		$(CFLAGS) -DGOOS_$(TARGETOS)=1 -DGOARCH_$(TARGETARCH)=1 \
 		-DHOSTGOOS_$(HOSTOS)=1 -DGIT_REVISION=\"$(REV)\" -DSYZ_EXECUTOR=1 -DSYZ_EXECUTOR_NVIDIA=1 \
-		-I/usr/local/cuda-12.6/include -lcuda -L/usr/local/cuda/lib64/ -lOpenCL -lvulkan
+		-I/usr/local/cuda-12.6/include -lcuda -L/usr/local/cuda/lib64/ -lOpenCL -lvulkan -lstdc++
 endif
 endif
 endif

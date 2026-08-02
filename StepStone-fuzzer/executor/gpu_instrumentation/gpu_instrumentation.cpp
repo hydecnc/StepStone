@@ -24,9 +24,22 @@ int instrument_gpu_elemcount(const std::uint64_t entry_index,
 		return -1;
 	}
 
-	const std::uint64_t offset = entry_index * 0x1000ULL + 0x28ULL;
+	//
+	// Poke the elemCount field (+0x28) of ring element `entry_index`.
+	// Entries start at entryOff (0x1000, one header page in) - the previous
+	// code omitted entryOff and mis-bounded against status_queue_iova.
+	//
+	const auto entryOffBuf{
+	    dumpMemoryRegion(info->status_queue_iova, 0x1cULL, 4)};
+	if (!entryOffBuf) {
+		return -1;
+	}
+	const std::uint32_t entryOff{bufToU32(entryOffBuf->data())};
 
-	if (offset + sizeof(std::uint32_t) > info->status_queue_iova) {
+	const std::uint64_t offset =
+	    entryOff + entry_index * 0x1000ULL + 0x28ULL;
+
+	if (offset + sizeof(std::uint32_t) > info->status_queue_size) {
 		errno = ERANGE;
 		return -1;
 	}

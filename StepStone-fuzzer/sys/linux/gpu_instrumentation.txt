@@ -1,9 +1,33 @@
-syz_gpu_statusq_set_elemcount(entry_index int32[0:31], elem_count int32[gsp_elemcount_values])
+# GSP status-queue injection primitives (GPUBreach-style overflow).
+#
+# The GSP status queue is host RAM shared with the GPU; these primitives write
+# into it (via a persistent /dev/mem mmap in the executor) to forge the
+# GPU->driver messages the driver trusts. The vulnerable consumer is
+# GspMsgQueueReceiveStatus(), which copies elemCount*4096 bytes into a 64KB
+# staging buffer before validating anything, so elemCount >= 17 with >= 17
+# elements available overflows it.
+#
+# Literal-only descriptions on purpose (no symbolic consts) so no const
+# extraction is needed - just `make generate`.
 
-gsp_elemcount_values = 64, 128, 256, 512, 1024, 2048, 4096, 0x10000, 0x20000, 0x200000, 0x400000, 0x7fffffff, 0xffffffff
+# Poke the elemCount field (+0x28) of ring element `entry_index`. Surgical
+# bring-up primitive: on its own it does not make elements available, so pair it
+# with the flood (syz_cuDeviceGetAttribute) or syz_gpu_insert_payload.
+# entry_index spans all 63 ring slots; elem_count straddles the overflow
+# boundary (16 fits exactly, 17 is the minimal overflow) up to extreme values.
+syz_gpu_statusq_set_elemcount(entry_index int32[0:62], elem_count int32[gsp_elemcount_values])
 
+gsp_elemcount_values = 16, 17, 18, 24, 32, 48, 63, 64, 128, 256, 4096, 0x10000, 0x20000, 0x200000, 0x7fffffff, 0xffffffff
+
+# One 4KB queue element of fuzzer-controlled bytes.
 gpu_payload_page {
 	data	array[int8, 0x1000]
 } [packed]
 
+# Insert a complete message and DELIVER it: the executor writes 1..16 body
+# pages as consecutive elements at the next-to-read slot, prepends a header
+# element (elemCount = pages+1, valid checksum/seqNum), and bumps writePtr so
+# the elements are available. 16 pages => elemCount 17 => the minimal overflow;
+# fewer pages exercise the non-overflowing path. buffer_size is derived from the
+# array length.
 syz_gpu_insert_payload(buffer ptr[in, array[gpu_payload_page, 1:16]], buffer_size bytesize[buffer])

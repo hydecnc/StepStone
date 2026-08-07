@@ -1,0 +1,6 @@
+syz_cuDeviceGet(&(0x7f0000000000)=<r0=>0x0, 0x0)
+syz_cuDevicePrimaryCtxRetain(&(0x7f0000000100)=<r1=>0x0, r0)
+syz_cuCtxSetCurrent(r1)
+syz_gpu_insert_payload(&(0x7f0000001000)=[{""}, {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""}, {""}], 0x10000)
+syz_cuDeviceGetAttribute(&(0x7f0000000200)=0x0, 0xd, r0)
+syz_cuDeviceGetAttribute(&(0x7f0000000200)=0x0, 0xd, r0)

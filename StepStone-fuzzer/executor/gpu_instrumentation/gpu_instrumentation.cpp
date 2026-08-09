@@ -1,5 +1,6 @@
 #include "gpu_instrumentation.h"
 #include "utilities.h"
+#include <algorithm>
 #include <cerrno>
 #include <cstdint>
 #include <cstring>
@@ -134,23 +135,53 @@ int insertPayload(std::uint8_t* buffer, const std::uint32_t bufferSize)
 		return -1;
 	}
 
-	if (!injectorWriteMemory(layout->elementOffset(*readPtr),
-				 makeHeaderElement(msgLength, info->rxSeqNum))) {
+	//
+	// One ioctl per contiguous run, not one per element: the write window is
+	// the time the ring is held open against a live readPtr.
+	//
+	std::vector<std::uint8_t> message{makeHeaderElement(msgLength,
+							   info->rxSeqNum)};
+	message.resize(static_cast<std::size_t>(msgLength) *
+		       GspMsgQueue::ELEM_SIZE_MIN);
+	std::memcpy(message.data() + GspMsgQueue::ELEM_SIZE_MIN, buffer,
+		    bufferSize);
+
+	// Split at the ring wrap; elementOffset is only contiguous up to msgCount.
+	const std::uint32_t firstRun{
+	    std::min(msgLength, layout->msgCount - *readPtr)};
+	const std::size_t firstBytes{static_cast<std::size_t>(firstRun) *
+				     GspMsgQueue::ELEM_SIZE_MIN};
+
+	if (!injectorWriteMemory(
+		layout->elementOffset(*readPtr),
+		std::vector<std::uint8_t>(message.begin(),
+					  message.begin() + firstBytes))) {
+		errno = EIO;
+		return -1;
+	}
+	if (firstRun < msgLength &&
+	    !injectorWriteMemory(
+		layout->elementOffset(0),
+		std::vector<std::uint8_t>(message.begin() + firstBytes,
+					  message.end()))) {
 		errno = EIO;
 		return -1;
 	}
 
-	for (std::uint32_t page{0}; page + 1 < msgLength; ++page) {
-		const std::uint8_t* const src{
-		    buffer +
-		    static_cast<std::size_t>(page) * GspMsgQueue::ELEM_SIZE_MIN};
-		if (!injectorWriteMemory(
-			layout->elementOffset(*readPtr + 1 + page),
-			std::vector<std::uint8_t>(
-			    src, src + GspMsgQueue::ELEM_SIZE_MIN))) {
-			errno = EIO;
-			return -1;
-		}
+	//
+	// A readPtr that moved during the write puts the forged writePtr below
+	// behind the driver's live cursor, which wraps rxAvail to nearly
+	// msgCount. Bailing out here leaves the elements unavailable and the ring
+	// intact.
+	//
+	const auto readPtrNow{injectorReadMemoryU32(layout->readPtrOffset())};
+	if (!readPtrNow) {
+		errno = EIO;
+		return -1;
+	}
+	if (*readPtrNow != *readPtr) {
+		errno = EAGAIN;
+		return -1;
 	}
 
 	//

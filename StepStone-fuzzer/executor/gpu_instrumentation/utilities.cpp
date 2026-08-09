@@ -330,7 +330,7 @@ std::optional<GspMsgQueue::Layout> queueLayout(const GspMsgQueue::Info& info)
 std::optional<std::uint32_t>
 awaitIdleReadPtr(const GspMsgQueue::Layout& layout)
 {
-	constexpr int attempts{200};
+	constexpr int attempts{20};
 
 	for (int i = 0; i < attempts; ++i) {
 		const auto readPtr{injectorReadMemoryU32(layout.readPtrOffset())};

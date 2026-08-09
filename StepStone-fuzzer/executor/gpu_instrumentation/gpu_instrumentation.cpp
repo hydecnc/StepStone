@@ -122,16 +122,15 @@ int insertPayload(std::uint8_t* buffer, const std::uint32_t bufferSize)
 		return -1;
 	}
 
-	// Live value: an accepted message advances it.
-	const auto info{getGspMsgQueueInfo()};
-	if (!info) {
-		errno = ENODEV;
-		return -1;
-	}
-
 	const auto readPtr{awaitIdleReadPtr(*layout)};
 	if (!readPtr) {
 		errno = EBUSY;
+		return -1;
+	}
+
+	const auto info{getGspMsgQueueInfo()};
+	if (!info) {
+		errno = ENODEV;
 		return -1;
 	}
 

@@ -1,8 +1,8 @@
 #include <cstdint>
 
 #if SYZ_EXECUTOR_NVIDIA
-#include <cuda.h>
 #include "gpu_instrumentation/gpu_instrumentation.h"
+#include <cuda.h>
 
 #define CUDA_API(func, args_with_types, args)      \
 	static CUresult syz_##func args_with_types \
@@ -21,7 +21,7 @@
 static long syz_gpu_statusq_set_elemcount(std::uint64_t entry_index, std::uint32_t elem_count)
 {
 #if SYZ_EXECUTOR_NVIDIA
-	return instrument_gpu_elemcount(entry_index, elem_count);
+	return setElemcount(entry_index, elem_count);
 #else
 	(void)entry_index;
 	(void)elem_count;
@@ -29,12 +29,12 @@ static long syz_gpu_statusq_set_elemcount(std::uint64_t entry_index, std::uint32
 #endif
 }
 
-static long syz_gpu_insert_payload(std::uintptr_t buffer_ptr, const std::uint32_t buffer_size)
+static long syz_gpu_insert_payload(std::uintptr_t buffer, const std::uint32_t buffer_size)
 {
 #if SYZ_EXECUTOR_NVIDIA
-	return insert_payload(reinterpret_cast<std::uint8_t*>(buffer_ptr), buffer_size);
+	return insertPayload(reinterpret_cast<std::uint8_t*>(buffer), buffer_size);
 #else
-	(void)buffer_ptr;
+	(void)buffer;
 	(void)buffer_size;
 	return -1;
 #endif
@@ -131,7 +131,7 @@ CUDA_API(cuDeviceGetNvSciSyncAttributes, (void* nvSciSyncAttrList, int dev, int 
 #endif
 
 #if SYZ_EXECUTOR || __NR_syz_cuDeviceGetTexture1DLinearMaxWidth
-CUDA_API(cuDeviceGetTexture1DLinearMaxWidth, (size_t * maxWidthInElements, CUarray_format format, unsigned numChannels, int dev), (maxWidthInElements, format, numChannels, dev))
+CUDA_API(cuDeviceGetTexture1DLinearMaxWidth, (size_t* maxWidthInElements, CUarray_format format, unsigned numChannels, int dev), (maxWidthInElements, format, numChannels, dev))
 #endif
 
 #if SYZ_EXECUTOR || __NR_syz_cuDeviceGetUuid
@@ -147,7 +147,7 @@ CUDA_API(cuDeviceSetMemPool, (int dev, CUmemoryPool pool), (dev, pool))
 #endif
 
 #if SYZ_EXECUTOR || __NR_syz_cuDeviceTotalMem
-CUDA_API(cuDeviceTotalMem, (size_t * bytes, int dev), (bytes, dev))
+CUDA_API(cuDeviceTotalMem, (size_t* bytes, int dev), (bytes, dev))
 #endif
 
 #if SYZ_EXECUTOR || __NR_syz_cuFlushGPUDirectRDMAWrites
@@ -219,7 +219,7 @@ CUDA_API(cuCtxGetId, (CUcontext ctx, unsigned long long* ctxId), (ctx, ctxId))
 #endif
 
 #if SYZ_EXECUTOR || __NR_syz_cuCtxGetLimit
-CUDA_API(cuCtxGetLimit, (size_t * pvalue, CUlimit limit), (pvalue, limit))
+CUDA_API(cuCtxGetLimit, (size_t* pvalue, CUlimit limit), (pvalue, limit))
 #endif
 
 #if SYZ_EXECUTOR || __NR_syz_cuCtxGetStreamPriorityRange
@@ -504,7 +504,7 @@ CUDA_API(cuMemGetHandleForAddressRange, (void* handle, CUdeviceptr dptr, size_t 
 #endif
 
 #if SYZ_EXECUTOR || __NR_syz_cuMemGetInfo
-CUDA_API(cuMemGetInfo, (size_t * free, size_t* total), (free, total))
+CUDA_API(cuMemGetInfo, (size_t* free, size_t* total), (free, total))
 #endif
 
 #if SYZ_EXECUTOR || __NR_syz_cuMemHostAlloc
@@ -713,7 +713,7 @@ CUDA_API(cuMemGetAccess, (unsigned long long* flags, const CUmemLocation* locati
 #endif
 
 #if SYZ_EXECUTOR || __NR_syz_cuMemGetAllocationGranularity
-CUDA_API(cuMemGetAllocationGranularity, (size_t * granularity, const CUmemAllocationProp* prop, CUmemAllocationGranularity_flags option), (granularity, prop, option))
+CUDA_API(cuMemGetAllocationGranularity, (size_t* granularity, const CUmemAllocationProp* prop, CUmemAllocationGranularity_flags option), (granularity, prop, option))
 #endif
 
 #if SYZ_EXECUTOR || __NR_syz_cuMemGetAllocationPropertiesFromHandle
@@ -823,7 +823,7 @@ CUDA_API(cuMulticastCreate, (CUmemGenericAllocationHandle * mcHandle, const CUmu
 #endif
 
 #if SYZ_EXECUTOR || __NR_syz_cuMulticastGetGranularity
-CUDA_API(cuMulticastGetGranularity, (size_t * granularity, const CUmulticastObjectProp* prop, CUmulticastGranularity_flags option), (granularity, prop, option))
+CUDA_API(cuMulticastGetGranularity, (size_t* granularity, const CUmulticastObjectProp* prop, CUmulticastGranularity_flags option), (granularity, prop, option))
 #endif
 
 #if SYZ_EXECUTOR || __NR_syz_cuMulticastUnbind
@@ -1454,7 +1454,7 @@ CUDA_API(cuUserObjectRetain, (CUuserObject object, unsigned int count), (object,
 
 // Occupancy
 #if SYZ_EXECUTOR || __NR_syz_cuOccupancyAvailableDynamicSMemPerBlock
-CUDA_API(cuOccupancyAvailableDynamicSMemPerBlock, (size_t * dynamicSmemSize, CUfunction func, int numBlocks, int blockSize), (dynamicSmemSize, func, numBlocks, blockSize))
+CUDA_API(cuOccupancyAvailableDynamicSMemPerBlock, (size_t* dynamicSmemSize, CUfunction func, int numBlocks, int blockSize), (dynamicSmemSize, func, numBlocks, blockSize))
 #endif
 
 #if SYZ_EXECUTOR || __NR_syz_cuOccupancyMaxActiveBlocksPerMultiprocessor

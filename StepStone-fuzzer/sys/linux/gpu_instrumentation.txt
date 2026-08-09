@@ -1,6 +1,6 @@
-syz_gpu_statusq_set_elemcount(entry_index int32[0:31], elem_count int32[gsp_elemcount_values])
+syz_gpu_statusq_set_elemcount(slot_offset int32[0:62], elem_count int32[gsp_elemcount_values])
 
-gsp_elemcount_values = 64, 128, 256, 512, 1024, 2048, 4096, 0x10000, 0x20000, 0x200000, 0x400000, 0x7fffffff, 0xffffffff
+gsp_elemcount_values = 16, 17, 18, 24, 32, 48, 63, 64, 128, 256, 4096, 0x10000, 0x20000, 0x200000, 0x7fffffff, 0xffffffff
 
 gpu_payload_page {
 	data	array[int8, 0x1000]

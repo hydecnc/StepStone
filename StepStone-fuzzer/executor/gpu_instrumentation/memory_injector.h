@@ -16,8 +16,11 @@ struct memory_injector_req {
 	__u64 offset;
 };
 
-#define SET_MEMORY_REGION _IOW(IOCTL_MAGIC, 1, struct memory_injector_config)
-#define READ_MEMORY _IOW(IOCTL_MAGIC, 2, struct memory_injector_req)
-#define WRITE_MEMORY _IOW(IOCTL_MAGIC, 3, struct memory_injector_req)
+#define SET_MEMORY_REGION_PHYS \
+	_IOW(IOCTL_MAGIC, 1, struct memory_injector_config)
+#define SET_MEMORY_REGION_KVA \
+	_IOW(IOCTL_MAGIC, 2, struct memory_injector_config)
+#define READ_MEMORY _IOW(IOCTL_MAGIC, 3, struct memory_injector_req)
+#define WRITE_MEMORY _IOW(IOCTL_MAGIC, 4, struct memory_injector_req)
 
 #endif

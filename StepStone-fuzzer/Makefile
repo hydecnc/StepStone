@@ -71,7 +71,6 @@ GITREVDATE=$(shell git log -n 1 --format="%cd" --date=format:%Y%m%d-%H%M%S)
 
 GPU_INSTRUMENTATION_SRCS := \
 	executor/gpu_instrumentation/gpu_instrumentation.cpp \
-	executor/gpu_instrumentation/message_queue.cpp \
 	executor/gpu_instrumentation/utilities.cpp
 
 # Don't generate symbol table and DWARF debug info.

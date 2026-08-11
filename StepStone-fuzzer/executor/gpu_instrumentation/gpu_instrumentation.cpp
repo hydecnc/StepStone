@@ -47,6 +47,27 @@ std::uint32_t computeChecksum(const std::vector<std::uint8_t>& buf,
 // after the oversized copy has already happened, i.e. whether the queue
 // survives for the next attempt.
 //
+//
+// Any message the driver rejects parks at readPtr forever: on a bad checksum
+// GspMsgQueueReceiveStatus continues without calling msgqRxMarkConsumed
+// (message_queue_cpu.c:750-755), and an out-of-range rpc.length skips the
+// consume at :841 the same way. One rejected message blocks every subsequent
+// GSP->CPU message and the GPU is dead until reinit, with no crash to reboot
+// the VM. So rpc.length is clamped to a value that keeps the message valid:
+// inside what we actually staged, and inside the bound checked at :827.
+//
+std::uint32_t clampRpcLength(const std::uint32_t rpcLength,
+			     const std::size_t stagedBytes)
+{
+	constexpr std::uint64_t RPC_LENGTH_MIN{0x20};
+	const std::uint64_t maxLength{std::min<std::uint64_t>(
+	    stagedBytes - GspMsgQueue::ELEM_HDR_SIZE,
+	    GspMsgQueue::ELEM_SIZE_MAX - GspMsgQueue::ELEM_HDR_SIZE)};
+
+	return static_cast<std::uint32_t>(
+	    std::clamp<std::uint64_t>(rpcLength, RPC_LENGTH_MIN, maxLength));
+}
+
 std::vector<std::uint8_t> makeHeaderElement(const std::uint32_t msgLength,
 					    const std::uint32_t rxSeqNum,
 					    const std::uint32_t rpcFunction,
@@ -60,21 +81,6 @@ std::vector<std::uint8_t> makeHeaderElement(const std::uint32_t msgLength,
 	putU32(element, ELEM_RPCSIGNATURE_OFF, FORGED_RPC_SIGNATURE);
 	putU32(element, GspMsgQueue::ELEM_RPCLENGTH_OFF, rpcLength);
 	putU32(element, ELEM_RPCFUNCTION_OFF, rpcFunction);
-
-	//
-	// The driver checksums GSP_MSG_QUEUE_ELEMENT_HDR_SIZE + rpc.length
-	// (message_queue_cpu.c:745) before it bounds-checks that sum
-	// (message_queue_cpu.c:825), so an oversized rpcLength is the point of
-	// several of these values. Clamp only our own span - reproducing the
-	// driver's read here would walk the same distance off the end of this
-	// 4096-byte vector. The stored checksum is then wrong for those values
-	// and the driver rejects the message, but only after the read.
-	//
-	const std::uint64_t span{
-	    std::min<std::uint64_t>(GspMsgQueue::ELEM_HDR_SIZE + rpcLength,
-				    element.size())};
-	putU32(element, GspMsgQueue::ELEM_CHECKSUM_OFF,
-	       computeChecksum(element, span));
 
 	return element;
 }
@@ -152,12 +158,26 @@ int insertPayload(std::uint8_t* buffer, const std::uint32_t bufferSize,
 	// One ioctl per contiguous run, not one per element: the write window is
 	// the time the ring is held open against a live readPtr.
 	//
+	const std::size_t stagedBytes{static_cast<std::size_t>(msgLength) *
+				      GspMsgQueue::ELEM_SIZE_MIN};
+	const std::uint32_t effRpcLength{clampRpcLength(rpcLength, stagedBytes)};
+
 	std::vector<std::uint8_t> message{makeHeaderElement(
-	    msgLength, info->rxSeqNum, rpcFunction, rpcLength)};
-	message.resize(static_cast<std::size_t>(msgLength) *
-		       GspMsgQueue::ELEM_SIZE_MIN);
+	    msgLength, info->rxSeqNum, rpcFunction, effRpcLength)};
+	message.resize(stagedBytes);
 	std::memcpy(message.data() + GspMsgQueue::ELEM_SIZE_MIN, buffer,
 		    bufferSize);
+
+	//
+	// Checksummed over the assembled message, not over element 0: the
+	// driver's span is ELEM_HDR_SIZE + rpc.length across the staging buffer,
+	// which reaches into the body elements once rpc.length exceeds one
+	// element. Computing it after the body is in place is what keeps the
+	// message acceptable for every rpc.length the fuzzer picks.
+	//
+	putU32(message, GspMsgQueue::ELEM_CHECKSUM_OFF,
+	       computeChecksum(message,
+			       GspMsgQueue::ELEM_HDR_SIZE + effRpcLength));
 
 	// Split at the ring wrap; elementOffset is only contiguous up to msgCount.
 	const std::uint32_t firstRun{

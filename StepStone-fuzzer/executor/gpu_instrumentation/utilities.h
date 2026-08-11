@@ -51,6 +51,7 @@ inline constexpr std::uint64_t ELEM_ELEMCOUNT_OFF{40};
 inline constexpr std::uint64_t ELEM_HDR_SIZE{48};
 inline constexpr std::uint64_t ELEM_RPCLENGTH_OFF{56};
 inline constexpr std::uint64_t ELEM_SIZE_MIN{4096};
+inline constexpr std::uint64_t ELEM_SIZE_MAX{ELEM_SIZE_MIN * 16};
 
 class Layout
 {

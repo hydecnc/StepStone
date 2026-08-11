@@ -1,0 +1,7 @@
+syz_cuDeviceGet(&(0x7f0000200000)=<r0=>0x0, 0x0)
+syz_cuDevicePrimaryCtxRetain(&(0x7f0000200040)=<r1=>0x0, r0)
+syz_cuCtxSetCurrent(r1)
+syz_cuStreamCreate(&(0x7f00002000c0)=<r2=>0x0, 0x0)
+syz_gpu_insert_payload(&(0x7f0000000000)=[{""/4096}, {""/4096}], 0x2000, 0x1005, 0x1000)
+syz_cuStreamSynchronize(r2)
+syz_cuDeviceGetAttribute(&(0x7f0000200080), 0x0, r0)

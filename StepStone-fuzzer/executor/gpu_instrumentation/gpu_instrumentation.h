@@ -5,6 +5,7 @@
 #include <string>
 
 int setElemcount(const uint64_t slotOffset, const uint32_t elemCount);
-int insertPayload(std::uint8_t* buffer, const std::uint32_t bufferSize);
+int insertPayload(std::uint8_t* buffer, const std::uint32_t bufferSize,
+		  const std::uint32_t rpcFunction, const std::uint32_t rpcLength);
 
 #endif

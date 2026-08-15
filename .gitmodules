@@ -1,3 +1,6 @@
 [submodule "StepStone-generator/generator/modules/structparser"]
 	path = StepStone-generator/generator/modules/structparser
 	url = https://github.com/plummm/struct-parser.git
+[submodule "StepStone-fuzzer"]
+	path = StepStone-fuzzer
+	url = git@github.com:hydecnc/StepStone-fuzzer.git

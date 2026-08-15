@@ -1,2 +1,0 @@
-round | blocker (file:line) | constraint added | static/dynamic/mixed | outcome
-1 | ogkm/src/nvidia/src/kernel/gpu/gsp/message_queue_cpu.c:284 (injection at offset 0 clobbers page table + command queue; Xid 120 GSP task exception at log:50341, device dead for 6390s of an 8130s run) | replaced syz_gpu_insert_buffer with syz_mixed_gpu_sq_write / syz_mixed_gpu_sq_set_write_ptr / syz_mixed_gpu_sq_element, all anchored at the live status_queue_offset; writePtr [0:62]; slot [0:62]; opt-in checkSum fixup; raw-pointer injector write | mixed | pending

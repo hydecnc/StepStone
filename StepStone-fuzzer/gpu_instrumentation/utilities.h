@@ -45,6 +45,15 @@ injectorReadMemory(const std::uint64_t offset, const std::uint64_t size);
 bool injectorWriteMemory(const std::uint64_t offset,
 			 const std::vector<std::uint8_t>& buffer);
 
+//
+// Same as injectorWriteMemory but hands the caller's pointer straight to the
+// injector ioctl instead of copying it into a vector first. The kernel side
+// does copy_from_user, so a size the caller's mapping cannot back comes back
+// as EFAULT rather than faulting the executor.
+//
+bool injectorWriteMemoryRaw(const std::uint64_t offset, const void* buffer,
+			    const std::uint64_t size);
+
 std::optional<std::uint32_t> injectorReadMemoryU32(std::uint64_t offset);
 bool injectorWriteMemoryU32(std::uint64_t offset, std::uint32_t value);
 

@@ -114,16 +114,16 @@ class Injector
 		return buf;
 	}
 
-	bool writeAt(const std::uint64_t offset,
-		     const std::vector<std::uint8_t>& buffer)
+	bool writeAt(const std::uint64_t offset, const void* buffer,
+		     const std::uint64_t size)
 	{
-		if (!inRegion(offset, buffer.size())) {
+		if (!inRegion(offset, size)) {
 			return false;
 		}
 
 		struct memory_injector_req req{
-		    reinterpret_cast<std::uintptr_t>(buffer.data()),
-		    buffer.size(),
+		    reinterpret_cast<std::uintptr_t>(buffer),
+		    size,
 		    offset,
 		};
 
@@ -230,7 +230,13 @@ injectorReadMemory(const std::uint64_t offset, const std::uint64_t size)
 bool injectorWriteMemory(const std::uint64_t offset,
 			 const std::vector<std::uint8_t>& buffer)
 {
-	return g_injector.writeAt(offset, buffer);
+	return g_injector.writeAt(offset, buffer.data(), buffer.size());
+}
+
+bool injectorWriteMemoryRaw(const std::uint64_t offset, const void* buffer,
+			    const std::uint64_t size)
+{
+	return g_injector.writeAt(offset, buffer, size);
 }
 
 std::optional<std::uint32_t> injectorReadMemoryU32(std::uint64_t offset)

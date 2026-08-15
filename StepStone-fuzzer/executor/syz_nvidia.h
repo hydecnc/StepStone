@@ -18,15 +18,46 @@
 	}
 #endif
 
-static long syz_gpu_insert_buffer(std::uintptr_t buffer, const std::uint32_t size,
-				  const std::uint64_t offset)
+//
+// GSP status queue injection. See gpu_instrumentation/gpu_instrumentation.txt
+// for the layout these are anchored to. All three are "mixed": the status
+// queue base is resolved live per call, every bound is static.
+//
+
+static long syz_mixed_gpu_sq_write(const std::uint64_t offset, std::uintptr_t buffer,
+				   const std::uint64_t size)
 {
 #if SYZ_EXECUTOR_NVIDIA
-	return insertBuffer(reinterpret_cast<std::uint8_t*>(buffer), size, offset);
+	return sqWrite(reinterpret_cast<const void*>(buffer), size, offset);
 #else
+	(void)offset;
 	(void)buffer;
 	(void)size;
-	(void)offset;
+	return -1;
+#endif
+}
+
+static long syz_mixed_gpu_sq_set_write_ptr(const std::uint64_t write_ptr)
+{
+#if SYZ_EXECUTOR_NVIDIA
+	return sqSetWritePtr(static_cast<std::uint32_t>(write_ptr));
+#else
+	(void)write_ptr;
+	return -1;
+#endif
+}
+
+static long syz_mixed_gpu_sq_element(const std::uint64_t slot, std::uintptr_t element,
+				     const std::uint64_t fix_checksum)
+{
+#if SYZ_EXECUTOR_NVIDIA
+	return sqWriteElement(static_cast<std::uint32_t>(slot),
+			      reinterpret_cast<const void*>(element),
+			      fix_checksum != 0);
+#else
+	(void)slot;
+	(void)element;
+	(void)fix_checksum;
 	return -1;
 #endif
 }
